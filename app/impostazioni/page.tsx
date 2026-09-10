@@ -24,8 +24,7 @@ import {
   chiudiAvvisoModerazioneAzione,
   rimuoviDatiAzione,
   salvaBenvenutoAzione,
-  salvaDatiAzione,
-  salvaNomeAzione,
+  salvaImpostazioniAzione,
 } from "./azioni";
 
 /**
@@ -60,6 +59,7 @@ type Proprieta = {
     benvenuto?: string | string[];
     salvato?: string | string[];
     errore?: string | string[];
+    restoSalvato?: string | string[];
   }>;
 };
 
@@ -223,9 +223,13 @@ export default async function PaginaImpostazioni({ searchParams }: Proprieta) {
       })
     : undefined;
 
+  // One save covers both blocks, so a refused name arrives together with the
+  // news that everything else went through: two banners for one press would
+  // read as two separate things happening.
   const avviso = errore ? (
     <p role="alert" className="mt-6 text-errore">
       {errore}
+      {uno(parametri.restoSalvato) ? ` ${t.errori.restoSalvato}` : ""}
     </p>
   ) : null;
 
@@ -267,9 +271,7 @@ export default async function PaginaImpostazioni({ searchParams }: Proprieta) {
   }
 
   const conferme: Record<string, string> = {
-    nome: t.nome.salvato,
-    spento: t.nome.spento,
-    dati: t.facoltativi.salvati,
+    tutto: t.salvato,
     rimossi: t.facoltativi.rimossi,
   };
   const salvato = conferme[uno(parametri.salvato) ?? ""];
@@ -311,53 +313,53 @@ export default async function PaginaImpostazioni({ searchParams }: Proprieta) {
           <p className={aiuto}>{t.emailNota}</p>
         </Voce>
 
-        <section className="border-b border-linea py-6">
-          <h2 id="titolo-nome" className={titoloVoce}>
-            {t.nome.titolo}
-          </h2>
-          <form action={salvaNomeAzione}>
+        {/* One form over both blocks, and one Salva at the end: the page asks
+            one thing of the person, so it takes one press. "Rimuovi" submits
+            the same form to its own action — it empties all five fields and
+            is not a variant of Salva (§6.5), and a form inside a form is not
+            allowed. */}
+        <form action={salvaImpostazioniAzione}>
+          <section className="border-b border-linea py-6">
+            <h2 id="titolo-nome" className={titoloVoce}>
+              {t.nome.titolo}
+            </h2>
             <CampiNome profilo={profilo} />
-            <p className="mt-6">
+
+            <h3 className="mt-8 text-nota font-grassetto">{t.nome.anteprima}</h3>
+            {profilo.nome_pubblico ? (
+              <p className="mt-2 bg-verde px-6 py-4 text-testo">{profilo.nome_pubblico}</p>
+            ) : (
+              <p className="mt-2 text-testo-secondario">{t.nome.anteprimaVuota}</p>
+            )}
+            {profilo.nome_pubblico && !profilo.mostra_nome_pubblico && (
+              <p className={aiuto}>{t.nome.anteprimaNascosta}</p>
+            )}
+            {!profilo.nome_pubblico && profilo.mostra_nome_pubblico && (
+              <p className="mt-2 text-nota text-avviso">{t.nome.senzaNome}</p>
+            )}
+          </section>
+
+          <section className="border-b border-linea py-6">
+            <h2 className={titoloVoce}>{t.facoltativi.titolo}</h2>
+            <p className="mt-2">{t.facoltativi.introduzione}</p>
+            <div className="mt-6">
+              <CampiFacoltativi profilo={profilo} />
+            </div>
+
+            <p className="mt-8">
               <button type="submit" className={bottonePrimario}>
-                {t.nome.salva}
+                {t.salva}
               </button>
             </p>
-          </form>
 
-          <h3 className="mt-8 text-nota font-grassetto">{t.nome.anteprima}</h3>
-          {profilo.nome_pubblico ? (
-            <p className="mt-2 bg-verde px-6 py-4 text-testo">{profilo.nome_pubblico}</p>
-          ) : (
-            <p className="mt-2 text-testo-secondario">{t.nome.anteprimaVuota}</p>
-          )}
-          {profilo.nome_pubblico && !profilo.mostra_nome_pubblico && (
-            <p className={aiuto}>{t.nome.anteprimaNascosta}</p>
-          )}
-          {!profilo.nome_pubblico && profilo.mostra_nome_pubblico && (
-            <p className="mt-2 text-nota text-avviso">{t.nome.senzaNome}</p>
-          )}
-        </section>
-
-        <Voce titolo={t.facoltativi.titolo}>
-          <p className="mt-2">{t.facoltativi.introduzione}</p>
-          <form action={salvaDatiAzione} className="mt-6">
-            <CampiFacoltativi profilo={profilo} />
             <p className="mt-6">
-              <button type="submit" className={bottonePrimario}>
-                {t.facoltativi.salva}
+              <button type="submit" formAction={rimuoviDatiAzione} className={bottoneDistruttivo}>
+                {t.facoltativi.rimuovi}
               </button>
             </p>
-          </form>
-
-          {/* A separate form: "Rimuovi" empties all five at once and is not a
-              variant of "Salva" (§6.5). Immediate, nobody to ask. */}
-          <form action={rimuoviDatiAzione} className="mt-6">
-            <button type="submit" className={bottoneDistruttivo}>
-              {t.facoltativi.rimuovi}
-            </button>
             <p className={aiuto}>{t.facoltativi.rimuoviNota}</p>
-          </form>
-        </Voce>
+          </section>
+        </form>
 
         <Voce titolo={t.lingua}>
           <p className="mt-1">{t.lingue[profilo.lingua]}</p>

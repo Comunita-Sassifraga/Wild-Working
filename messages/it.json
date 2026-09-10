@@ -137,6 +137,8 @@
   "impostazioni": {
     "titolo": "Impostazioni",
     "introduzione": "Qui decidi cosa di te vedono gli altri, e vedi tutto quello che conserviamo.",
+    "salva": "Salva",
+    "salvato": "Impostazioni salvate.",
     "email": "Email",
     "emailNota": "È l'unico dato che ci serve per forza, ed è anche la chiave con cui entri: per cambiarla dovrai scriverci.",
     "lingua": "Lingua",
@@ -156,10 +158,7 @@
       "anteprima": "Così ti vedono gli altri",
       "anteprimaVuota": "Scegli un nome e salva: qui sotto vedrai come appare.",
       "anteprimaNascosta": "La spunta è spenta: per ora questo nome non lo vede nessuno.",
-      "senzaNome": "Hai acceso la spunta ma non hai ancora scelto un nome: finché non lo scegli comparirai senza nome, come chi ha preferito non condividerlo.",
-      "salva": "Salva il nome",
-      "salvato": "Nome salvato.",
-      "spento": "Da adesso la tua presenza non è più pubblica."
+      "senzaNome": "Hai acceso la spunta ma non hai ancora scelto un nome: finché non lo scegli comparirai senza nome, come chi ha preferito non condividerlo."
     },
     "facoltativi": {
       "titolo": "Dati facoltativi",
@@ -171,8 +170,6 @@
       "motivoVisita": "Motivo della visita",
       "residenza": "Dove vivi",
       "nonRisposto": "Non risposto",
-      "salva": "Salva",
-      "salvati": "Dati salvati.",
       "rimuovi": "Rimuovi i miei dati facoltativi",
       "rimuoviNota": "Svuota tutti e cinque i campi. È immediato e non richiede l'intervento di nessuno.",
       "rimossi": "Dati rimossi. Non compaiono più da nessuna parte."
@@ -188,6 +185,7 @@
       "CONTIENE_CONTATTO": "Nel nome non puoi mettere link, indirizzi email o numeri di telefono. Scegli un nome più semplice.",
       "NON_CONSENTITO": "Questo nome non può essere usato. Prova con un altro.",
       "TROPPI_CAMBI": "Hai già cambiato nome {cambi} volte oggi. Potrai cambiarlo di nuovo dopo mezzanotte.",
+      "restoSalvato": "Il resto lo abbiamo salvato: manca solo il nome.",
       "generico": "Non siamo riusciti a salvare. Riprova tra qualche minuto."
     }
   },

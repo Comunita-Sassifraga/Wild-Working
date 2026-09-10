@@ -19,6 +19,7 @@ import {
   VALORI_GENERE,
   VALORI_RESIDENZA,
   type DatiFacoltativi,
+  type EsitoNomePubblico,
 } from "@/lib/db/utenti";
 import { utenteAttuale } from "@/lib/auth/sessione";
 
@@ -32,19 +33,28 @@ function testo(inviato: FormDataEntryValue | null): string {
   return String(inviato ?? "").trim();
 }
 
-export async function salvaNomeAzione(formData: FormData): Promise<void> {
-  const client = await clientServer();
-  const esito = await impostaNomePubblico(client, {
-    nome: testo(formData.get("nome")),
-    mostra: formData.get("mostra") !== null,
-  });
-
-  if (!esito.ok) redirect(`/impostazioni?errore=${esito.motivo}`);
-  redirect(`/impostazioni?salvato=${esito.mostra ? "nome" : "spento"}`);
-}
-
-/** Saves any subset of the five fields; absent keys are left untouched. */
-async function salvaFacoltativi(formData: FormData, utenteId: string): Promise<boolean> {
+/**
+ * One save for the whole page — the public name and the five optional
+ * fields together, from the settings and from the first-access screen alike.
+ *
+ * The fields go first, and on purpose. The name can be refused (too long, a
+ * link, a blocklisted term, one change too many today); the five fields never
+ * can. Saving them first means a refused name never takes with it what the
+ * person had already filled in: only the name is asked again.
+ *
+ * The refused name is not carried back in the address — an address bar is the
+ * one place a rejected name must never end up (rule 4).
+ *
+ * Re-saving costs nothing: the database counts a change of the name only when
+ * the text really differs (§6.5), and writes a consent row only when the five
+ * fields cross between empty and filled (§5.5). So pressing Salva after
+ * touching one field does not consume a daily change, and does not log a
+ * consent that was already given.
+ */
+async function salva(
+  formData: FormData,
+  utenteId: string,
+): Promise<{ datiOk: boolean; nome: EsitoNomePubblico }> {
   const valori: DatiFacoltativi = {
     eta: fraIValori(VALORI_ETA, formData.get("eta")),
     genere: fraIValori(VALORI_GENERE, formData.get("genere")),
@@ -52,40 +62,42 @@ async function salvaFacoltativi(formData: FormData, utenteId: string): Promise<b
     professione: testo(formData.get("professione")) || null,
     motivo_visita: testo(formData.get("motivo_visita")) || null,
   };
+
   const client = await clientServer();
   const { error } = await aggiornaDatiFacoltativi(client, utenteId, valori);
-  return error === null;
-}
-
-export async function salvaDatiAzione(formData: FormData): Promise<void> {
-  const utente = await utenteAttuale();
-  if (!utente) redirect("/accedi");
-
-  const ok = await salvaFacoltativi(formData, utente.id);
-  redirect(ok ? "/impostazioni?salvato=dati" : "/impostazioni?errore=generico");
-}
-
-/**
- * The one screen of §6.1 point 5 saves the public name and the five optional
- * fields together. The fields go first: if the name is refused, what the
- * person did fill in is already kept, and only the name is asked again. The
- * refused name is not carried back in the address — an address bar is the
- * one place a rejected name must never end up (rule 4).
- */
-export async function salvaBenvenutoAzione(formData: FormData): Promise<void> {
-  const utente = await utenteAttuale();
-  if (!utente) redirect("/accedi");
-
-  const ok = await salvaFacoltativi(formData, utente.id);
-
-  const client = await clientServer();
   const nome = await impostaNomePubblico(client, {
     nome: testo(formData.get("nome")),
     mostra: formData.get("mostra") !== null,
   });
 
-  if (!nome.ok) redirect(`/impostazioni?benvenuto=1&errore=${nome.motivo}`);
-  if (!ok) redirect("/impostazioni?benvenuto=1&errore=generico");
+  return { datiOk: error === null, nome };
+}
+
+export async function salvaImpostazioniAzione(formData: FormData): Promise<void> {
+  const utente = await utenteAttuale();
+  if (!utente) redirect("/accedi");
+
+  const { datiOk, nome } = await salva(formData, utente.id);
+
+  // `restoSalvato` tells the person, in the same sentence as the refusal,
+  // that only the name is left to fix.
+  if (!nome.ok) {
+    redirect(`/impostazioni?errore=${nome.motivo}${datiOk ? "&restoSalvato=1" : ""}`);
+  }
+  if (!datiOk) redirect("/impostazioni?errore=generico");
+  redirect("/impostazioni?salvato=tutto");
+}
+
+export async function salvaBenvenutoAzione(formData: FormData): Promise<void> {
+  const utente = await utenteAttuale();
+  if (!utente) redirect("/accedi");
+
+  const { datiOk, nome } = await salva(formData, utente.id);
+
+  if (!nome.ok) {
+    redirect(`/impostazioni?benvenuto=1&errore=${nome.motivo}${datiOk ? "&restoSalvato=1" : ""}`);
+  }
+  if (!datiOk) redirect("/impostazioni?benvenuto=1&errore=generico");
   redirect("/");
 }
 

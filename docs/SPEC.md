@@ -337,7 +337,13 @@ Il campo viene **prima** dell'interruttore perché è la spiegazione a dire cosa
 - Spegnendo l'interruttore, il nome sparisce **immediatamente e retroattivamente** da tutte le prenotazioni, passate e future.
 - L'interruttore si può accendere prima di aver scelto un nome, ma da solo non fa niente: senza un nome non c'è niente da mostrare, quindi la presenza non compare fra i nomi di «Chi c'è in Valle» e non entra nel conteggio di *chi ha reso pubblica la presenza* di §6.2. **Il posto prenotato resta occupato per tutti**: chi non mostra il nome pesa sui posti liberi su totale esattamente come chiunque altro, e rientra fra le «persone che preferiscono non condividere pubblicamente il nome» di §6.6. Le impostazioni lo dicono: *"Hai acceso la spunta ma non hai ancora scelto un nome: finché non lo scegli comparirai senza nome, come chi ha preferito non condividerlo."*
 
-**Le impostazioni personali sono un elenco solo**, non tre sezioni: email, nome pubblico, dati facoltativi, lingua. Ogni voce ha la stessa intestazione, e quello che si può cambiare si cambia dove si legge — con il proprio pulsante di salvataggio accanto, e per i dati facoltativi anche quello di rimozione. Email e lingua sono in sola lettura. Chi apre questa pagina fa una domanda sola, *"cosa sapete di me"*, e deve trovare una risposta sola.
+**Le impostazioni personali sono un elenco solo**, non tre sezioni: email, nome pubblico, dati facoltativi, lingua. Ogni voce ha la stessa intestazione, e quello che si può cambiare si cambia dove si legge. Email e lingua sono in sola lettura. Chi apre questa pagina fa una domanda sola, *"cosa sapete di me"*, e deve trovare una risposta sola.
+
+**Un solo pulsante *"Salva"*** in fondo, che salva insieme il nome pubblico e i cinque campi facoltativi — come già fa la schermata del primo accesso. Accanto, *"Rimuovi i miei dati facoltativi"*, che non è una variante del salvataggio ma l'azione a sé di §6.5: svuota i cinque campi e lascia stare il nome.
+
+Il nome può essere rifiutato, i cinque campi no. Per questo **i campi si salvano per primi**: chi sbaglia il nome non perde quello che aveva appena compilato, e legge una frase sola che dice tutte e due le cose — *"Nel nome non puoi mettere link, indirizzi email o numeri di telefono. Scegli un nome più semplice. Il resto lo abbiamo salvato: manca solo il nome."* Un salvataggio "o tutto o niente" sarebbe più facile da raccontare, ma farebbe ribattere cinque campi per un errore in un sesto.
+
+Ripremere *"Salva"* senza aver cambiato niente non costa nulla: il limite giornaliero conta solo un nome davvero diverso, e il registro dei consensi scrive una riga solo quando i cinque campi passano da vuoti a compilati o viceversa (§5.5).
 
 Regole tecniche:
 - Se `mostra_nome_pubblico` è spento, il nome non deve mai uscire dal database verso una pagina pubblica. Il filtro va imposto a livello di banca dati, non di interfaccia (§8.3).
