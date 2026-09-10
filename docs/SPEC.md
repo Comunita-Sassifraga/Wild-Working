@@ -46,6 +46,7 @@ Lo strumento è realizzato e messo a disposizione da Comunità Sassifraga APS. G
 | D12 | Mittente delle email                      | Le email dell'app partono da un **sottodominio dedicato** (`noreply@coworking.sassifraga.org`), mai dal dominio principale. Protegge la consegna della posta istituzionale. Vedi §14.                                                        |
 | D13 | Dati facoltativi                          | Cinque campi facoltativi (età, genere, professione, motivo della visita, residenza), raccolti su consenso separato e revocabile. Richiedibili anche in registrazione, ma mai bloccanti. Usati solo in forma aggregata (§6.8).               |
 | D14 | Moderazione del nome pubblico             | Moderazione **successiva**: il nome è pubblico subito, l'amministratore viene avvisato e può azzerarlo. Filtro automatico in scrittura come prima difesa.                                                                                   |
+| D15 | Divisione fra le due pagine pubbliche     | La griglia di disponibilità mostra **conteggi**: posti liberi su totale e numero di presenze pubbliche. I **nomi pubblici** compaiono soltanto nella pagina "Chi c'è in Valle". Ogni pagina rimanda all'altra con un collegamento e una nota. Vedi §6.2 e §6.6.                        |
 
 ---
 
@@ -255,7 +256,15 @@ Le sedi fuori dal proprio periodo di attività **non compaiono nella griglia**, 
 
 Per ogni combinazione sede / giorno / fascia si mostra:
 - posti liberi su totale (es. "4 / 6");
-- il numero di persone che hanno reso pubblica la presenza, con i rispettivi nomi pubblici.
+- il **numero** di persone che hanno reso pubblica la presenza — **non i loro nomi**.
+
+I nomi pubblici stanno soltanto nella pagina "Chi c'è in Valle" (§6.6, D15). La griglia è una tabella di conteggi: con tre sedi, quindici giorni e due fasce sono novanta celle, e farci stare fino a sei nomi ciascuna la renderebbe illeggibile su un telefono. Le due pagine si dividono il lavoro: qui *quanti*, lì *chi*.
+
+**Collegamento alla pagina pubblica.** Subito sotto l'introduzione della pagina e **sopra la griglia**, un collegamento a "Chi c'è in Valle" accompagnato dalla nota: *"Guarda chi c'è in valle nei prossimi giorni"*.
+
+Sta sopra la griglia, non in fondo, per due ragioni. Da telefono la griglia è lunga e un collegamento in coda non lo vedrebbe nessuno. Ed è lì che nasce la domanda: si legge "2 persone hanno reso pubblica la presenza" e si vuole sapere chi sono.
+
+È un collegamento normale in `verde-testo` sottolineato (§13.6), con la nota in `testo-secondario`. **Non** una fascia in Stile 2: lo Stile 2 è un registro d'accento (§13.2) e una fascia verde sopra la griglia toglierebbe il primo posto all'azione principale.
 
 Accessibile **senza registrazione**. La registrazione serve solo per prenotare.
 
@@ -338,6 +347,12 @@ Una pagina consultabile senza registrazione, condivisibile su Instagram e via me
 Mostra, per ciascuna sede disponibile: **l'intera finestra prenotabile — oggi e i `FINESTRA_GIORNI` successivi**, con i nomi pubblici di chi ha dato il consenso e il numero (senza nome) di chi non l'ha dato. La finestra è la stessa di §6.2, derivata dallo stesso parametro: non è un valore indipendente.
 
 **Non mostra mai il passato.** Un archivio pubblico di dove una persona è stata nei mesi scorsi è un dato molto più invasivo di "domani sarò a Ronco", anche se composto dagli stessi elementi.
+
+**È l'unico posto in cui compaiono i nomi pubblici.** La griglia di §6.2 si ferma ai conteggi. Chi in futuro volesse aggiungere i nomi anche alla griglia sta cancellando la ragione per cui questa pagina esiste.
+
+**Collegamento alla disponibilità.** Nella stessa posizione speculare — sotto l'introduzione, sopra l'elenco delle sedi — un collegamento alla pagina della disponibilità con la nota: *"Guarda quanti posti restano e prenota il tuo"*. Chi arriva qui da un collegamento condiviso non ha visto nient'altro dell'app: senza questo rimando vede chi c'è e non sa come aggiungersi.
+
+Il collegamento sta **fuori** dalla fascia verde, sullo sfondo crema, quindi è in `verde-testo` come tutti gli altri. Dentro un blocco Stile 2 sarebbe in `testo` (§13.6).
 
 ### 6.7 Pannello di amministrazione
 

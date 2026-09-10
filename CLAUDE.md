@@ -80,6 +80,13 @@ second sender there can send the association's own mail to spam. See SPEC §14.2
    `FINESTRA_GIORNI` days only — the same constant as everywhere else, never a
    hardcoded number. See SPEC §6.6.
 
+   It is also the **only** page that shows `nome_pubblico`. The availability
+   grid of SPEC §6.2 shows counts — free seats out of total, and how many
+   people made their presence public — never the names themselves. The two
+   pages split the work: the grid answers *how many*, "Chi c'è" answers *who*.
+   Each links to the other, above its own content, with the note SPEC §6.2 and
+   §6.6 spell out. Do not "improve" the grid by adding names to it.
+
 9. **No payments, no membership management, no messaging.** These are out of
    scope by design, not by omission.
 
