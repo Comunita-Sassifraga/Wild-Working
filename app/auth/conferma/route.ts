@@ -21,8 +21,9 @@ export async function GET(request: NextRequest): Promise<never> {
   const esito = await verificaLink(client, { tokenHash, tipo });
   if (!esito.ok) redirect("/accedi?motivo=link");
 
-  // esito.primoAccesso drives the one-time optional-fields screen of §6.1
-  // point 5, which is built at step 6. Until then everyone lands on the
-  // home page.
-  redirect("/");
+  // Only at the very first sign-in, the optional-fields screen of §6.1
+  // point 5. It appears once and once only: registra_accesso() reports the
+  // first access a single time, so no column is needed to remember it, and
+  // whoever skips it never sees it again — the fields stay in the settings.
+  redirect(esito.primoAccesso ? "/impostazioni?benvenuto=1" : "/");
 }

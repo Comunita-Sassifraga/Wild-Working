@@ -18,7 +18,8 @@
     "nonCollegato": "Per prenotare devi entrare con la tua email.",
     "entra": "Entra",
     "esci": "Esci",
-    "miePrenotazioni": "Le mie prenotazioni"
+    "miePrenotazioni": "Le mie prenotazioni",
+    "impostazioni": "Impostazioni"
   },
   "disponibilita": {
     "introduzione": "Qui vedi quanti posti restano liberi negli spazi di coworking della valle, da oggi ai prossimi {giorni} giorni. Scegli un giorno sul calendario.",
@@ -109,6 +110,68 @@
     "errori": {
       "tardi": "Questa prenotazione non si può più annullare: la fascia è già cominciata.",
       "generico": "Non siamo riusciti ad annullare la prenotazione. Riprova tra qualche minuto."
+    }
+  },
+  "impostazioni": {
+    "titolo": "Impostazioni",
+    "introduzione": "Qui decidi cosa di te vedono gli altri, e vedi tutto quello che conserviamo.",
+    "tuoiDati": {
+      "titolo": "I tuoi dati",
+      "introduzione": "Questo è tutto quello che il sistema conserva su di te. Nome pubblico e dati facoltativi si cambiano qui sotto.",
+      "email": "Email",
+      "emailNota": "È l'unico dato che ci serve per forza, ed è anche la chiave con cui entri: per cambiarla dovrai scriverci.",
+      "lingua": "Lingua",
+      "lingue": { "it": "Italiano", "en": "Inglese", "fr": "Francese" },
+      "linguaNota": "Per ora l'app è solo in italiano.",
+      "nomePubblico": "Nome pubblico",
+      "nomePubblicoVuoto": "Non ne hai scelto uno",
+      "datiFacoltativi": "Dati facoltativi",
+      "datiFacoltativiVuoti": "Nessuno compilato",
+      "datiFacoltativiCompilati": "{numero} su 5 compilati"
+    },
+    "nome": {
+      "titolo": "La tua presenza",
+      "mostra": "Mostra la mia presenza agli altri",
+      "mostraNota": "Se lo accendi, il nome che scegli compare nella pagina «Chi c'è in Valle» accanto ai giorni in cui hai prenotato. Se lo spegni, sparisce subito da tutte le prenotazioni, anche da quelle già fatte.",
+      "etichetta": "Il tuo nome pubblico",
+      "aiuto": "Questo è il nome che verrà visualizzato nella pagina «Chi c'è in Valle»",
+      "limite": "Al massimo {caratteri} caratteri. Niente link, indirizzi email o numeri di telefono. Puoi cambiarlo {cambi} volte al giorno.",
+      "anteprima": "Così ti vedono gli altri",
+      "anteprimaVuota": "Scegli un nome e salva: qui sotto vedrai come appare.",
+      "anteprimaNascosta": "Hai spento la visibilità: nessuno vede questo nome.",
+      "senzaNome": "Hai acceso la visibilità ma non hai ancora scelto un nome: finché non lo scegli comparirai senza nome, come chi ha preferito non condividerlo.",
+      "salva": "Salva il nome",
+      "salvato": "Nome salvato.",
+      "spento": "Da adesso la tua presenza non è più pubblica."
+    },
+    "facoltativi": {
+      "titolo": "Dati facoltativi",
+      "introduzione": "Cinque domande, tutte facoltative. Servono solo a capire chi usa gli spazi e migliorarli: nessuno vede le tue risposte, né gli altri né i referenti delle sedi. Contano solo nei totali.",
+      "eta": "Fascia d'età",
+      "genere": "Genere",
+      "generi": { "M": "Maschile", "F": "Femminile", "Preferisco non rispondere": "Preferisco non rispondere" },
+      "professione": "Professione",
+      "motivoVisita": "Motivo della visita",
+      "residenza": "Dove vivi",
+      "nonRisposto": "Non risposto",
+      "salva": "Salva",
+      "salvati": "Dati salvati.",
+      "rimuovi": "Rimuovi i miei dati facoltativi",
+      "rimuoviNota": "Svuota tutti e cinque i campi. È immediato e non richiede l'intervento di nessuno.",
+      "rimossi": "Dati rimossi. Non compaiono più da nessuna parte."
+    },
+    "benvenuto": {
+      "titolo": "Raccontaci qualcosa di te",
+      "introduzione": "Se vuoi, raccontaci qualcosa di te. Ci serve solo per capire chi usa gli spazi e migliorarli. Puoi saltare, compilarne solo alcuni, o cambiarli quando vuoi.",
+      "salva": "Salva",
+      "salta": "Salta"
+    },
+    "errori": {
+      "TROPPO_LUNGO": "Il nome è troppo lungo: al massimo {caratteri} caratteri.",
+      "CONTIENE_CONTATTO": "Nel nome non puoi mettere link, indirizzi email o numeri di telefono. Scegli un nome più semplice.",
+      "NON_CONSENTITO": "Questo nome non può essere usato. Prova con un altro.",
+      "TROPPI_CAMBI": "Hai già cambiato nome {cambi} volte oggi. Potrai cambiarlo di nuovo dopo mezzanotte.",
+      "generico": "Non siamo riusciti a salvare. Riprova tra qualche minuto."
     }
   },
   "accesso": {

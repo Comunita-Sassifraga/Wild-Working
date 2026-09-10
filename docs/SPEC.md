@@ -314,10 +314,11 @@ Nelle impostazioni personali:
 - Se acceso, un campo testo con l'aiuto: *"Questo è il nome che verrà visualizzato nella pagina «Chi c'è in Valle»"*
 - Sotto, un'anteprima esatta di come apparirà agli altri.
 - Spegnendo l'interruttore, il nome sparisce **immediatamente e retroattivamente** da tutte le prenotazioni, passate e future.
+- L'interruttore si può accendere prima di aver scelto un nome, ma da solo non fa niente: senza un nome non c'è niente da mostrare, quindi la presenza non compare fra i nomi di «Chi c'è in Valle» e non entra nel conteggio di *chi ha reso pubblica la presenza* di §6.2. **Il posto prenotato resta occupato per tutti**: chi non mostra il nome pesa sui posti liberi su totale esattamente come chiunque altro, e rientra fra le «persone che preferiscono non condividere pubblicamente il nome» di §6.6. Le impostazioni lo dicono: *"Hai acceso la visibilità ma non hai ancora scelto un nome: finché non lo scegli comparirai senza nome, come chi ha preferito non condividerlo."*
 
 Regole tecniche:
 - Se `mostra_nome_pubblico` è spento, il nome non deve mai uscire dal database verso una pagina pubblica. Il filtro va imposto a livello di banca dati, non di interfaccia (§8.3).
-- Massimo 40 caratteri, nessun link, nessuna email, nessun numero di telefono (validazione automatica in scrittura).
+- Massimo 40 caratteri. Il salvataggio è rifiutato se il nome contiene una chiocciola (indirizzo email), un link (`://`, `www.`, o un punto attaccato fra lettere come in `sassifraga.org`), o un numero di telefono (sei o più cifre di fila, anche separate da spazi, punti, trattini o parentesi, oppure un `+` seguito da una cifra). Validazione automatica in scrittura. A differenza dei termini vietati, queste regole si spiegano volentieri: il messaggio dice cosa togliere — *"Nel nome non puoi mettere link, indirizzi email o numeri di telefono. Scegli un nome più semplice."*
 
 #### Moderazione del nome pubblico
 
@@ -327,6 +328,8 @@ Il meccanismo ha tre livelli.
 
 **1. Filtro automatico in scrittura.** Prima di salvare, il nome viene confrontato con un elenco di termini vietati, modificabile dall'amministratore senza toccare il codice. Se corrisponde, il salvataggio è rifiutato con un messaggio neutro: *"Questo nome non può essere usato. Prova con un altro."* Nessuna spiegazione su quale parola abbia fatto scattare il filtro: servirebbe solo a insegnare come aggirarlo. Il filtro si somma ai divieti già previsti sopra (link, email, numeri di telefono).
 
+Il confronto ignora maiuscole e accenti e cerca il termine **in qualsiasi punto** del nome: «Idiota», «idiota77» e «SEIUNIDIOTA» vengono rifiutati tutti e tre. La conseguenza va accettata: un nome legittimo che contenga per caso la sequenza di un termine vietato viene rifiutato anche lui, e il messaggio neutro non spiega perché. È il prezzo di un filtro che non si aggira attaccando una lettera. Chi si trova bloccato e non capisce scrive all'associazione.
+
 **2. Avviso all'amministratore.** Ogni volta che un nome pubblico viene impostato per la prima volta o modificato, parte una email a `EMAIL_MODERAZIONE` (§10) contenente **soltanto**:
 - il nome pubblico inserito;
 - l'identificativo interno dell'utente (`utente_id`);
@@ -335,6 +338,8 @@ Il meccanismo ha tre livelli.
 L'email **non contiene l'indirizzo email dell'utente**, né alcun altro suo dato. L'identificativo interno basta all'amministratore per agire e non rivela chi sia la persona.
 
 Per evitare che modifiche ripetute inondino la casella — e consumino il tetto giornaliero di invii del fornitore di posta, che è condiviso con le conferme di prenotazione — vale un limite: **massimo `MAX_CAMBI_NOME_GIORNO` modifiche al giorno per utente** (§10). Oltre il limite il nome non si può cambiare fino al giorno successivo, con messaggio esplicito.
+
+Conta come modifica **soltanto un salvataggio che cambia il testo del nome** — cioè esattamente ciò che fa partire un'email. Risalvare lo stesso nome non consuma niente, e nemmeno accendere o spegnere l'interruttore della visibilità: non manda nessun avviso, e nessuno deve restare visibile controvoglia fino al giorno dopo. Il giorno è quello di calendario, nel fuso Europe/Rome, quindi il nome torna disponibile a mezzanotte.
 
 **3. Azzeramento da parte dell'amministratore.** L'azione è nel pannello (§6.7). Azzerare significa: svuotare `nome_pubblico` e spegnere `mostra_nome_pubblico`.
 
@@ -360,6 +365,8 @@ Cinque campi (§5.1): età, genere, professione, motivo della visita, residenza.
 Una pagina consultabile senza registrazione, condivisibile su Instagram e via messaggio.
 
 Mostra, per ciascuna sede disponibile: **l'intera finestra prenotabile — oggi e i `FINESTRA_GIORNI` successivi**, con i nomi pubblici di chi ha dato il consenso e il numero (senza nome) di chi non l'ha dato. La finestra è la stessa di §6.2, derivata dallo stesso parametro: non è un valore indipendente.
+
+I due gruppi stanno in una riga sola, non in due elenchi separati: prima i nomi, poi chi manca. Per esteso: *"Mario Rossi, Chiara Bianchi + 2 persone che preferiscono non condividere pubblicamente il nome"*. Al singolare: *"… + 1 persona che preferisce non condividere pubblicamente il nome"*. Se nessuno ha reso pubblico il nome resta la sola coda, senza il `+`: *"3 persone che preferiscono non condividere pubblicamente il nome"*. Il numero è la differenza fra i prenotati e i nomi mostrati: non identifica nessuno, e dice quanto è pieno lo spazio, che è ciò che serve a chi sta decidendo dove andare. Chi tiene il nome nascosto non sparisce: occupa un posto e si vede che lo occupa.
 
 **Non mostra mai il passato.** Un archivio pubblico di dove una persona è stata nei mesi scorsi è un dato molto più invasivo di "domani sarò a Ronco", anche se composto dagli stessi elementi.
 

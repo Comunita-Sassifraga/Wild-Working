@@ -81,6 +81,7 @@ export default async function Home({
         <form action={esciAzione} className="mt-6 flex flex-wrap items-center gap-4">
           <span>{m.home.collegato}</span>
           <Link href="/prenotazioni">{m.home.miePrenotazioni}</Link>
+          <Link href="/impostazioni">{m.home.impostazioni}</Link>
           <button type="submit" className={bottoneSecondario}>
             {m.home.esci}
           </button>

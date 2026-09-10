@@ -34,6 +34,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      cambi_nome: {
+        Row: {
+          cambiato_il: string
+          id: string
+          utente_id: string
+        }
+        Insert: {
+          cambiato_il?: string
+          id?: string
+          utente_id: string
+        }
+        Update: {
+          cambiato_il?: string
+          id?: string
+          utente_id?: string
+        }
+        Relationships: []
+      }
       chiusure: {
         Row: {
           creata_da: string | null
@@ -420,6 +438,42 @@ export type Database = {
         }
         Relationships: []
       }
+      termini_vietati: {
+        Row: {
+          creato_da: string | null
+          creato_il: string
+          id: string
+          termine: string
+        }
+        Insert: {
+          creato_da?: string | null
+          creato_il?: string
+          id?: string
+          termine: string
+        }
+        Update: {
+          creato_da?: string | null
+          creato_il?: string
+          id?: string
+          termine?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "termini_vietati_creato_da_fkey"
+            columns: ["creato_da"]
+            isOneToOne: false
+            referencedRelation: "utenti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "termini_vietati_creato_da_fkey"
+            columns: ["creato_da"]
+            isOneToOne: false
+            referencedRelation: "utenti_amministrazione"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       utenti: {
         Row: {
           creato_il: string
@@ -766,6 +820,13 @@ export type Database = {
         Returns: Database["public"]["Enums"]["giorno_settimana"]
       }
       giorno_mese: { Args: { p_data: string }; Returns: number }
+      imposta_nome_pubblico: {
+        Args: { p_max_cambi: number; p_mostra: boolean; p_nome: string }
+        Returns: {
+          mostra_nome_pubblico: boolean
+          nome_pubblico: string
+        }[]
+      }
       in_chiusura: {
         Args: {
           p_data: string
@@ -780,6 +841,7 @@ export type Database = {
       }
       is_amministratore: { Args: never; Returns: boolean }
       is_referente_di: { Args: { p_sede_id: string }; Returns: boolean }
+      normalizza_confronto: { Args: { p_testo: string }; Returns: string }
       oggi_roma: { Args: never; Returns: string }
       ora_inizio: {
         Args: {
