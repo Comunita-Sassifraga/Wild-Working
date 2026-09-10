@@ -82,6 +82,13 @@ export type Database = {
             foreignKeyName: "chiusure_creata_da_fkey"
             columns: ["creata_da"]
             isOneToOne: false
+            referencedRelation: "nomi_pubblici_moderazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chiusure_creata_da_fkey"
+            columns: ["creata_da"]
+            isOneToOne: false
             referencedRelation: "utenti"
             referencedColumns: ["id"]
           },
@@ -201,11 +208,85 @@ export type Database = {
             foreignKeyName: "incarichi_utente_id_fkey"
             columns: ["utente_id"]
             isOneToOne: false
+            referencedRelation: "nomi_pubblici_moderazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incarichi_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
             referencedRelation: "utenti"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "incarichi_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "utenti_amministrazione"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      moderazioni: {
+        Row: {
+          amministratore_id: string | null
+          avvenuta_il: string
+          id: string
+          nome_rimosso: string
+          utente_id: string
+        }
+        Insert: {
+          amministratore_id?: string | null
+          avvenuta_il?: string
+          id?: string
+          nome_rimosso: string
+          utente_id: string
+        }
+        Update: {
+          amministratore_id?: string | null
+          avvenuta_il?: string
+          id?: string
+          nome_rimosso?: string
+          utente_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moderazioni_amministratore_id_fkey"
+            columns: ["amministratore_id"]
+            isOneToOne: false
+            referencedRelation: "nomi_pubblici_moderazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moderazioni_amministratore_id_fkey"
+            columns: ["amministratore_id"]
+            isOneToOne: false
+            referencedRelation: "utenti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moderazioni_amministratore_id_fkey"
+            columns: ["amministratore_id"]
+            isOneToOne: false
+            referencedRelation: "utenti_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moderazioni_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "nomi_pubblici_moderazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moderazioni_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "utenti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moderazioni_utente_id_fkey"
             columns: ["utente_id"]
             isOneToOne: false
             referencedRelation: "utenti_amministrazione"
@@ -354,6 +435,13 @@ export type Database = {
             foreignKeyName: "prenotazioni_utente_id_fkey"
             columns: ["utente_id"]
             isOneToOne: false
+            referencedRelation: "nomi_pubblici_moderazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
             referencedRelation: "utenti"
             referencedColumns: ["id"]
           },
@@ -462,6 +550,13 @@ export type Database = {
             foreignKeyName: "termini_vietati_creato_da_fkey"
             columns: ["creato_da"]
             isOneToOne: false
+            referencedRelation: "nomi_pubblici_moderazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "termini_vietati_creato_da_fkey"
+            columns: ["creato_da"]
+            isOneToOne: false
             referencedRelation: "utenti"
             referencedColumns: ["id"]
           },
@@ -476,6 +571,7 @@ export type Database = {
       }
       utenti: {
         Row: {
+          avviso_moderazione: string | null
           creato_il: string
           email: string
           eta: Database["public"]["Enums"]["fascia_eta"] | null
@@ -490,6 +586,7 @@ export type Database = {
           ultimo_accesso: string
         }
         Insert: {
+          avviso_moderazione?: string | null
           creato_il?: string
           email: string
           eta?: Database["public"]["Enums"]["fascia_eta"] | null
@@ -504,6 +601,7 @@ export type Database = {
           ultimo_accesso?: string
         }
         Update: {
+          avviso_moderazione?: string | null
           creato_il?: string
           email?: string
           eta?: Database["public"]["Enums"]["fascia_eta"] | null
@@ -590,6 +688,27 @@ export type Database = {
           },
         ]
       }
+      nomi_pubblici_moderazione: {
+        Row: {
+          avviso_in_attesa: boolean | null
+          id: string | null
+          mostra_nome_pubblico: boolean | null
+          nome_pubblico: string | null
+        }
+        Insert: {
+          avviso_in_attesa?: never
+          id?: string | null
+          mostra_nome_pubblico?: boolean | null
+          nome_pubblico?: string | null
+        }
+        Update: {
+          avviso_in_attesa?: never
+          id?: string | null
+          mostra_nome_pubblico?: boolean | null
+          nome_pubblico?: string | null
+        }
+        Relationships: []
+      }
       occupazione_pubblica: {
         Row: {
           data: string | null
@@ -597,6 +716,47 @@ export type Database = {
           prenotati: number | null
           pubbliche: number | null
           sede_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "aperture_future"
+            referencedColumns: ["sede_id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "disponibilita_pubblica"
+            referencedColumns: ["sede_id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "sedi"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "sedi_pubbliche"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prenotazioni_da_verificare: {
+        Row: {
+          data: string | null
+          email: string | null
+          fascia: Database["public"]["Enums"]["fascia"] | null
+          motivo: string | null
+          prenotazione_id: string | null
+          sede_id: string | null
+          sede_nome: string | null
         }
         Relationships: [
           {
@@ -799,6 +959,12 @@ export type Database = {
           p_sede_id: string
         }
         Returns: boolean
+      }
+      azzera_nome_pubblico: {
+        Args: { p_utente_id: string }
+        Returns: {
+          nome_rimosso: string
+        }[]
       }
       consenti_richiesta_link: {
         Args: {

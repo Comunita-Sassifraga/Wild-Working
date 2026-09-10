@@ -2,16 +2,19 @@
  * SPEC §6.5 — nome pubblico: validazione, elenco dei termini vietati, limite
  * dei cambi al giorno.
  *
- * Questo file copre il primo dei tre livelli di moderazione, l'unico che
- * esiste al passo 6. L'avviso all'amministratore (passo 9, serve il fornitore
- * di posta) e l'azzeramento dal pannello (passo 8) restano in fondo come
- * `it.todo`: si vedono a ogni esecuzione finché non saranno costruiti.
+ * Questo file copre il primo dei tre livelli di moderazione (filtro in
+ * scrittura, elenco dei termini, limite dei cambi) e il terzo, l'azzeramento
+ * da parte dell'amministratore, costruito al passo 8. Resta in fondo come
+ * `it.todo` il secondo, l'avviso via email: il fornitore di posta arriva al
+ * passo 9, e finché non c'è quei promemoria si vedono a ogni esecuzione.
  *
  * Nessun indirizzo email viene stampato (CLAUDE.md regola 4).
  */
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { MAX_CAMBI_NOME_GIORNO } from "@/config/limits";
+import { oggiRoma } from "@/lib/dates";
+import { azzeraNomePubblico } from "@/lib/db/amministrazione";
 import {
   aggiornaDatiFacoltativi,
   impostaMostraNomePubblico,
@@ -22,7 +25,9 @@ import {
 import {
   assegnaIncarico,
   CODICE_PERMESSO_NEGATO,
+  creaSede,
   creaUtente,
+  inserisciPrenotazioneDiretta,
   pulisci,
   servizio,
   visitatore,
@@ -45,6 +50,8 @@ describe("§6.5 nome pubblico e moderazione", () => {
    * back — so they all share `u`.
    */
   const usaEGetta: UtenteTest[] = [];
+  /** Sedi create per la prova dell'azzeramento, rimosse alla fine. */
+  const sedi: string[] = [];
   async function utenteNuovo(): Promise<UtenteTest> {
     const nuovo = await creaUtente();
     usaEGetta.push(nuovo);
@@ -58,7 +65,7 @@ describe("§6.5 nome pubblico e moderazione", () => {
 
   afterAll(async () => {
     await servizio().from("termini_vietati").delete().eq("termine", TERMINE);
-    await pulisci({ utenti: [u, cambi, admin, ...usaEGetta] });
+    await pulisci({ utenti: [u, cambi, admin, ...usaEGetta], sedi });
   });
 
   // -------------------------------------------------------------------------
@@ -243,13 +250,77 @@ describe("§6.5 nome pubblico e moderazione", () => {
   });
 
   // -------------------------------------------------------------------------
-  // Livelli 2 e 3: esistono nei passi che portano il loro contesto.
+  // Azzeramento da parte dell'amministratore (§6.5, livello 3)
+  //
+  // La schermata che lo comanda è verificata in tests/amministrazione.test.ts.
+  // Qui si controlla la sostanza della regola di §6.5: cosa succede alla
+  // persona, e soprattutto cosa non le succede.
+  // -------------------------------------------------------------------------
+
+  it("l'azzeramento svuota il nome, spegne la spunta, avvisa la persona e non tocca le sue prenotazioni", async () => {
+    const chi = await utenteNuovo();
+    await impostaNomePubblico(chi.client, { nome: "Nome Da Moderare", mostra: true });
+
+    const sedeId = await creaSede({ capienza: 2 });
+    sedi.push(sedeId);
+    const prenotazione = await inserisciPrenotazioneDiretta({
+      utente_id: chi.id,
+      sede_id: sedeId,
+      data: oggiRoma(),
+      fascia: "MATTINA",
+    });
+
+    const esito = await azzeraNomePubblico(admin.client, chi.id);
+    expect(esito).toMatchObject({ ok: true, valore: "Nome Da Moderare" });
+
+    const { data } = await mioProfilo(chi.client, chi.id);
+    expect(data?.nome_pubblico).toBeNull();
+    expect(data?.mostra_nome_pubblico).toBe(false);
+    // L'avviso che la persona legge nelle impostazioni al primo accesso
+    // successivo. L'email che dice la stessa cosa arriva al passo 9.
+    expect(data?.avviso_moderazione).not.toBeNull();
+
+    // "L'azzeramento non cancella le prenotazioni e non chiude l'account."
+    const { data: dopo } = await servizio()
+      .from("prenotazioni")
+      .select("stato")
+      .eq("id", prenotazione)
+      .single();
+    expect(dopo?.stato).toBe("ATTIVA");
+
+    // E resta registrato: chi, quando, quale nome (§5.9, §6.7).
+    const { data: registro } = await admin.client
+      .from("moderazioni")
+      .select("nome_rimosso, amministratore_id")
+      .eq("utente_id", chi.id);
+    expect(registro).toEqual([
+      { nome_rimosso: "Nome Da Moderare", amministratore_id: admin.id },
+    ]);
+  });
+
+  it("solo l'amministratore può azzerare un nome", async () => {
+    const chi = await utenteNuovo();
+    await impostaNomePubblico(chi.client, { nome: "Nome Protetto", mostra: true });
+
+    expect(await azzeraNomePubblico(u.client, chi.id)).toMatchObject({
+      ok: false,
+      motivo: "NON_AUTORIZZATO",
+    });
+    // Nemmeno la persona sulla propria riga: la sua strada è cambiare nome.
+    expect(await azzeraNomePubblico(chi.client, chi.id)).toMatchObject({ ok: false });
+
+    const { data } = await mioProfilo(chi.client, chi.id);
+    expect(data?.nome_pubblico).toBe("Nome Protetto");
+  });
+
+  // -------------------------------------------------------------------------
+  // Livello 2, la metà che ha bisogno del fornitore di posta.
   // -------------------------------------------------------------------------
 
   it.todo(
     "passo 9 — un nome salvato o cambiato manda una sola email a EMAIL_MODERAZIONE, con nome_pubblico e utente_id e nessun indirizzo email",
   );
   it.todo(
-    "passo 8 — l'azzeramento dell'amministratore svuota il nome, spegne mostra_nome_pubblico, avvisa l'utente e non tocca le sue prenotazioni",
+    "passo 9 — l'azzeramento manda alla persona l'email di §6.5, con lo stesso testo dell'avviso nelle impostazioni",
   );
 });

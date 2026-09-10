@@ -53,7 +53,7 @@ export type DatiFacoltativi = Pick<RigaUtente, CampoFacoltativo>;
 
 /** Columns of the caller's own profile. */
 export const colonneProfilo =
-  "id, email, nome_pubblico, eta, genere, professione, motivo_visita, residenza, mostra_nome_pubblico, lingua, creato_il, ultimo_accesso" as const;
+  "id, email, nome_pubblico, eta, genere, professione, motivo_visita, residenza, mostra_nome_pubblico, lingua, creato_il, ultimo_accesso, avviso_moderazione" as const;
 
 export async function mioProfilo(client: Client, utenteId: string) {
   return client.from("utenti").select(colonneProfilo).eq("id", utenteId).single();
@@ -87,6 +87,21 @@ export async function rimuoviDatiFacoltativi(client: Client, utenteId: string) {
     motivo_visita: null,
     residenza: null,
   });
+}
+
+/**
+ * Clears the notice of §6.5 — "Lo stesso messaggio compare nelle
+ * impostazioni personali al primo accesso successivo" — once the person has
+ * read it. Only their own row: the update policy on `utenti` scopes every
+ * write to auth.uid(), so nobody can silence somebody else's notice.
+ */
+export async function segnaAvvisoModerazioneLetto(client: Client, utenteId: string) {
+  return client
+    .from("utenti")
+    .update({ avviso_moderazione: null })
+    .eq("id", utenteId)
+    .select("id")
+    .single();
 }
 
 /**

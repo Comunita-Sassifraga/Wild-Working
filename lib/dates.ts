@@ -117,6 +117,24 @@ const formatoConAnno = new Intl.DateTimeFormat("it-IT", {
 
 const formatoMese = new Intl.DateTimeFormat("it-IT", { timeZone: FUSO_ORARIO, month: "short" });
 
+const formatoIstante = new Intl.DateTimeFormat("it-IT", {
+  timeZone: FUSO_ORARIO,
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+/**
+ * "3 ottobre 2026, 14:05" — for the moderation register (§5.9), the one
+ * place that shows an instant rather than a booking day. Read in
+ * Europe/Rome like everything else (§8.4).
+ */
+export function istanteEsteso(istanteIso: string): string {
+  return formatoIstante.format(new Date(istanteIso));
+}
+
 /** "ott" — shown in the calendar on the first of a month, which the window can cross. */
 export function meseBreve(data: DataISO): string {
   return formatoMese.format(istante(data));

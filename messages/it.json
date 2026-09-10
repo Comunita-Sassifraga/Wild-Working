@@ -19,7 +19,8 @@
     "entra": "Entra",
     "esci": "Esci",
     "miePrenotazioni": "Le mie prenotazioni",
-    "impostazioni": "Impostazioni"
+    "impostazioni": "Impostazioni",
+    "amministrazione": "Amministrazione"
   },
   "disponibilita": {
     "introduzione": "Qui vedi quanti posti restano liberi negli spazi di coworking della valle, da oggi ai prossimi {giorni} giorni. Scegli un giorno sul calendario.",
@@ -141,6 +142,12 @@
     "lingua": "Lingua",
     "lingue": { "it": "Italiano", "en": "Inglese", "fr": "Francese" },
     "linguaNota": "Per ora l'app è solo in italiano.",
+    "moderazione": {
+      "titolo": "Il tuo nome pubblico è stato rimosso",
+      "testo": "Il nome che avevi scelto per la pagina «Chi c'è in Valle» è stato rimosso perché non rispetta le regole di utilizzo. Le tue prenotazioni non sono state toccate: continuano a valere, semplicemente non compare più un nome accanto. Puoi sceglierne un altro dalle tue impostazioni.",
+      "quando": "Rimosso il {data}.",
+      "chiudi": "Ho capito"
+    },
     "nome": {
       "titolo": "Nome pubblico",
       "spiegazione": "Questo è il nome che verrà visualizzato nella pagina «Chi c'è in Valle» accanto ai giorni che hai prenotato, se selezionerai la spunta «Mostra il nome pubblico». Se la spegni, il nome sparisce subito da tutte le prenotazioni, anche da quelle già fatte.",
@@ -182,6 +189,194 @@
       "NON_CONSENTITO": "Questo nome non può essere usato. Prova con un altro.",
       "TROPPI_CAMBI": "Hai già cambiato nome {cambi} volte oggi. Potrai cambiarlo di nuovo dopo mezzanotte.",
       "generico": "Non siamo riusciti a salvare. Riprova tra qualche minuto."
+    }
+  },
+  "amministrazione": {
+    "titolo": "Amministrazione",
+    "introduzione": "Da qui si gestiscono le sedi, i loro periodi e le chiusure, gli incarichi di referente e i nomi pubblici.",
+    "torna": "Torna all'amministrazione",
+    "voci": {
+      "sedi": "Sedi",
+      "sediNota": "Nome, indirizzo, capienza, orari, giorni di apertura, note. E per ogni sede i periodi di attività e le chiusure.",
+      "incarichi": "Incarichi",
+      "incarichiNota": "Assegna e revoca il ruolo di referente di sede.",
+      "moderazione": "Nomi pubblici",
+      "moderazioneNota": "Rimuovi un nome pubblico che non rispetta le regole. Qui c'è anche l'elenco di quelli già rimossi.",
+      "termini": "Termini vietati",
+      "terminiNota": "L'elenco che il sistema controlla ogni volta che qualcuno salva un nome pubblico."
+    },
+    "piuAvanti": {
+      "titolo": "Non ci sono ancora",
+      "statistiche": "Statistiche aggregate ed esportazione dei dati per la rendicontazione.",
+      "cancellazione": "Cancellazione di un account su richiesta scritta della persona."
+    },
+    "daVerificare": {
+      "titolo": "Prenotazioni da controllare",
+      "introduzione": "Qualcosa è cambiato dopo che queste prenotazioni erano già state fatte. Il sistema non ne annulla nessuna: guardale una per una e scrivi alle persone.",
+      "nessuna": "Non c'è niente da controllare.",
+      "quante": "{numero} prenotazioni da controllare",
+      "unaSola": "1 prenotazione da controllare",
+      "vedi": "Guarda quali sono",
+      "riga": "{giorno}, {fascia}",
+      "scriviA": "Scrivi a",
+      "senzaIndirizzo": "Nessun indirizzo: la prenotazione non è più collegata a nessuno.",
+      "motivi": {
+        "SEDE_SOSPESA": "La sede è stata sospesa.",
+        "FUORI_STAGIONE": "Quel giorno la sede è fuori dai suoi periodi di attività.",
+        "CHIUSURA": "Quel giorno e quella fascia sono dentro una chiusura.",
+        "GIORNO_CHIUSO": "Quel giorno della settimana la sede non è più aperta.",
+        "CAPIENZA_RIDOTTA": "La capienza è stata abbassata sotto il numero di prenotati."
+      }
+    },
+    "sedi": {
+      "titolo": "Sedi",
+      "introduzione": "Le sedi sospese le vedi solo tu: per tutti gli altri non esistono.",
+      "attiva": "Attiva",
+      "sospesa": "Sospesa",
+      "stagionale": "Stagionale",
+      "tuttoAnno": "Aperta tutto l'anno",
+      "posti": "{numero} posti",
+      "apri": "Apri",
+      "vuoto": "Non c'è ancora nessuna sede.",
+      "nuova": {
+        "titolo": "Aggiungi una sede",
+        "nota": "Bastano il nome, il comune e la capienza: tutto il resto si sistema dopo, dalla pagina della sede.",
+        "crea": "Aggiungi"
+      }
+    },
+    "sede": {
+      "dati": "Dati della sede",
+      "nome": "Nome",
+      "comune": "Comune",
+      "indirizzo": "Indirizzo",
+      "capienza": "Capienza",
+      "capienzaNota": "Quanti posti si possono prenotare, per fascia.",
+      "orari": "Orari",
+      "orariNota": "L'ora di inizio è anche il momento oltre il quale la prenotazione non si annulla più.",
+      "inizioMattina": "Mattina, dalle",
+      "fineMattina": "Mattina, alle",
+      "inizioPomeriggio": "Pomeriggio, dalle",
+      "finePomeriggio": "Pomeriggio, alle",
+      "giorni": "Giorni di apertura",
+      "note": "Informazioni pratiche",
+      "noteNota": "Wi-Fi, chiavi, come si entra. Le leggono solo le persone registrate, mai chi passa di qui senza entrare. Non scriverci password o codici.",
+      "attiva": "Sede attiva",
+      "attivaNota": "Se la spegni, la sede sparisce da tutte le pagine, anche se è in stagione.",
+      "sempreDisponibile": "Aperta tutto l'anno",
+      "sempreDisponibileNota": "Se la spegni, la sede è prenotabile solo dentro i periodi di attività qui sotto.",
+      "salva": "Salva la sede",
+      "salvata": "Sede salvata.",
+      "creata": "Sede aggiunta. Ora puoi completare gli orari e i giorni di apertura.",
+      "elimina": {
+        "titolo": "Elimina la sede",
+        "nota": "Se la sede ha prenotazioni, anche vecchie, non si può eliminare: sospendila con l'interruttore qui sopra.",
+        "pulsante": "Elimina la sede"
+      }
+    },
+    "periodi": {
+      "titolo": "Periodi di attività",
+      "introduzione": "Servono alle sedi aperte solo in certi mesi. Si possono sovrapporre senza problemi: vale l'unione.",
+      "senzaPeriodi": "Questa sede non è aperta tutto l'anno e non ha nessun periodo: così non è prenotabile in nessun giorno. Quasi sempre è una dimenticanza.",
+      "nonServono": "Questa sede è aperta tutto l'anno, quindi i periodi non contano. Contano solo se spegni «Aperta tutto l'anno».",
+      "vuoto": "Nessun periodo.",
+      "etichetta": "Come si chiama",
+      "etichettaNota": "Lo leggono anche le persone, sotto la griglia. Per esempio: Stagione estiva 2027.",
+      "dal": "Dal",
+      "al": "Al",
+      "ricorre": "Si ripete ogni anno",
+      "ricorreNota": "Se lo accendi contano solo il giorno e il mese: non dovrai reinserirlo l'anno prossimo.",
+      "ogniAnno": "ogni anno",
+      "aggiungi": "Aggiungi il periodo",
+      "elimina": "Elimina"
+    },
+    "chiusure": {
+      "titolo": "Chiusure",
+      "introduzione": "Un giorno o una fascia in cui la sede, pur essendo in stagione, non si può prenotare: festività, manutenzione, un evento.",
+      "vuoto": "Nessuna chiusura.",
+      "dal": "Dal",
+      "al": "Al",
+      "fascia": "Fascia",
+      "tutte": "Tutto il giorno",
+      "aggiungi": "Aggiungi la chiusura",
+      "elimina": "Elimina"
+    },
+    "incarichi": {
+      "titolo": "Incarichi",
+      "introduzione": "Il referente vede l'elenco nominativo delle prenotazioni della sua sola sede, e solo per i giorni prenotabili. Non modifica niente.",
+      "elenco": "Incarichi attivi",
+      "vuoto": "Nessun incarico assegnato.",
+      "ruoli": {
+        "REFERENTE": "Referente",
+        "AMMINISTRATORE": "Amministratore"
+      },
+      "amministratoriNota": "Gli amministratori si assegnano fuori da qui: sono un ruolo del Direttivo, non una cosa che si cambia da una schermata.",
+      "revoca": "Revoca",
+      "revocato": "Incarico revocato.",
+      "assegna": {
+        "titolo": "Assegna un referente",
+        "nota": "Serve l'indirizzo email esatto con cui la persona è già entrata almeno una volta.",
+        "email": "Email della persona",
+        "sede": "Sede",
+        "pulsante": "Assegna",
+        "assegnato": "Referente assegnato."
+      }
+    },
+    "moderazione": {
+      "titolo": "Nomi pubblici",
+      "introduzione": "Qui si rimuove un nome pubblico che non rispetta le regole. Da questa pagina non passa nessun indirizzo email: si lavora sull'identificativo interno, che basta per agire.",
+      "cerca": {
+        "titolo": "Cerca un identificativo",
+        "nota": "È l'identificativo che arriva nell'avviso via email.",
+        "campo": "Identificativo interno",
+        "pulsante": "Cerca"
+      },
+      "scheda": {
+        "titolo": "Nome da moderare",
+        "nome": "Nome pubblico",
+        "identificativo": "Identificativo interno",
+        "visibile": "Adesso si vede su «Chi c'è in Valle».",
+        "nascosto": "Adesso non si vede: la persona ha spento la spunta.",
+        "avvisoInAttesa": "Questa persona ha già un avviso da leggere che non ha ancora chiuso.",
+        "azzera": "Rimuovi il nome",
+        "conferma": "Confermi di rimuovere «{nome}»? La persona viene avvisata e le sue prenotazioni restano tutte valide.",
+        "confermaSi": "Sì, rimuovi",
+        "confermaNo": "Lascia stare",
+        "nonTrovato": "Nessun nome pubblico con questo identificativo. Forse è già stato rimosso, o la persona l'ha cambiato."
+      },
+      "elenco": {
+        "titolo": "Nomi pubblici in uso",
+        "nota": "Sono gli stessi nomi che chiunque legge su «Chi c'è in Valle».",
+        "vuoto": "Nessun nome pubblico al momento."
+      },
+      "registro": {
+        "titolo": "Nomi già rimossi",
+        "nota": "Chi, quando, quale nome. Nessun indirizzo email.",
+        "vuoto": "Non è ancora stato rimosso nessun nome.",
+        "riga": "«{nome}» — rimosso il {data}"
+      },
+      "rimosso": "Nome rimosso. La persona lo leggerà nelle sue impostazioni al prossimo accesso.",
+      "postaDaFare": "L'email di avviso non parte ancora: le email dell'app arrivano più avanti."
+    },
+    "termini": {
+      "titolo": "Termini vietati",
+      "introduzione": "Un nome pubblico che contiene uno di questi termini viene rifiutato al momento del salvataggio, in qualsiasi punto si trovi e senza badare a maiuscole e accenti. A chi scrive non viene detto quale termine ha fatto scattare il controllo.",
+      "riservato": "Questo elenco non lo vede nessun altro: conoscerlo vuol dire sapere come aggirarlo.",
+      "campo": "Nuovo termine",
+      "aggiungi": "Aggiungi",
+      "rimuovi": "Rimuovi",
+      "vuoto": "L'elenco è vuoto.",
+      "aggiunto": "Termine aggiunto.",
+      "rimosso": "Termine rimosso."
+    },
+    "errori": {
+      "HA_PRENOTAZIONI": "Questa sede ha delle prenotazioni collegate, quindi non si può eliminare. Se non va più usata, sospendila con l'interruttore.",
+      "GIA_PRESENTE": "C'è già: non serve aggiungerlo un'altra volta.",
+      "UTENTE_INESISTENTE": "Nessuna persona registrata con questo indirizzo. Controlla che sia scritto giusto e che sia già entrata almeno una volta.",
+      "NESSUN_NOME": "Questa persona non ha un nome pubblico da rimuovere.",
+      "NON_AUTORIZZATO": "Non puoi fare questa operazione.",
+      "ERRORE": "Non siamo riusciti a salvare. Riprova tra qualche minuto.",
+      "datiIncompleti": "Compila i campi che mancano e riprova.",
+      "dateInvertite": "La data di fine viene prima di quella di inizio."
     }
   },
   "accesso": {

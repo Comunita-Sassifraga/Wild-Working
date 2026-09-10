@@ -76,7 +76,7 @@ Da usare in modo coerente in tutto il progetto — nel codice, nell'interfaccia 
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Visitatore** (non registrato) | Vedere la disponibilità della finestra prenotabile (oggi + `FINESTRA_GIORNI`). Vedere la pagina pubblica "Chi c'è". Leggere l'informativa privacy.                                        |
 | **Utente registrato**           | Tutto quanto sopra, più: prenotare, annullare le proprie prenotazioni, impostare il nome pubblico, modificare il proprio profilo, scaricare i propri dati, cancellare il proprio account. |
-| **Referente di sede**           | Tutto quanto sopra, più: vedere l'elenco nominativo delle prenotazioni **della sola sede assegnata**, limitato alla **finestra prenotabile**. Segnalare una chiusura.                     |
+| **Referente di sede**           | Tutto quanto sopra, più: vedere l'elenco nominativo delle prenotazioni **della sola sede assegnata**, limitato alla **finestra prenotabile**. Non inserisce chiusure: le segnala al Direttivo, che le inserisce dal pannello (§6.7). |
 | **Amministratore**              | Tutto. Gestire sedi, capienze, chiusure, referenti. Moderare i nomi pubblici (§6.5). Vedere le statistiche aggregate (§6.8), che non contengono né email né nomi pubblici. Cancellare un account su richiesta. |
 
 **Regola di minimizzazione:** nessun ruolo, incluso l'amministratore, ha accesso a dati nominativi dopo che sono trascorsi 30 giorni dalla prenotazione. Restano solo dati aggregati e anonimi. Questo evita che lo strumento diventi un archivio degli spostamenti delle persone.
@@ -85,7 +85,7 @@ Da usare in modo coerente in tutto il progetto — nel codice, nell'interfaccia 
 
 ## 5. Struttura dei dati
 
-Sette entità. Descritte prima a parole, poi in tabella.
+Nove entità. Descritte prima a parole, poi in tabella.
 
 - Un **utente** ha un'email e, se vuole, un nome pubblico.
 - Una **sede** ha un nome, un indirizzo, una capienza e degli orari.
@@ -94,8 +94,8 @@ Sette entità. Descritte prima a parole, poi in tabella.
 - Un **consenso** registra quando e per cosa un utente ha dato o revocato il permesso.
 - Un **incarico** assegna il ruolo di referente a un utente per una sede.
 - Un **periodo attività** indica in quali periodi dell'anno la sede è attiva.
-
-Due archivi di supporto richiesti da §6.5 e §6.7 non sono ancora descritti qui: l'**elenco dei termini vietati** e il **registro delle moderazioni** (chi, quando, quale nome è stato rimosso). Vanno aggiunti a questa sezione quando si costruisce la moderazione (passi 6 e 8 di §12).
+- Un **termine vietato** è una voce dell'elenco che il filtro dei nomi pubblici confronta in scrittura.
+- Una **moderazione** registra l'azzeramento di un nome pubblico da parte di un amministratore.
 
 ### 5.1 utenti
 
@@ -201,7 +201,7 @@ I due consensi sono **indipendenti**: si può dare l'uno senza l'altro, e revoca
 
 Questa tabella è **append-only**: non si modifica e non si cancella nulla, si aggiunge una riga a ogni cambiamento. Serve a dimostrare, se richiesto, quando un consenso è stato dato o ritirato (art. 7.1 GDPR).
 
-Il consenso `DATI_FACOLTATIVI` si considera revocato quando tutti e cinque i campi sono vuoti, qualunque sia la strada con cui sono stati svuotati (pulsante "Rimuovi" o modifica manuale): il registro segue lo stato reale dei dati, e le righe le scrive il database da solo a ogni cambiamento. Il registro sopravvive alla cancellazione dell'account (§7): le righe conservano l'identificativo interno dell'utente, che dopo la cancellazione non rimanda più a nessuno.
+Il consenso `DATI_FACOLTATIVI` si considera revocato quando tutti e cinque i campi sono vuoti, qualunque sia la strada con cui sono stati svuotati (pulsante "Rimuovi" o modifica manuale): il registro segue lo stato reale dei dati, e le righe le scrive il database da solo a ogni cambiamento. Per la stessa ragione una riga di revoca del `NOME_PUBBLICO` può nascere anche da un azzeramento dell'amministratore (§6.5): il registro segue lo stato reale della visibilità, non soltanto le scelte della persona. Il registro sopravvive alla cancellazione dell'account (§7): le righe conservano l'identificativo interno dell'utente, che dopo la cancellazione non rimanda più a nessuno.
 
 ### 5.6 incarichi
 
@@ -228,6 +228,18 @@ Regole:
 - I periodi possono essere sovrapposti senza che questo causi errori: vale l'unione, non l'intersezione.
 - Nessun periodo dichiarato **e** `sempre_disponibile` a no significa che la sede non è mai prenotabile. L'interfaccia deve avvisare l'amministratore di questa situazione, che quasi sempre è un errore.
 - Aggiungere, spostare o accorciare un periodo **non cancella mai** prenotazioni già esistenti in automatico: vale la stessa regola di §8.2.
+
+### 5.8 termini_vietati
+
+`id`, `termine`, `creato_il`, `creato_da`.
+
+L'elenco usato dal filtro automatico di §6.5. Modificabile dal pannello, senza toccare il codice. Lo legge soltanto l'amministratore: conoscere l'elenco è sapere come aggirarlo.
+
+### 5.9 moderazioni
+
+`id`, `utente_id`, `nome_rimosso`, `amministratore_id`, `avvenuta_il`.
+
+Una riga per ogni azzeramento di §6.5 livello 3: chi, quando, quale nome è stato rimosso. Non contiene mai l'email. Si conserva finché esiste l'account della persona: cancellato l'account, sparisce con lui.
 
 ---
 
@@ -399,8 +411,11 @@ Il collegamento sta **fuori** dalla fascia verde, sullo sfondo crema, quindi è 
 - Gestione incarichi: assegnare e revocare il ruolo di referente.
 - **Moderazione dei nomi pubblici** (§6.5): dall'identificativo utente ricevuto per email, azzerare il nome pubblico con un'azione. L'azione richiede una conferma, invia in automatico l'avviso all'utente e viene registrata (chi, quando, quale nome è stato rimosso). La schermata mostra il nome pubblico e l'identificativo interno, **mai l'email dell'utente**.
 - **Gestione dell'elenco dei termini vietati** usato dal filtro automatico: aggiungere e rimuovere voci senza toccare il codice.
+- **Prenotazioni da controllare**: l'elenco delle prenotazioni che un cambiamento ha lasciato fuori — capienza abbassata sotto il numero di prenotati, chiusura inserita su un giorno già prenotato, periodo accorciato, sede sospesa, giorno della settimana tolto dalle aperture (§8.2, §8.4). Il pannello mostra sede, giorno, fascia, motivo e l'indirizzo a cui scrivere. Non annulla mai niente da solo: decide una persona.
 - Statistiche aggregate (§6.8).
 - Cancellazione di un account su richiesta scritta dell'interessato.
+
+Le ultime due voci non appartengono al passo che costruisce il pannello: le statistiche si costruiscono al passo 12 di §12, la cancellazione di un account al passo 10, insieme agli altri diritti dell'interessato. Il pannello le nomina fin da subito, spente, perché si veda che esistono e non sembrino dimenticate.
 
 ### 6.8 Statistiche
 
@@ -452,6 +467,7 @@ Le stesse due regole valgono per il CSV esportato, che è la via più facile per
 | Richieste di accesso mai completate | Ogni notte | Cancellate dopo 24 ore |
 | Link di accesso | 15 minuti | Non più utilizzabili; non ne resta traccia |
 | Impronte delle richieste di link (§6.1) | 1 ora | Cancellate. Sono hash con chiave, non indirizzi: nessuna email o indirizzo di rete viene conservato |
+| Registro delle moderazioni (§5.9) | Alla cancellazione dell'account | Le righe della persona spariscono insieme al suo account |
 | Log tecnici | 30 giorni | Cancellati. Non devono contenere email in chiaro. |
 
 ### Diritti dell'interessato: dove si esercitano

@@ -14,6 +14,7 @@ import {
   aggiornaDatiFacoltativi,
   impostaNomePubblico,
   rimuoviDatiFacoltativi,
+  segnaAvvisoModerazioneLetto,
   VALORI_ETA,
   VALORI_GENERE,
   VALORI_RESIDENZA,
@@ -86,6 +87,21 @@ export async function salvaBenvenutoAzione(formData: FormData): Promise<void> {
   if (!nome.ok) redirect(`/impostazioni?benvenuto=1&errore=${nome.motivo}`);
   if (!ok) redirect("/impostazioni?benvenuto=1&errore=generico");
   redirect("/");
+}
+
+/**
+ * Closes the notice of §6.5 — the message a person reads when an
+ * amministratore has removed their public name. It stays until they close
+ * it: shown once and gone would mean shown to nobody if they were not
+ * looking at this page that day.
+ */
+export async function chiudiAvvisoModerazioneAzione(): Promise<void> {
+  const utente = await utenteAttuale();
+  if (!utente) redirect("/accedi");
+
+  const client = await clientServer();
+  await segnaAvvisoModerazioneLetto(client, utente.id);
+  redirect("/impostazioni");
 }
 
 export async function rimuoviDatiAzione(): Promise<void> {

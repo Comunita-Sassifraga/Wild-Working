@@ -8,6 +8,7 @@ import {
 } from "@/components/controlli";
 import { MAX_CAMBI_NOME_GIORNO } from "@/config/limits";
 import { utenteAttuale } from "@/lib/auth/sessione";
+import { istanteEsteso } from "@/lib/dates";
 import { clientServer } from "@/lib/db/server";
 import {
   MAX_CARATTERI_MOTIVO,
@@ -19,7 +20,13 @@ import {
   VALORI_RESIDENZA,
 } from "@/lib/db/utenti";
 import { conValori, m } from "@/lib/messaggi";
-import { rimuoviDatiAzione, salvaBenvenutoAzione, salvaDatiAzione, salvaNomeAzione } from "./azioni";
+import {
+  chiudiAvvisoModerazioneAzione,
+  rimuoviDatiAzione,
+  salvaBenvenutoAzione,
+  salvaDatiAzione,
+  salvaNomeAzione,
+} from "./azioni";
 
 /**
  * Personal settings — SPEC §6.5, §12 step 6, plus the one-time screen of
@@ -40,9 +47,12 @@ import { rimuoviDatiAzione, salvaBenvenutoAzione, salvaDatiAzione, salvaNomeAzio
  * TODO step 7: "Chi c'è in Valle" must show the name exactly as the preview
  * below draws it — same register, same wording. If the two drift apart, the
  * preview is the one that is wrong.
- * TODO step 8: §6.5 asks that the notice of an admin clear appear here at the
- * next sign-in. Only the admin action can set that, and it is built with the
- * panel; no column for it exists yet on purpose.
+ *
+ * The notice of §6.5 — an amministratore removed the public name — is read
+ * from `avviso_moderazione`, which only the clear action of the panel can
+ * set. The person closes it themselves: shown once and gone would mean shown
+ * to nobody if they happened not to open this page that day. The email that
+ * carries the same message arrives at step 9, with all the others.
  */
 
 type Proprieta = {
@@ -268,6 +278,25 @@ export default async function PaginaImpostazioni({ searchParams }: Proprieta) {
     <>
       <h1 className={titoloPagina}>{t.titolo}</h1>
       <p className="mt-6 italic">{t.introduzione}</p>
+
+      {/* §6.5: the person must be told, or they go on believing their name
+          is visible and cannot understand why nobody sees it. */}
+      {profilo.avviso_moderazione && (
+        <section role="alert" className="mt-8 border-b border-t border-linea py-6">
+          <h2 className="text-titolo-sezione font-grassetto">{t.moderazione.titolo}</h2>
+          <p className="mt-4">{t.moderazione.testo}</p>
+          <p className={aiuto}>
+            {conValori(t.moderazione.quando, {
+              data: istanteEsteso(profilo.avviso_moderazione),
+            })}
+          </p>
+          <form action={chiudiAvvisoModerazioneAzione} className="mt-6">
+            <button type="submit" className={bottoneSecondario}>
+              {t.moderazione.chiudi}
+            </button>
+          </form>
+        </section>
+      )}
 
       {salvato && (
         <p role="status" className="mt-6">

@@ -6,6 +6,7 @@ import { SediFuoriPeriodo } from "@/components/SediFuoriPeriodo";
 import { TabellaGiorno } from "@/components/TabellaGiorno";
 import { bottoneSecondario } from "@/components/controlli";
 import { FINESTRA_GIORNI } from "@/config/limits";
+import { sonoAmministratore } from "@/lib/auth/ruoli";
 import { utenteAttuale } from "@/lib/auth/sessione";
 import { settimaneCalendario } from "@/lib/dates";
 import { apertureFuture, disponibilitaPubblica, sediPubbliche } from "@/lib/db/disponibilita";
@@ -40,10 +41,11 @@ export default async function Home({
     clientServer(),
     searchParams,
   ]);
-  const [sedi, celle, aperture] = await Promise.all([
+  const [sedi, celle, aperture, amministratore] = await Promise.all([
     sediPubbliche(client),
     disponibilitaPubblica(client),
     apertureFuture(client),
+    utente ? sonoAmministratore(client) : Promise.resolve(false),
   ]);
 
   const settimane = settimaneCalendario();
@@ -89,6 +91,8 @@ export default async function Home({
           <span>{m.home.collegato}</span>
           <Link href="/prenotazioni">{m.home.miePrenotazioni}</Link>
           <Link href="/impostazioni">{m.home.impostazioni}</Link>
+          {/* The panel names itself only to the people who have it (§6.7). */}
+          {amministratore && <Link href="/amministrazione">{m.home.amministrazione}</Link>}
           <button type="submit" className={bottoneSecondario}>
             {m.home.esci}
           </button>
