@@ -77,7 +77,12 @@ export default async function Home({
       </h1>
       <p className="mt-6 italic">{conValori(t.introduzione, { giorni: FINESTRA_GIORNI })}</p>
 
-      <Rimando href="/chi-ce-in-valle" etichetta={t.rimandoChiCe} nota={t.rimandoChiCeNota} />
+      <Rimando
+        href="/chi-ce-in-valle"
+        etichetta={t.rimandoChiCe}
+        nota={t.rimandoChiCeNota}
+        forma="pulsante"
+      />
 
       {utente ? (
         <form action={esciAzione} className="mt-6 flex flex-wrap items-center gap-4">

@@ -275,7 +275,11 @@ I nomi pubblici stanno soltanto nella pagina "Chi c'è in Valle" (§6.6, D15). L
 
 Sta sopra la griglia, non in fondo, per due ragioni. Da telefono la griglia è lunga e un collegamento in coda non lo vedrebbe nessuno. Ed è lì che nasce la domanda: si legge "2 persone hanno reso pubblica la presenza" e si vuole sapere chi sono.
 
-È un collegamento normale in `verde-testo` sottolineato (§13.6), con la nota in `testo-secondario`. **Non** una fascia in Stile 2: lo Stile 2 è un registro d'accento (§13.2) e una fascia verde sopra la griglia toglierebbe il primo posto all'azione principale.
+È un **pulsante di azione principale** (§13.6): riempimento `verde`, testo `testo`, angoli 4px, con la nota sotto in `testo-secondario`. Decisione del 10/09/2026, che sostituisce la scelta precedente di un collegamento sottolineato: «Chi c'è in Valle» è la funzione che dà valore all'app (§1), e chi arriva sulla disponibilità deve vederla senza doverla cercare. Il costo è dichiarato: il pulsante pesa più del "Prenota" delle celle, che resta un collegamento dentro la griglia.
+
+Resta vietata la **fascia** in Stile 2 sopra la griglia. Un pulsante è un elemento circoscritto; una fascia a tutta larghezza è un registro (§13.2), e sopra la griglia la schiaccerebbe.
+
+Il collegamento speculare di §6.6 **non** diventa un pulsante: l'asimmetria è voluta, e la ragione sta lì.
 
 Accessibile **senza registrazione**. La registrazione serve solo per prenotare.
 
@@ -385,7 +389,7 @@ I due gruppi stanno in una riga sola, non in due elenchi separati: prima i nomi,
 
 **Collegamento alla disponibilità.** Nella stessa posizione speculare — sotto l'introduzione, sopra l'elenco delle sedi — un collegamento alla pagina della disponibilità con la nota: *"Guarda quanti posti restano e prenota il tuo"*. Chi arriva qui da un collegamento condiviso non ha visto nient'altro dell'app: senza questo rimando vede chi c'è e non sa come aggiungersi.
 
-Il collegamento sta **fuori** dalla fascia verde, sullo sfondo crema, quindi è in `verde-testo` come tutti gli altri. Dentro un blocco Stile 2 sarebbe in `testo` (§13.6).
+Il collegamento sta **fuori** dalla fascia verde, sullo sfondo crema, quindi è in `verde-testo` come tutti gli altri. Dentro un blocco Stile 2 sarebbe in `testo` (§13.6). Resta un collegamento sottolineato anche ora che quello di §6.2 è un pulsante: qui sta a ridosso della fascia verde del titolo, e una seconda superficie verde attaccata a quella si leggerebbe come un blocco solo.
 
 ### 6.7 Pannello di amministrazione
 
