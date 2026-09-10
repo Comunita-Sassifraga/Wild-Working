@@ -81,6 +81,18 @@ export function servizio(): Client {
   return clientServizio(a.url, a.serviceKey);
 }
 
+/**
+ * Publishes the local connection data as environment variables, for the few
+ * library functions that build their own backend client instead of taking one
+ * (lib/db/servizio.ts). Everything else in the tests passes a client
+ * explicitly and needs none of this.
+ */
+export function ambienteNelProcesso(): void {
+  const a = ambiente();
+  process.env.SUPABASE_URL = a.url;
+  process.env.SUPABASE_SERVICE_ROLE_KEY = a.serviceKey;
+}
+
 export function visitatore(): Client {
   const a = ambiente();
   return clientAnonimo({ url: a.url, anonKey: a.anonKey });
@@ -276,6 +288,43 @@ export async function linkDaEmail(
   const m = /token_hash=([^&"'\s<]+)&type=([a-z_]+)/.exec(testo);
   if (!m) throw new Error("the email carries no sign-in link");
   return { tokenHash: m[1], tipo: m[2] };
+}
+
+/** One message as the tests read it. The address is not part of it: it is the key, not the content. */
+export type EmailRicevuta = { da: string; oggetto: string; testo: string };
+
+/**
+ * Waits for the (giaViste + 1)-th email to an address and returns it. Used by
+ * the step 9 tests, which check what the app writes rather than a link.
+ */
+export async function attendiEmail(email: string, giaViste = 0): Promise<EmailRicevuta> {
+  const scadenza = Date.now() + 10_000;
+  let messaggi: MessaggioPosta[] = [];
+  while (Date.now() < scadenza) {
+    messaggi = await messaggiPer(email);
+    if (messaggi.length > giaViste) break;
+    await new Promise((r) => setTimeout(r, 200));
+  }
+  if (messaggi.length <= giaViste) throw new Error("no email arrived in time");
+
+  const risposta = await fetch(`${ambiente().postaUrl}/api/v1/message/${messaggi[0].ID}`);
+  if (!risposta.ok) throw new Error(`mailbox read failed: ${risposta.status}`);
+  const corpo = (await risposta.json()) as {
+    From?: { Address?: string };
+    Subject?: string;
+    Text?: string;
+  };
+  return { da: corpo.From?.Address ?? "", oggetto: corpo.Subject ?? "", testo: corpo.Text ?? "" };
+}
+
+/**
+ * Gives a message that must not exist the time to arrive, then reports how
+ * many are there. Proving a negative needs a wait: without one the test would
+ * pass because it looked too early.
+ */
+export async function nessunaEmailOltre(email: string, giaViste = 0): Promise<number> {
+  await new Promise((r) => setTimeout(r, 1_000));
+  return (await messaggiPer(email)).length - giaViste;
 }
 
 /** Pauses longer than the minimum interval between two emails to one address (config.toml max_frequency). */

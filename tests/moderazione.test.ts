@@ -2,19 +2,21 @@
  * SPEC §6.5 — nome pubblico: validazione, elenco dei termini vietati, limite
  * dei cambi al giorno.
  *
- * Questo file copre il primo dei tre livelli di moderazione (filtro in
- * scrittura, elenco dei termini, limite dei cambi) e il terzo, l'azzeramento
- * da parte dell'amministratore, costruito al passo 8. Resta in fondo come
- * `it.todo` il secondo, l'avviso via email: il fornitore di posta arriva al
- * passo 9, e finché non c'è quei promemoria si vedono a ogni esecuzione.
+ * Questo file copre tutti e tre i livelli: il filtro in scrittura con
+ * l'elenco dei termini e il limite dei cambi, l'avviso all'amministratore, e
+ * l'azzeramento con l'email che ne informa la persona. Gli ultimi due hanno
+ * avuto bisogno del fornitore di posta, costruito al passo 9.
  *
- * Nessun indirizzo email viene stampato (CLAUDE.md regola 4).
+ * Le email finiscono in Mailpit (vitest.config.mts impone POSTA_LOCALE).
+ * Nessun indirizzo viene stampato (CLAUDE.md regola 4).
  */
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { MAX_CAMBI_NOME_GIORNO } from "@/config/limits";
+import { EMAIL_MITTENTE, EMAIL_MODERAZIONE, MAX_CAMBI_NOME_GIORNO } from "@/config/limits";
 import { oggiRoma } from "@/lib/dates";
 import { azzeraNomePubblico } from "@/lib/db/amministrazione";
+import { m } from "@/lib/messaggi";
+import { avvisaModerazione, avvisaNomeRimosso } from "@/lib/posta/avvisi";
 import {
   aggiornaDatiFacoltativi,
   impostaMostraNomePubblico,
@@ -23,11 +25,15 @@ import {
   mioProfilo,
 } from "@/lib/db/utenti";
 import {
+  ambienteNelProcesso,
   assegnaIncarico,
+  attendiEmail,
   CODICE_PERMESSO_NEGATO,
+  contaEmail,
   creaSede,
   creaUtente,
   inserisciPrenotazioneDiretta,
+  nessunaEmailOltre,
   pulisci,
   servizio,
   visitatore,
@@ -35,6 +41,9 @@ import {
 } from "./setup/supabase";
 
 const TERMINE = "idiota";
+
+/** La casella del Direttivo (§10). vitest.config.mts ne impone una di prova. */
+const MODERAZIONE = EMAIL_MODERAZIONE ?? "";
 
 describe("§6.5 nome pubblico e moderazione", () => {
   const anon = visitatore();
@@ -59,6 +68,10 @@ describe("§6.5 nome pubblico e moderazione", () => {
   }
 
   beforeAll(async () => {
+    // avvisaNomeRimosso() costruisce da sé il client di servizio, per leggere
+    // un indirizzo che l'amministratore non può vedere (§6.7).
+    ambienteNelProcesso();
+    expect(MODERAZIONE).not.toBe("");
     [u, cambi, admin] = await Promise.all([creaUtente(), creaUtente(), creaUtente()]);
     await assegnaIncarico(admin.id, "AMMINISTRATORE");
   });
@@ -314,13 +327,80 @@ describe("§6.5 nome pubblico e moderazione", () => {
   });
 
   // -------------------------------------------------------------------------
-  // Livello 2, la metà che ha bisogno del fornitore di posta.
+  // Livello 2, l'avviso all'amministratore — costruito al passo 9.
+  //
+  // Chi decide se l'email parte è il database: `cambiato` dice se il testo del
+  // nome è davvero cambiato. `salvaComeLaPagina` fa esattamente quello che fa
+  // la Server Action delle impostazioni, e nient'altro.
   // -------------------------------------------------------------------------
 
-  it.todo(
-    "passo 9 — un nome salvato o cambiato manda una sola email a EMAIL_MODERAZIONE, con nome_pubblico e utente_id e nessun indirizzo email",
-  );
-  it.todo(
-    "passo 9 — l'azzeramento manda alla persona l'email di §6.5, con lo stesso testo dell'avviso nelle impostazioni",
-  );
+  async function salvaComeLaPagina(chi: UtenteTest, nome: string) {
+    const esito = await impostaNomePubblico(chi.client, { nome, mostra: true });
+    if (esito.ok && esito.cambiato && esito.nome) {
+      await avvisaModerazione({ nomePubblico: esito.nome, utenteId: chi.id });
+    }
+    return esito;
+  }
+
+  it("un nome salvato o cambiato manda una sola email a EMAIL_MODERAZIONE, con nome_pubblico e utente_id e nessun indirizzo", async () => {
+    const chi = await utenteNuovo();
+    const prima = await contaEmail(MODERAZIONE);
+
+    await salvaComeLaPagina(chi, "Nome Da Controllare");
+
+    const email = await attendiEmail(MODERAZIONE, prima);
+    expect(email.testo).toContain("Nome Da Controllare");
+    expect(email.testo).toContain(chi.id);
+    // "L'email non contiene l'indirizzo email dell'utente, né alcun altro suo
+    // dato": l'identificativo interno basta ad agire (§6.5, regola 4).
+    expect(email.testo).not.toContain(chi.email);
+    expect(email.testo).not.toContain("@example.com");
+
+    // Risalvare lo stesso nome non è una modifica: non manda niente.
+    await salvaComeLaPagina(chi, "Nome Da Controllare");
+    expect(await nessunaEmailOltre(MODERAZIONE, prima + 1)).toBe(0);
+
+    // Nemmeno spegnere e riaccendere la spunta della visibilità.
+    await impostaMostraNomePubblico(chi.client, chi.id, false);
+    await impostaMostraNomePubblico(chi.client, chi.id, true);
+    expect(await nessunaEmailOltre(MODERAZIONE, prima + 1)).toBe(0);
+
+    // Un nome davvero diverso, invece, sì.
+    await salvaComeLaPagina(chi, "Nome Diverso");
+    await attendiEmail(MODERAZIONE, prima + 1);
+  });
+
+  it("il cambio di troppo nella giornata non manda nessun avviso", async () => {
+    const chi = await utenteNuovo();
+    const prima = await contaEmail(MODERAZIONE);
+
+    for (let n = 1; n <= MAX_CAMBI_NOME_GIORNO; n++) {
+      expect((await salvaComeLaPagina(chi, `Nome numero ${n}`)).ok).toBe(true);
+    }
+    await attendiEmail(MODERAZIONE, prima + MAX_CAMBI_NOME_GIORNO - 1);
+
+    const oltre = await salvaComeLaPagina(chi, "Nome di troppo");
+    expect(oltre).toMatchObject({ ok: false, motivo: "TROPPI_CAMBI" });
+    expect(await nessunaEmailOltre(MODERAZIONE, prima + MAX_CAMBI_NOME_GIORNO)).toBe(0);
+  });
+
+  // -------------------------------------------------------------------------
+  // Livello 3, l'avviso alla persona — anch'esso al passo 9.
+  // -------------------------------------------------------------------------
+
+  it("l'azzeramento manda alla persona l'email di §6.5, con lo stesso testo dell'avviso nelle impostazioni", async () => {
+    const chi = await utenteNuovo();
+    await impostaNomePubblico(chi.client, { nome: "Nome Da Togliere", mostra: true });
+
+    expect((await azzeraNomePubblico(admin.client, chi.id)).ok).toBe(true);
+    // Quello che fa la Server Action del pannello, subito dopo l'azzeramento.
+    expect(await avvisaNomeRimosso(chi.id)).toMatchObject({ ok: true });
+
+    const email = await attendiEmail(chi.email);
+    expect(email.da).toBe(EMAIL_MITTENTE);
+    expect(email.oggetto).toBe(m.posta.azzeramento.oggetto);
+    // Lo stesso testo che la persona ritrova nelle impostazioni: una fonte
+    // sola, così le due frasi non possono divergere.
+    expect(email.testo).toBe(m.impostazioni.moderazione.testo);
+  });
 });

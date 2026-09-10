@@ -9,7 +9,9 @@
  */
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 import { clientServer } from "@/lib/db/server";
+import { avvisaModerazione } from "@/lib/posta/avvisi";
 import {
   aggiornaDatiFacoltativi,
   impostaNomePubblico,
@@ -69,6 +71,20 @@ async function salva(
     nome: testo(formData.get("nome")),
     mostra: formData.get("mostra") !== null,
   });
+
+  // Moderation notice, §6.5 level 2. Only when the text of the name really
+  // changed — the database says so, this file does not guess — and only when
+  // a name is left: clearing one's own name warns nobody.
+  //
+  // After the answer, not before it: the save is done, and nobody has to wait
+  // on a mail provider to be told so. A notice that does not go out changes
+  // nothing for the person, and level 3 stays available to the amministratore.
+  if (nome.ok && nome.cambiato && nome.nome) {
+    const avviso = { nomePubblico: nome.nome, utenteId };
+    after(async () => {
+      await avvisaModerazione(avviso);
+    });
+  }
 
   return { datiOk: error === null, nome };
 }

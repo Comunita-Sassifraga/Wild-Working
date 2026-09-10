@@ -389,6 +389,26 @@
     "invioFallito": "Non riusciamo a inviare l'email in questo momento. Riprova tra qualche minuto.",
     "linkNonValido": "Questo link non è più valido: è già stato usato o sono passati più di {minuti} minuti. Chiedine un altro qui sotto."
   },
+  "posta": {
+    "promemoria": {
+      "oggettoUno": "Domani sei a {sede}",
+      "oggettoPiu": "Le tue prenotazioni di domani",
+      "apertura": "Domani, {data}, hai prenotato:",
+      "riga": "{sede}, {comune} — {fascia}, {orario}",
+      "indirizzo": "Indirizzo: {indirizzo}",
+      "note": "Informazioni pratiche: {note}",
+      "invito": "Se sai già che non riuscirai a venire, ti chiediamo di annullare: il posto torna subito libero per qualcun altro. Puoi farlo fino all'inizio della fascia.",
+      "collegamento": "Vai a Le mie prenotazioni per annullare:\n{url}",
+      "chiusura": "Ti aspettiamo."
+    },
+    "moderazione": {
+      "oggetto": "Un nome pubblico da controllare",
+      "testo": "Una persona ha scelto o cambiato il nome che compare sulla pagina «Chi c'è in Valle».\n\nNome: {nome}\nIdentificativo della persona: {utente}\n\nSe il nome non rispetta le regole di utilizzo puoi rimuoverlo da qui:\n{url}"
+    },
+    "azzeramento": {
+      "oggetto": "Il tuo nome pubblico è stato rimosso"
+    }
+  },
   "campionario": {
     "titolo": "Campionario dei token",
     "introduzione": "Questa pagina esiste solo in sviluppo. Mostra ogni valore di SPEC §13 almeno una volta, così l'aspetto si controlla qui prima di usarlo altrove.",

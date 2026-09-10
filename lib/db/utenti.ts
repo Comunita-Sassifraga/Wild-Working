@@ -134,7 +134,17 @@ export type MotivoRifiutoNome =
   | "ERRORE";
 
 export type EsitoNomePubblico =
-  | { ok: true; nome: string | null; mostra: boolean }
+  | {
+      ok: true;
+      nome: string | null;
+      mostra: boolean;
+      /**
+       * True when the save really changed the text of the name — exactly when
+       * the moderation notice of §6.5 goes out. Re-saving the same name, or
+       * flipping the switch, leaves it false and sends nothing.
+       */
+      cambiato: boolean;
+    }
   | { ok: false; motivo: MotivoRifiutoNome; codice?: string };
 
 // SQLSTATE codes raised by the database (see *_nome_pubblico.sql).
@@ -162,5 +172,25 @@ export async function impostaNomePubblico(
   });
   if (error) return { ok: false, motivo: motiviPerCodice[error.code] ?? "ERRORE", codice: error.code };
   const riga = data?.[0];
-  return { ok: true, nome: riga?.nome_pubblico ?? null, mostra: riga?.mostra_nome_pubblico ?? false };
+  return {
+    ok: true,
+    nome: riga?.nome_pubblico ?? null,
+    mostra: riga?.mostra_nome_pubblico ?? false,
+    cambiato: riga?.cambiato ?? false,
+  };
+}
+
+/**
+ * The address of one person, for the mail layer alone (§6.5: the clear action
+ * "invia in automatico l'avviso all'utente"). Takes the backend client,
+ * because the amministratore's own session cannot read another person's
+ * email, and must not — the moderation screen reads a view without the
+ * column (§6.7).
+ *
+ * The value goes straight into an envelope: it is never returned to a page,
+ * never put in an address bar, never logged (rule 4).
+ */
+export async function emailPerAvviso(client: Client, utenteId: string): Promise<string | null> {
+  const { data } = await client.from("utenti").select("email").eq("id", utenteId).maybeSingle();
+  return data?.email ?? null;
 }

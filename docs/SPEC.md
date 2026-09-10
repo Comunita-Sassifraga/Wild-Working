@@ -303,8 +303,17 @@ Accessibile **senza registrazione**. La registrazione serve solo per prenotare.
    di prenotare solo l'altra. Una richiesta di giornata intera non si
    accontenta di mezza giornata senza che la persona lo abbia scelto.
 2. Il sistema verifica in tempo reale che ci sia ancora posto.
-3. La prenotazione è confermata **immediatamente**, senza approvazioni.
-4. Parte un'email di conferma con: sede, indirizzo, data, orario, link per annullare, allegato per il calendario.
+3. La prenotazione è confermata **immediatamente**, senza approvazioni. La conferma si legge a schermo e resta consultabile in **"Le mie prenotazioni"**: al momento della prenotazione non parte nessuna email (decisione del 10/09).
+4. **La sera prima parte un promemoria** con: sede, comune, indirizzo, data, orario di ogni fascia prenotata, le informazioni pratiche della sede, e il collegamento a "Le mie prenotazioni" per annullare. Il messaggio contiene un invito esplicito ad annullare a chi già sa che non verrà: il posto torna libero per qualcun altro.
+
+**Perché un promemoria e non una conferma.** Una conferma dice quello che la persona ha appena visto a schermo e può rileggere in ogni momento nella propria pagina. Un promemoria arriva invece nel momento in cui la persona può ancora cambiare idea, ed è l'unico momento in cui l'email fa qualcosa che l'app da sola non fa. Ne parte una sola per persona e per giorno: chi ha preso la giornata intera, o due sedi lo stesso giorno, legge un messaggio con tutto dentro.
+
+**Regole del promemoria:**
+- Parte **una volta al giorno**, all'ora `ORA_PROMEMORIA` (§10), per le prenotazioni attive del giorno successivo.
+- Chi prenota **dopo** che il giro di quel giorno è passato non riceve nulla: ha appena visto la conferma a schermo, e il giro successivo guarda già oltre (§8.4).
+- Una prenotazione annullata non riceve nessun promemoria.
+- Una prenotazione riceve il promemoria **una volta sola**. Il segno di "già inviato" è scritto dalla banca dati nello stesso gesto con cui le righe vengono prese in carico, come il vincolo di §8.1: due esecuzioni sovrapposte non possono mandare due messaggi. La conseguenza, accettata, è che un invio fallito è un promemoria perso, mai un promemoria doppio.
+- Una `chiusura` inserita dopo la prenotazione **non** ferma il promemoria: la prenotazione resta valida finché una persona non interviene (§8.2, e non si annulla mai d'ufficio la prenotazione di qualcun altro).
 
 Vincoli:
 - Non si può prenotare nel passato.
@@ -316,7 +325,8 @@ Vincoli:
 ### 6.4 Annullare
 
 - Sempre possibile, fino all'orario di inizio della fascia.
-- Un clic da **"Le mie prenotazioni"** — la pagina che elenca le proprie prenotazioni attive da oggi fino alla fine della finestra, con sede, giorno, fascia e orario — o dal link nell'email di conferma. Nessuna conferma richiesta oltre al clic. Le prenotazioni passate non compaiono: dopo 30 giorni vengono comunque anonimizzate (§7).
+- Un clic da **"Le mie prenotazioni"** — la pagina che elenca le proprie prenotazioni attive da oggi fino alla fine della finestra, con sede, giorno, fascia e orario. Nessuna conferma richiesta oltre al clic. Le prenotazioni passate non compaiono: dopo 30 giorni vengono comunque anonimizzate (§7).
+- Il promemoria di §6.3 **porta a quella pagina**, non annulla da solo. Un collegamento che annullasse con un clic dall'email avrebbe bisogno di un gettone segreto nell'indirizzo, cioè di un'altra cosa da proteggere e da tenere fuori da ogni registro (§8.3). Siccome la sessione dura 30 giorni, quasi sempre il collegamento apre la pagina già collegati; chi è scaduto rifà l'accesso normale. Nell'email il collegamento si legge *"Vai a Le mie prenotazioni per annullare"*, che è esattamente quello che fa.
 - Annullando una giornata intera si annullano entrambe le fasce, salvo scelta esplicita di annullarne una sola.
 - Se il posto liberato era l'ultimo disponibile e qualcuno è in attesa: **fuori dall'MVP**, vedi §9.
 
@@ -452,7 +462,7 @@ Le stesse due regole valgono per il CSV esportato, che è la via più facile per
 
 | Dato                  | Obbligatorio | Perché lo trattiamo                                                                 | Base giuridica                                          | Chi lo vede                                                                             | Per quanto                                    |
 | --------------------- | ------------ | ----------------------------------------------------------------------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------------- | --------------------------------------------- |
-| Email                 | **Sì**       | Identificare chi ha prenotato, mandare conferme, permettere l'annullamento          | Art. 6.1.b — necessario a erogare il servizio richiesto | L'utente, il referente della sede prenotata (solo prossimi 14 giorni), l'amministratore | Finché l'account esiste                       |
+| Email                 | **Sì**       | Identificare chi ha prenotato, mandare il promemoria della sera prima, permettere l'annullamento | Art. 6.1.b — necessario a erogare il servizio richiesto | L'utente, il referente della sede prenotata (solo prossimi 14 giorni), l'amministratore | Finché l'account esiste                       |
 | Nome pubblico         | No           | Permettere agli altri di scegliere la sede in base a chi ci sarà                    | Art. 6.1.a — **consenso**, revocabile                   | Chiunque, anche non registrati                                                          | Finché il consenso è attivo                   |
 | Eta                   | No           | Per raccogliere dati facoltativi, utili a capire l'utilità del servizio di coworkin | Art. 6.1.a — **consenso**, revocabile                   | L'utente. L'amministratore solo in forma aggregata (§6.8), mai collegato all'identità   | Finché il consenso è attivo                   |
 | Genere                | No           | Per raccogliere dati facoltativi, utili a capire l'utilità del servizio di coworkin | Art. 6.1.a — **consenso**, revocabile                   | L'utente. L'amministratore solo in forma aggregata (§6.8), mai collegato all'identità   | Finché il consenso è attivo                   |
@@ -536,7 +546,10 @@ Serve una suite di test che, impersonando un utente qualunque, provi a leggere l
 | Nome pubblico azzerato dall'amministratore | Le prenotazioni restano attive e valide. Sparisce solo il nome dalle pagine pubbliche. L'utente riceve l'avviso di §6.5. |
 | Utente che supera `MAX_CAMBI_NOME_GIORNO` | Il nome non si può cambiare fino al giorno successivo. Messaggio esplicito con l'ora in cui sarà di nuovo possibile. Nessuna email parte all'amministratore. |
 | Utente che revoca i dati facoltativi | I cinque campi del profilo vengono svuotati subito e non verranno più copiati su nessuna prenotazione. I valori già copiati nei campi `stat_` di prenotazioni anonimizzate **restano**: non sono più riconducibili a lui, quindi non sono più un suo dato personale. Va detto nell'informativa. |
-| Registrazione con tutti i campi facoltativi vuoti | Registrazione completata normalmente. Nessun promemoria successivo, nessun banner ricorrente. |
+| Registrazione con tutti i campi facoltativi vuoti | Registrazione completata normalmente. Nessuna sollecitazione successiva, nessun banner ricorrente. |
+| Prenotazione fatta dopo l'ora del promemoria, per il giorno dopo | Nessun promemoria: il giro di quella sera è già passato e il successivo guarda al giorno dopo ancora. La persona ha appena letto la conferma a schermo (§6.3). |
+| Chiusura inserita dopo la prenotazione | Il promemoria parte lo stesso. La prenotazione resta valida finché una persona non interviene (§8.2). |
+| Invio del promemoria non riuscito | Quel promemoria è perso, e il giro del giorno dopo non lo recupera. Scelta deliberata: la riga è segnata come presa in carico prima che il fornitore di posta confermi, perché un promemoria doppio è peggio di un promemoria mancato (§6.3). |
 
 ---
 
@@ -545,13 +558,14 @@ Serve una suite di test che, impersonando un utente qualunque, provi a leggere l
 Da non costruire ora. In ordine di priorità:
 
 1. ==**Etichette di competenze e interessi** accanto al nome pubblico ("grafica", "analisi dati", "cerco compagni di escursione"). È il passaggio da "so chi c'è" a "so con chi mi conviene incrociarmi".
-2. **Check-in con QR in sede** e liberazione automatica del posto dopo 30 minuti di assenza.
-3. ==**Lista d'attesa** con avviso automatico quando si libera un posto.
-4. **Prenotazioni ricorrenti** ("ogni martedì mattina fino a dicembre"). ⚠️ Incompatibile con la finestra di prenotazione (D8): una ricorrenza che generasse prenotazioni oltre la finestra la aggirerebbe. Se in futuro si vorrà questa funzione, andrà ripensata come *promemoria* ("ricordami ogni lunedì di prenotare per il martedì") anziché come prenotazione anticipata — oppure si dovrà rivedere D8.
-5. **Bot Telegram** per notifiche e prenotazione rapida.
-6. **Inglese e francese** (l'MVP è solo in italiano, ma i testi vanno tenuti separati dal codice fin da subito per non dover riscrivere tutto).
-7. **Postazioni differenziate** (monitor, sala silenziosa, sala riunioni), se e quando ci saranno.
-8. **Collegamento con gli eventi** di MontagneOltre e della valle.
+2. **File per il calendario** (`.ics`) da scaricare dalla pagina di conferma e da "Le mie prenotazioni", per tenersi occupato lo slot nella propria agenda. Era un allegato dell'email di conferma finché quell'email è esistita; con il passaggio al promemoria della sera prima (§6.3, decisione del 10/09) l'allegato non aveva più senso — arriverebbe quando l'agenda serve a poco — e diventa un pulsante dentro l'app, che funziona subito e non dipende dalla posta.
+3. **Check-in con QR in sede** e liberazione automatica del posto dopo 30 minuti di assenza.
+4. ==**Lista d'attesa** con avviso automatico quando si libera un posto.
+5. **Prenotazioni ricorrenti** ("ogni martedì mattina fino a dicembre"). ⚠️ Incompatibile con la finestra di prenotazione (D8): una ricorrenza che generasse prenotazioni oltre la finestra la aggirerebbe. Se in futuro si vorrà questa funzione, andrà ripensata come *promemoria* ("ricordami ogni lunedì di prenotare per il martedì") anziché come prenotazione anticipata — oppure si dovrà rivedere D8.
+6. **Bot Telegram** per notifiche e prenotazione rapida.
+7. **Inglese e francese** (l'MVP è solo in italiano, ma i testi vanno tenuti separati dal codice fin da subito per non dover riscrivere tutto).
+8. **Postazioni differenziate** (monitor, sala silenziosa, sala riunioni), se e quando ci saranno.
+9. **Collegamento con gli eventi** di MontagneOltre e della valle.
 
 ---
 
@@ -574,10 +588,13 @@ Valori che devono essere modificabili senza toccare la logica del programma. Viv
 | `EMAIL_MODERAZIONE` — destinatario degli avvisi sui nomi pubblici (§6.5) | da definire, casella del Direttivo, **mai un indirizzo personale** |
 | `EMAIL_MITTENTE` — mittente di tutte le email dell'app (D12) | `noreply@coworking.sassifraga.org` |
 | `MAX_CAMBI_NOME_GIORNO` — modifiche del nome pubblico per utente al giorno | **3** |
+| `ORA_PROMEMORIA` — ora in cui parte il promemoria del giorno dopo (§6.3) | **18:00** (Europe/Rome) |
 | `SOGLIA_ULTIMI_POSTI` — posti liberi da cui la cella avvisa "ultimo posto" | **1** |
 | `URL_INFORMATIVA_PRIVACY` — indirizzo dell'informativa linkata prima dell'accesso (§6.1) | da definire, pagina su `www.sassifraga.org` |
 
 **`FINESTRA_GIORNI` è una fonte di verità unica.** Governa insieme la validazione della prenotazione, la vista di disponibilità e la pagina pubblica. I tre valori devono coincidere per costruzione, non essere impostati separatamente: altrimenti l'app finirebbe per mostrare giorni non prenotabili o nascondere giorni prenotabili.
+
+**`ORA_PROMEMORIA` è un'intenzione, non un orologio al minuto.** Il giro è programmato su Vercel, che ragiona in orario universale: una sola esecuzione al giorno, alle 16:00 universali, cioè le 18:00 italiane d'estate e le 17:00 d'inverno. Per un promemoria serale quell'ora di scarto non cambia nulla, e costa una esecuzione al giorno invece di ventiquattro. Chi cambia questo valore deve cambiare anche la programmazione in `vercel.json`: le due non si allineano da sole.
 
 **`ORA_APERTURA_FINESTRA` esiste per un problema prevedibile.** Con una finestra mobile, nei periodi di punta i posti del nuovo giorno si esauriranno subito dopo l'apertura, premiando chi sta sveglio. Con 14 giorni e le capienze attuali è improbabile che accada subito, quindi il valore iniziale è mezzanotte. Se dovesse diventare un problema di equità, si sposta l'apertura a un'ora civile (es. 08:00) cambiando un parametro, senza toccare il codice.
 
@@ -621,7 +638,7 @@ Comuni: Ronco Coworking e Bar Soana → Ronco Canavese; Valprato Coworking, Valp
 6. Impostazioni personali: nome pubblico e consenso
 7. Pagina pubblica "Chi c'è" — insieme ai **due collegamenti reciproci** con la pagina della disponibilità (§6.2 e §6.6), lasciati fuori dal passo 4 perché la pagina di destinazione non esisteva ancora
 8. Pannello di amministrazione
-9. Email automatiche e allegato calendario
+9. Email automatiche: il promemoria della sera prima (§6.3) e i due avvisi di moderazione (§6.5). Porta con sé il programmatore di orari su cui si appoggeranno le pulizie del passo 11
 10. Diritti dell'interessato: scarica dati, cancella account
 11. Pulizie automatiche notturne
 12. Statistiche ed esportazione
@@ -763,7 +780,7 @@ Tutte le email dell'app partono da **`noreply@coworking.sassifraga.org`** (D12),
 
 La ragione è concreta: `sassifraga.org` ha già i record di posta di Google Workspace. Aggiungere un secondo mittente autorizzato sul dominio principale, se fatto male, può far finire nello spam **anche la posta istituzionale di `info@sassifraga.org`** — un danno più grave del problema che si sta risolvendo. Autenticando un sottodominio separato, reputazione e configurazione restano isolate.
 
-Tetti da tenere presenti: il piano gratuito del fornitore di posta transazionale ha un limite giornaliero di invii **condiviso** fra conferme di prenotazione, avvisi di moderazione e avvisi di cancellazione. È il motivo per cui esiste `MAX_CAMBI_NOME_GIORNO` (§10).
+Tetti da tenere presenti: il piano gratuito del fornitore di posta transazionale ha un limite giornaliero di invii **condiviso** fra promemoria, avvisi di moderazione e avvisi di cancellazione. È il motivo per cui esiste `MAX_CAMBI_NOME_GIORNO` (§10). Il promemoria consuma al massimo un invio per persona e per giorno, non uno per prenotazione (§6.3).
 
 ### 14.3 Cosa resta sul sito istituzionale
 
@@ -773,3 +790,4 @@ Le pagine informative — presentazione del coworking, contatti, informativa pri
 
 - **Chi controlla il registrar di `sassifraga.org`.** Serve accesso ai record DNS. Se è nelle mani di una sola persona o di un account personale, va spostato su un account dell'associazione con almeno due amministratori: perdere il dominio significherebbe perdere sito, posta istituzionale e app insieme.
 - **L'informativa privacy dell'app è un documento nuovo**, non quella del sito: tratta dati diversi per finalità diverse. Va linkata dall'app prima della registrazione (§6.1).
+- **Il sottodominio di posta va autenticato** presso il fornitore (record SPF, DKIM e DMARC su `coworking.sassifraga.org`), e la chiave del fornitore va messa fra le variabili d'ambiente insieme al segreto del programmatore di orari e all'indirizzo `EMAIL_MODERAZIONE`. Finché la chiave manca, l'app non manda niente e non se ne accorge nessuno: il promemoria è l'unica email che una persona riceve dopo l'accesso, e la sua assenza non blocca nulla. Va quindi verificato a mano che il primo promemoria parta davvero.

@@ -50,6 +50,21 @@ export const SOGLIA_ULTIMI_POSTI = 1;
 /** Public-name changes allowed per user per day (§6.5). */
 export const MAX_CAMBI_NOME_GIORNO = 3;
 
+/**
+ * Hour at which the reminder of the evening before goes out (§6.3, §10).
+ *
+ * Declared here as the intent; what actually fires the job is the schedule in
+ * vercel.json, which is expressed in universal time — so the message leaves at
+ * 18:00 Italian time in summer and 17:00 in winter. For an evening reminder
+ * that hour of difference changes nothing, and it costs one daily run instead
+ * of twenty-four. Whoever moves this value must move the schedule with it.
+ *
+ * It also draws the line of §8.4: a booking made after the job has run for
+ * tomorrow gets no reminder at all — the next run is already looking at the
+ * day after.
+ */
+export const ORA_PROMEMORIA = "18:00";
+
 /** Sender of every outbound email (D12, §14.2). Never the apex domain. */
 export const EMAIL_MITTENTE = "noreply@coworking.sassifraga.org";
 
@@ -72,6 +87,14 @@ export const URL_INFORMATIVA_PRIVACY = "https://www.sassifraga.org/privacy-cowor
  * limit, but it belongs with the other addresses.
  */
 export const URL_SITO = "https://www.sassifraga.org";
+
+/**
+ * Where the app answers (§14.1). Emails carry absolute links and have no
+ * request to take an origin from, so the address is configuration and not
+ * something computed. `URL_APP` overrides it in development, where the same
+ * links have to point at the local server.
+ */
+export const URL_APP = process.env.URL_APP ?? "https://prenota.sassifraga.org";
 
 /** IANA timezone in which "today" is always computed (§8.4). */
 export const FUSO_ORARIO = "Europe/Rome";

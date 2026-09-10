@@ -297,6 +297,16 @@ what to do next, not what went wrong internally.
 - **The link token travels in the URL of `/auth/conferma`.** Never print that
   URL. `next.config.ts` excludes it from the dev request log; keep it out of
   any other log, error message or analytics event (rule 4).
+- **Outbound email leaves through `lib/posta/` and nowhere else.** Plain text,
+  always from `EMAIL_MITTENTE` on the dedicated subdomain (§14.2), never
+  logging or throwing an address (rule 4). Booking sends **no confirmation**:
+  what a person receives is the reminder of the evening before (SPEC §6.3,
+  decision of 2026-09-10). Do not add a confirmation email back.
+- **Automatic jobs are Route Handlers under `app/api/mestieri/`**, protected by
+  the shared secret `CRON_SECRET` and scheduled in `vercel.json` — one daily
+  run, in universal time, which is why `ORA_PROMEMORIA` is an intent and not a
+  clock (§10). The RLS-bypassing client is built in `lib/db/servizio.ts` alone;
+  never reach for it from a page or from an action serving a person's request.
 - The first sign-in is reported by `registra_accesso()` (`primoAccesso` in
   `verificaLink`). Step 6 uses it to show the one-time optional-fields screen
   of SPEC §6.1 point 5; until then the route sends everyone to `/`.
@@ -350,6 +360,13 @@ These exist and must never be deleted or weakened to make a build pass:
   has already begun can no longer be cancelled (§6.4); `mie_prenotazioni`
   never carries `posto_progressivo`, never another person's row, never the
   past, and is unreachable without signing in.
+- `tests/promemoria.test.ts` — the reminder of the evening before (SPEC §6.3)
+  goes out once per person per day, carries both fasce of a giornata intera and
+  the link to "Le mie prenotazioni"; nothing goes out for a cancelled booking,
+  nothing goes out twice even from two overlapping runs, and nothing goes out
+  to somebody who booked after that day's run. `promemoria_da_inviare()` is
+  unreachable by anon and authenticated, and `promemoria_inviato_il` is
+  readable by neither.
 - `tests/statistiche.test.ts` — no statistics view or CSV export returns an
   `email`, a `nome_pubblico` or a `utente_id`; no returned row maps to a single
   user; a category containing one person is still reported with its real count.

@@ -359,6 +359,7 @@ export type Database = {
           gruppo_id: string | null
           id: string
           posto_progressivo: number
+          promemoria_inviato_il: string | null
           sede_id: string
           stat_eta: Database["public"]["Enums"]["fascia_eta"] | null
           stat_genere: Database["public"]["Enums"]["genere"] | null
@@ -376,6 +377,7 @@ export type Database = {
           gruppo_id?: string | null
           id?: string
           posto_progressivo: number
+          promemoria_inviato_il?: string | null
           sede_id: string
           stat_eta?: Database["public"]["Enums"]["fascia_eta"] | null
           stat_genere?: Database["public"]["Enums"]["genere"] | null
@@ -393,6 +395,7 @@ export type Database = {
           gruppo_id?: string | null
           id?: string
           posto_progressivo?: number
+          promemoria_inviato_il?: string | null
           sede_id?: string
           stat_eta?: Database["public"]["Enums"]["fascia_eta"] | null
           stat_genere?: Database["public"]["Enums"]["genere"] | null
@@ -989,6 +992,7 @@ export type Database = {
       imposta_nome_pubblico: {
         Args: { p_max_cambi: number; p_mostra: boolean; p_nome: string }
         Returns: {
+          cambiato: boolean
           mostra_nome_pubblico: boolean
           nome_pubblico: string
         }[]
@@ -1036,6 +1040,22 @@ export type Database = {
           p_sede_id: string
         }
         Returns: string
+      }
+      promemoria_da_inviare: {
+        Args: { p_giorno?: string }
+        Returns: {
+          comune: string
+          data: string
+          email: string
+          fascia: Database["public"]["Enums"]["fascia"]
+          indirizzo: string
+          note: string
+          ora_fine: string
+          ora_inizio: string
+          prenotazione_id: string
+          sede_nome: string
+          utente_id: string
+        }[]
       }
       registra_accesso: { Args: never; Returns: boolean }
       sede_attiva: { Args: { p_sede_id: string }; Returns: boolean }
