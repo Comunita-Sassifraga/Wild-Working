@@ -12,8 +12,10 @@
  */
 
 import { SOGLIA_ULTIMI_POSTI } from "@/config/limits";
-import { fineFinestra, oggiRoma, type DataISO } from "@/lib/dates";
+import { fineFinestra, oggiRoma, ora, type DataISO } from "@/lib/dates";
+import type { SedePubblica } from "@/lib/db/disponibilita";
 import type { Fascia } from "@/lib/db/prenotazioni";
+import { conValori, m } from "@/lib/messaggi";
 
 /** One sede, one day, one fascia. Counts only: no name ever reaches here. */
 export type Cella = {
@@ -30,6 +32,21 @@ export type Cella = {
   /** All five conditions of §5.2, as decided by the database. */
   prenotabile: boolean;
 };
+
+/**
+ * "09:00–13:00" for one fascia of a sede, composed from the two times of
+ * §5.2. Composed, and not stored as a sentence, because the start of the
+ * fascia is also the moment after which a booking can no longer be cancelled
+ * (§6.4) and the database has to compare it with the clock.
+ */
+export function orarioTesto(inizio: string, fine: string): string {
+  return conValori(m.disponibilita.orario, { inizio: ora(inizio), fine: ora(fine) });
+}
+
+export function orarioDi(sede: SedePubblica, fascia: Fascia): string {
+  const { inizio, fine } = sede.orari[fascia];
+  return orarioTesto(inizio, fine);
+}
 
 export type StatoCella = "CHIUSA" | "ESAURITA" | "ULTIMI" | "LIBERA";
 

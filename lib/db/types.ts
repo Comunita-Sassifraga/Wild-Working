@@ -380,8 +380,10 @@ export type Database = {
           indirizzo: string | null
           nome: string
           note: string | null
-          orario_mattina: string
-          orario_pomeriggio: string
+          ora_fine_mattina: string
+          ora_fine_pomeriggio: string
+          ora_inizio_mattina: string
+          ora_inizio_pomeriggio: string
           sempre_disponibile: boolean
         }
         Insert: {
@@ -394,8 +396,10 @@ export type Database = {
           indirizzo?: string | null
           nome: string
           note?: string | null
-          orario_mattina?: string
-          orario_pomeriggio?: string
+          ora_fine_mattina?: string
+          ora_fine_pomeriggio?: string
+          ora_inizio_mattina?: string
+          ora_inizio_pomeriggio?: string
           sempre_disponibile?: boolean
         }
         Update: {
@@ -408,8 +412,10 @@ export type Database = {
           indirizzo?: string | null
           nome?: string
           note?: string | null
-          orario_mattina?: string
-          orario_pomeriggio?: string
+          ora_fine_mattina?: string
+          ora_fine_pomeriggio?: string
+          ora_inizio_mattina?: string
+          ora_inizio_pomeriggio?: string
           sempre_disponibile?: boolean
         }
         Relationships: []
@@ -482,6 +488,53 @@ export type Database = {
           sede_id: string | null
         }
         Relationships: []
+      }
+      mie_prenotazioni: {
+        Row: {
+          annullabile: boolean | null
+          comune: string | null
+          creata_il: string | null
+          data: string | null
+          fascia: Database["public"]["Enums"]["fascia"] | null
+          gruppo_id: string | null
+          id: string | null
+          indirizzo: string | null
+          note: string | null
+          ora_fine: string | null
+          ora_inizio: string | null
+          sede_id: string | null
+          sede_nome: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "aperture_future"
+            referencedColumns: ["sede_id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "disponibilita_pubblica"
+            referencedColumns: ["sede_id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "sedi"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "sedi_pubbliche"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       occupazione_pubblica: {
         Row: {
@@ -613,8 +666,10 @@ export type Database = {
           id: string | null
           indirizzo: string | null
           nome: string | null
-          orario_mattina: string | null
-          orario_pomeriggio: string | null
+          ora_fine_mattina: string | null
+          ora_fine_pomeriggio: string | null
+          ora_inizio_mattina: string | null
+          ora_inizio_pomeriggio: string | null
           sempre_disponibile: boolean | null
         }
         Insert: {
@@ -627,8 +682,10 @@ export type Database = {
           id?: string | null
           indirizzo?: string | null
           nome?: string | null
-          orario_mattina?: string | null
-          orario_pomeriggio?: string | null
+          ora_fine_mattina?: string | null
+          ora_fine_pomeriggio?: string | null
+          ora_inizio_mattina?: string | null
+          ora_inizio_pomeriggio?: string | null
           sempre_disponibile?: boolean | null
         }
         Update: {
@@ -641,8 +698,10 @@ export type Database = {
           id?: string | null
           indirizzo?: string | null
           nome?: string | null
-          orario_mattina?: string | null
-          orario_pomeriggio?: string | null
+          ora_fine_mattina?: string | null
+          ora_fine_pomeriggio?: string | null
+          ora_inizio_mattina?: string | null
+          ora_inizio_pomeriggio?: string | null
           sempre_disponibile?: boolean | null
         }
         Relationships: []
@@ -679,6 +738,14 @@ export type Database = {
       }
     }
     Functions: {
+      annullabile: {
+        Args: {
+          p_data: string
+          p_fascia: Database["public"]["Enums"]["fascia"]
+          p_sede_id: string
+        }
+        Returns: boolean
+      }
       consenti_richiesta_link: {
         Args: {
           p_impronta_email: string
@@ -714,10 +781,30 @@ export type Database = {
       is_amministratore: { Args: never; Returns: boolean }
       is_referente_di: { Args: { p_sede_id: string }; Returns: boolean }
       oggi_roma: { Args: never; Returns: string }
+      ora_inizio: {
+        Args: {
+          p_fascia: Database["public"]["Enums"]["fascia"]
+          p_sede_id: string
+        }
+        Returns: string
+      }
+      prenota_giornata: {
+        Args: { p_data: string; p_sede_id: string }
+        Returns: string
+      }
       prenota_posto: {
         Args: {
           p_data: string
           p_fascia: Database["public"]["Enums"]["fascia"]
+          p_sede_id: string
+        }
+        Returns: string
+      }
+      prenota_slot: {
+        Args: {
+          p_data: string
+          p_fascia: Database["public"]["Enums"]["fascia"]
+          p_gruppo: string
           p_sede_id: string
         }
         Returns: string

@@ -86,6 +86,15 @@ export function giornoDelMese(data: DataISO): number {
 // an ISO date turned into an instant this way never slips to the day before.
 const istante = (data: DataISO) => new Date(`${data}T12:00:00Z`);
 
+/**
+ * "09:00" from the "09:00:00" the database returns for a `time` column. The
+ * hours of a sede are wall-clock times, not instants: they never move with
+ * the daylight saving change (§8.4).
+ */
+export function ora(orario: string): string {
+  return orario.slice(0, 5);
+}
+
 const formatoLungo = new Intl.DateTimeFormat("it-IT", {
   timeZone: FUSO_ORARIO,
   weekday: "long",

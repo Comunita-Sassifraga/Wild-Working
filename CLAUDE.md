@@ -341,6 +341,15 @@ These exist and must never be deleted or weakened to make a build pass:
   frozen at 2026-08-15 (Europe/Rome), a booking for 2026-08-29 succeeds and one
   for 2026-08-30 is rejected. The same assertions must hold with the system
   clock set to UTC, and at 23:59 and 00:01 local time.
+- `tests/prenotazione.test.ts` — a slot the availability grid calls closed
+  cannot be booked by calling the write path directly (out of season, closed
+  weekday, chiusura on one fascia only); a "giornata intera" creates two rows
+  sharing a `gruppo_id` and creates nothing at all when one of the two fasce
+  is full; cancelling a whole day cancels both fasce and cancelling one leaves
+  the other; nobody can cancel someone else's booking; a booking whose fascia
+  has already begun can no longer be cancelled (§6.4); `mie_prenotazioni`
+  never carries `posto_progressivo`, never another person's row, never the
+  past, and is unreachable without signing in.
 - `tests/statistiche.test.ts` — no statistics view or CSV export returns an
   `email`, a `nome_pubblico` or a `utente_id`; no returned row maps to a single
   user; a category containing one person is still reported with its real count.

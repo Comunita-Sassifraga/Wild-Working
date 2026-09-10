@@ -126,10 +126,32 @@ export async function creaUtenti(n: number): Promise<UtenteTest[]> {
 
 type NuovaSede = Partial<Database["public"]["Tables"]["sedi"]["Insert"]> & { capienza: number };
 
+/**
+ * Test sedi open in the last minute of the day.
+ *
+ * SPEC §6.4 lets a booking be cancelled until its fascia begins, and the
+ * access policy enforces it. With the real defaults (09:00 and 14:00) a test
+ * that books "today" and cancels would pass in the morning and fail in the
+ * afternoon. The hours are irrelevant to what those tests assert, so a sede
+ * of theirs starts late and stays cancellable for the whole run. The tests
+ * about the deadline itself pass their own hours.
+ */
+const ORARI_TARDI = {
+  ora_inizio_mattina: "23:59",
+  ora_fine_mattina: "23:59:59",
+  ora_inizio_pomeriggio: "23:59",
+  ora_fine_pomeriggio: "23:59:59",
+};
+
 export async function creaSede(sede: NuovaSede): Promise<string> {
   const { data, error } = await servizio()
     .from("sedi")
-    .insert({ nome: `Sede di prova ${randomUUID().slice(0, 8)}`, comune: "Test", ...sede })
+    .insert({
+      nome: `Sede di prova ${randomUUID().slice(0, 8)}`,
+      comune: "Test",
+      ...ORARI_TARDI,
+      ...sede,
+    })
     .select("id")
     .single();
   if (error) throw new Error(`creaSede failed: ${error.code}`);

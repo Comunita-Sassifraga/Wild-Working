@@ -17,7 +17,8 @@
     "collegato": "Sei collegato.",
     "nonCollegato": "Per prenotare devi entrare con la tua email.",
     "entra": "Entra",
-    "esci": "Esci"
+    "esci": "Esci",
+    "miePrenotazioni": "Le mie prenotazioni"
   },
   "disponibilita": {
     "introduzione": "Qui vedi quanti posti restano liberi negli spazi di coworking della valle, da oggi ai prossimi {giorni} giorni. Scegli un giorno sul calendario.",
@@ -33,8 +34,11 @@
       "MATTINA": "Mattina",
       "POMERIGGIO": "Pomeriggio"
     },
+    "orario": "{inizio}–{fine}",
     "sede": "Sede",
     "celle": {
+      "prenota": "Prenota",
+      "prenotaEtichetta": "Prenota {sede}, {fascia}",
       "liberi": "{liberi} / {capienza}",
       "postiLiberi": "posti liberi",
       "unPostoLibero": "posto libero",
@@ -53,6 +57,58 @@
       "titolo": "Sedi non disponibili in questo periodo",
       "riapre": "Riapre il {data} — {etichetta}",
       "riaperturaSconosciuta": "Data di riapertura non ancora fissata"
+    }
+  },
+  "prenota": {
+    "titolo": "Conferma la prenotazione",
+    "introduzione": "Controlla che sia tutto giusto, poi conferma.",
+    "sede": "Sede",
+    "giorno": "Giorno",
+    "fascia": "Fascia",
+    "posti": "Posti",
+    "postiLiberi": "{liberi} liberi su {capienza}",
+    "note": "Informazioni pratiche",
+    "prenota": "Prenota",
+    "giornata": "Prenota tutta la giornata",
+    "giornataNota": "Mattina e pomeriggio nella stessa sede, lo stesso giorno.",
+    "entra": "Per prenotare devi prima entrare con la tua email.",
+    "torna": "Torna alla disponibilità",
+    "errori": {
+      "esaurito": "Quel posto è appena stato preso. Prova con l'altra fascia o con un'altra sede.",
+      "duplicata": "Hai già una prenotazione in questa fascia. La trovi in \"Le mie prenotazioni\".",
+      "chiusa": "Questa sede non è aperta in quel giorno. Scegli un altro giorno sul calendario.",
+      "finestra": "Quel giorno non si può più prenotare. Scegli un giorno dal calendario.",
+      "giornataMattina": "La mattina è esaurita, quindi non abbiamo prenotato niente. Puoi prenotare solo il pomeriggio.",
+      "giornataPomeriggio": "Il pomeriggio è esaurito, quindi non abbiamo prenotato niente. Puoi prenotare solo la mattina.",
+      "generico": "Non siamo riusciti a registrare la prenotazione. Riprova tra qualche minuto."
+    }
+  },
+  "prenotazioni": {
+    "titolo": "Le mie prenotazioni",
+    "introduzione": "Le tue prenotazioni da oggi in avanti. Puoi annullarle fino all'inizio della fascia.",
+    "confermata": {
+      "titolo": "Prenotazione confermata",
+      "testo": "Ti aspettiamo.",
+      "annullabile": "Se cambi idea puoi annullare da qui, fino all'inizio della fascia."
+    },
+    "vuoto": {
+      "titolo": "Non hai prenotazioni",
+      "testo": "Scegli un giorno e una sede dalla pagina della disponibilità.",
+      "collegamento": "Vedi la disponibilità"
+    },
+    "giornataIntera": "Giornata intera",
+    "note": "Informazioni pratiche",
+    "annulla": "Annulla",
+    "annullaGiornata": "Annulla tutta la giornata",
+    "annullaSolo": {
+      "MATTINA": "Annulla solo la mattina",
+      "POMERIGGIO": "Annulla solo il pomeriggio"
+    },
+    "iniziata": "La fascia è già cominciata: non si annulla più.",
+    "annullata": "Prenotazione annullata. Il posto è tornato libero.",
+    "errori": {
+      "tardi": "Questa prenotazione non si può più annullare: la fascia è già cominciata.",
+      "generico": "Non siamo riusciti ad annullare la prenotazione. Riprova tra qualche minuto."
     }
   },
   "accesso": {

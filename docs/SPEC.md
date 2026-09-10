@@ -126,12 +126,19 @@ Non esiste un campo password: l'accesso avviene via link inviato per email (§6.
 | `indirizzo`          | testo          |                                                                                                                                           |
 | `coordinate`         | lat/lon        | Per il link a mappe e indicazioni stradali                                                                                                |
 | `capienza`           | numero         | **DA CONFERMARE** — vedi §11                                                                                                              |
-| `orario_mattina`     | testo          | Default `09:00–13:00`                                                                                                                     |
-| `orario_pomeriggio`  | testo          | Default `14:00–18:00`                                                                                                                     |
+| `ora_inizio_mattina` | orario         | Default `09:00`. Da qui in poi la prenotazione della mattina non si annulla più (§6.4)                                                     |
+| `ora_fine_mattina`   | orario         | Default `13:00`                                                                                                                           |
+| `ora_inizio_pomeriggio` | orario      | Default `14:00`. Da qui in poi la prenotazione del pomeriggio non si annulla più (§6.4)                                                    |
+| `ora_fine_pomeriggio` | orario        | Default `18:00`                                                                                                                           |
 | `giorni_apertura`    | elenco         | Default lun–sab. Modificabile per sede dal pannello. Concorre alla prenotabilità (condizione 5 sotto)                                     |
 | `note`               | testo libero   | Wi‑Fi, chiavi, accesso, dotazioni. Visibile solo agli utenti registrati, mai nelle pagine pubbliche. Non contiene mai password o codici    |
 | `attiva`             | sì/no          | Interruttore generale. Se spento, la sede scompare ovunque, a prescindere dai periodi. Serve per sospensioni immediate o non pianificate. |
 | `sempre_disponibile` | sì/no          | Se sì, la sede ignora i periodi di attività ed è disponibile tutto l'anno. Default: sì.                                                   |
+
+L'orario che le persone leggono (`09:00–13:00`) è composto da questi quattro
+valori: sono orari veri e non testo libero, perché l'ora di inizio della fascia
+è il limite oltre il quale non si annulla più (§6.4) e la banca dati deve poterla
+confrontare con l'ora corrente.
 
 Una sede è prenotabile in una certa data se, e solo se, **tutte** queste condizioni sono vere:
 
@@ -275,6 +282,10 @@ Accessibile **senza registrazione**. La registrazione serve solo per prenotare.
 ### 6.3 Prenotare
 
 1. L'utente sceglie sede, giorno e fascia (o "giornata intera").
+   Se sceglie la giornata intera e una delle due fasce è esaurita, non viene
+   creata nessuna prenotazione: il sistema dice quale fascia è piena e propone
+   di prenotare solo l'altra. Una richiesta di giornata intera non si
+   accontenta di mezza giornata senza che la persona lo abbia scelto.
 2. Il sistema verifica in tempo reale che ci sia ancora posto.
 3. La prenotazione è confermata **immediatamente**, senza approvazioni.
 4. Parte un'email di conferma con: sede, indirizzo, data, orario, link per annullare, allegato per il calendario.
@@ -289,7 +300,7 @@ Vincoli:
 ### 6.4 Annullare
 
 - Sempre possibile, fino all'orario di inizio della fascia.
-- Un clic dalla propria pagina o dal link nell'email di conferma. Nessuna conferma richiesta oltre al clic.
+- Un clic da **"Le mie prenotazioni"** — la pagina che elenca le proprie prenotazioni attive da oggi fino alla fine della finestra, con sede, giorno, fascia e orario — o dal link nell'email di conferma. Nessuna conferma richiesta oltre al clic. Le prenotazioni passate non compaiono: dopo 30 giorni vengono comunque anonimizzate (§7).
 - Annullando una giornata intera si annullano entrambe le fasce, salvo scelta esplicita di annullarne una sola.
 - Se il posto liberato era l'ultimo disponibile e qualcuno è in attesa: **fuori dall'MVP**, vedi §9.
 

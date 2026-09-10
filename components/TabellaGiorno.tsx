@@ -1,7 +1,8 @@
+import Link from "next/link";
 import { dataEstesa, type DataISO } from "@/lib/dates";
-import { statoCella, type Cella } from "@/lib/disponibilita";
+import { orarioDi, statoCella, type Cella } from "@/lib/disponibilita";
 import type { SedePubblica } from "@/lib/db/disponibilita";
-import type { Fascia } from "@/lib/db/prenotazioni";
+import { FASCE, type Fascia } from "@/lib/db/prenotazioni";
 import { conValori, m } from "@/lib/messaggi";
 
 /**
@@ -13,6 +14,10 @@ import { conValori, m } from "@/lib/messaggi";
  * Every state also carries its word, so nothing is told by colour alone
  * (rule 14). Stile 1 throughout: a grid is dense information, and Stile 2 is
  * an accent register (§13.2).
+ *
+ * A cell with room left is where booking starts (§6.3, §12 step 5): the whole
+ * cell is the target, so it is comfortable from a phone, and it carries a
+ * visible "Prenota" so that nobody has to guess it is one.
  */
 
 type Proprieta = {
@@ -21,13 +26,7 @@ type Proprieta = {
   celle: Cella[];
 };
 
-const FASCE: Fascia[] = ["MATTINA", "POMERIGGIO"];
-
 const cellaBase = "border border-linea px-3 py-3 align-top";
-
-function orarioDi(sede: SedePubblica, fascia: Fascia): string {
-  return fascia === "MATTINA" ? sede.orarioMattina : sede.orarioPomeriggio;
-}
 
 function Contenuto({ cella, orario }: { cella: Cella; orario: string }) {
   const t = m.disponibilita.celle;
@@ -103,15 +102,32 @@ export function TabellaGiorno({ data, sedi, celle }: Proprieta) {
             {FASCE.map((fascia) => {
               const cella = per(sede.id, fascia);
               const chiusa = !cella || !cella.prenotabile;
+              const contenuto = cella ? (
+                <Contenuto cella={cella} orario={orarioDi(sede, fascia)} />
+              ) : (
+                <span className="text-testo-secondario">{t.celle.chiuso}</span>
+              );
               return (
                 <td
                   key={fascia}
                   className={`${cellaBase} ${chiusa ? "bg-superficie-scura" : "bg-superficie"}`}
                 >
-                  {cella ? (
-                    <Contenuto cella={cella} orario={orarioDi(sede, fascia)} />
+                  {cella && !chiusa && cella.liberi > 0 ? (
+                    <Link
+                      href={`/prenota?sede=${sede.id}&data=${data}&fascia=${fascia}`}
+                      aria-label={conValori(t.celle.prenotaEtichetta, {
+                        sede: sede.nome,
+                        fascia: t.fasce[fascia].toLowerCase(),
+                      })}
+                      className="block min-h-tocco text-testo no-underline"
+                    >
+                      {contenuto}
+                      <span className="mt-2 block text-verde-testo underline">
+                        {t.celle.prenota}
+                      </span>
+                    </Link>
                   ) : (
-                    <span className="text-testo-secondario">{t.celle.chiuso}</span>
+                    contenuto
                   )}
                 </td>
               );
