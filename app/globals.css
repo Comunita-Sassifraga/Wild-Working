@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+/*
+ * Intentionally empty beyond the import. The theme (colours, font, scale)
+ * is generated from config/tokens.ts at step 3 of SPEC §12; no visual value
+ * may be written here by hand (CLAUDE.md rule 12).
+ */

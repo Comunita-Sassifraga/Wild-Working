@@ -26,3 +26,10 @@ npm-debug.log*
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# TypeScript / Next.js generated
+*.tsbuildinfo
+next-env.d.ts
+
+# Test coverage
+/coverage
