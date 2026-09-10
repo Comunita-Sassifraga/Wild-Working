@@ -31,16 +31,6 @@ function testo(inviato: FormDataEntryValue | null): string {
   return String(inviato ?? "").trim();
 }
 
-/**
- * The welcome screen of §6.1 point 5 leads to the availability page, whether
- * the person saved or skipped; the ordinary page comes back to itself. Only
- * these two destinations exist: an address sent by the browser is never
- * followed.
- */
-function destinazione(formData: FormData, coda: string): string {
-  return formData.get("benvenuto") ? "/" : `/impostazioni${coda}`;
-}
-
 export async function salvaNomeAzione(formData: FormData): Promise<void> {
   const client = await clientServer();
   const esito = await impostaNomePubblico(client, {
@@ -52,10 +42,8 @@ export async function salvaNomeAzione(formData: FormData): Promise<void> {
   redirect(`/impostazioni?salvato=${esito.mostra ? "nome" : "spento"}`);
 }
 
-export async function salvaDatiAzione(formData: FormData): Promise<void> {
-  const utente = await utenteAttuale();
-  if (!utente) redirect("/accedi");
-
+/** Saves any subset of the five fields; absent keys are left untouched. */
+async function salvaFacoltativi(formData: FormData, utenteId: string): Promise<boolean> {
   const valori: DatiFacoltativi = {
     eta: fraIValori(VALORI_ETA, formData.get("eta")),
     genere: fraIValori(VALORI_GENERE, formData.get("genere")),
@@ -63,17 +51,48 @@ export async function salvaDatiAzione(formData: FormData): Promise<void> {
     professione: testo(formData.get("professione")) || null,
     motivo_visita: testo(formData.get("motivo_visita")) || null,
   };
-
   const client = await clientServer();
-  const { error } = await aggiornaDatiFacoltativi(client, utente.id, valori);
-  redirect(destinazione(formData, error ? "?errore=generico" : "?salvato=dati"));
+  const { error } = await aggiornaDatiFacoltativi(client, utenteId, valori);
+  return error === null;
 }
 
-export async function rimuoviDatiAzione(formData: FormData): Promise<void> {
+export async function salvaDatiAzione(formData: FormData): Promise<void> {
+  const utente = await utenteAttuale();
+  if (!utente) redirect("/accedi");
+
+  const ok = await salvaFacoltativi(formData, utente.id);
+  redirect(ok ? "/impostazioni?salvato=dati" : "/impostazioni?errore=generico");
+}
+
+/**
+ * The one screen of §6.1 point 5 saves the public name and the five optional
+ * fields together. The fields go first: if the name is refused, what the
+ * person did fill in is already kept, and only the name is asked again. The
+ * refused name is not carried back in the address — an address bar is the
+ * one place a rejected name must never end up (rule 4).
+ */
+export async function salvaBenvenutoAzione(formData: FormData): Promise<void> {
+  const utente = await utenteAttuale();
+  if (!utente) redirect("/accedi");
+
+  const ok = await salvaFacoltativi(formData, utente.id);
+
+  const client = await clientServer();
+  const nome = await impostaNomePubblico(client, {
+    nome: testo(formData.get("nome")),
+    mostra: formData.get("mostra") !== null,
+  });
+
+  if (!nome.ok) redirect(`/impostazioni?benvenuto=1&errore=${nome.motivo}`);
+  if (!ok) redirect("/impostazioni?benvenuto=1&errore=generico");
+  redirect("/");
+}
+
+export async function rimuoviDatiAzione(): Promise<void> {
   const utente = await utenteAttuale();
   if (!utente) redirect("/accedi");
 
   const client = await clientServer();
   const { error } = await rimuoviDatiFacoltativi(client, utente.id);
-  redirect(destinazione(formData, error ? "?errore=generico" : "?salvato=rimossi"));
+  redirect(error ? "/impostazioni?errore=generico" : "/impostazioni?salvato=rimossi");
 }

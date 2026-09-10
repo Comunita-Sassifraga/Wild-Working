@@ -239,7 +239,7 @@ Regole:
 2. **Prima** del pulsante di invio, vede il link all'informativa privacy e la frase: *"Registrandoti accetti che la tua email sia usata per gestire le prenotazioni. È l'unico dato obbligatorio che dovrai fornire: se vorrai compilare gli altri, ci serviranno a migliorare il servizio di coworking."*
 3. Riceve un'email con un link valido **15 minuti**, utilizzabile **una sola volta**.
 4. Cliccando, entra. Se è la prima volta, il profilo viene creato in quel momento. Un'email che ha richiesto un link senza mai usarlo non ha un profilo e viene eliminata dalla pulizia notturna (§7).
-5. **Solo al primo accesso**, subito dopo la creazione dell'account, compare una schermata con i cinque campi facoltativi (§6.5), introdotta da: *"Se vuoi, raccontaci qualcosa di te. Ci serve solo per capire chi usa gli spazi e migliorarli. Puoi saltare, compilarne solo alcuni, o cambiarli quando vuoi."*
+5. **Solo al primo accesso**, subito dopo la creazione dell'account, compare una schermata con il **nome pubblico** e i cinque campi facoltativi (§6.5), introdotta da: *"Se vuoi, raccontaci qualcosa di te. Ci serve solo per capire chi usa gli spazi e migliorarli. Puoi saltare, compilarne solo alcuni, o cambiarli quando vuoi."* Il nome pubblico compare qui, e non soltanto nelle impostazioni, perché è la funzione che dà valore all'app (§1): un campo che si trova solo dentro una pagina di impostazioni non lo compila quasi nessuno, e senza nomi la pagina «Chi c'è in Valle» resta vuota. Vale anche per lui, per intero, la regola qui sotto: non è obbligatorio e non blocca niente.
 6. La sessione dura **30 giorni dall'ultimo utilizzo**, poi va richiesto un nuovo link.
 
 Regole generali sul flusso:
@@ -247,8 +247,8 @@ Regole generali sul flusso:
 - Il messaggio mostrato dopo l'invio è sempre identico (*"Se l'indirizzo è valido, riceverai un'email"*), sia che l'email esista sia che non esista. Questo evita di rivelare a un estraneo chi è iscritto.
 - Massimo 5 richieste di link per email all'ora, e 20 per indirizzo di rete (parametri di §10). Il conteggio si basa su impronte irreversibili, non sugli indirizzi: nessuna email e nessun indirizzo di rete viene conservato per questo scopo (§7).
 
-Regole sulla schermata dei dati facoltativi (passo 5):
-- Nessun campo è obbligatorio e **nessun campo blocca il proseguimento**: se si lasciano tutti vuoti, la registrazione è completa lo stesso e si arriva alla prenotazione.
+Regole sulla schermata del primo accesso (passo 5):
+- Nessun campo è obbligatorio e **nessun campo blocca il proseguimento**: se si lasciano tutti vuoti — nome pubblico compreso — la registrazione è completa lo stesso e si arriva alla prenotazione.
 - Il pulsante per proseguire senza compilare è **visibile quanto** quello per salvare, e la sua etichetta è chiara: *"Salta"*. Non è un collegamento piccolo in fondo alla pagina.
 - La schermata compare **una sola volta**. Chi salta non la rivede: i campi restano disponibili nel profilo.
 - Non compare mai prima dell'ingresso, né come passaggio della richiesta del link. Chiedere questi dati come condizione per accedere renderebbe il consenso non liberamente prestato (art. 7.4 GDPR).
@@ -308,13 +308,20 @@ Vincoli:
 
 #### Nome pubblico
 
-Nelle impostazioni personali:
+Si sceglie in due posti: nella schermata del primo accesso (§6.1 punto 5) e, per sempre dopo, nelle impostazioni personali. In entrambi il blocco è lo stesso e si legge dall'alto in basso in quest'ordine:
 
-- Un interruttore: *"Mostra la mia presenza agli altri"* — **spento di default**.
-- Se acceso, un campo testo con l'aiuto: *"Questo è il nome che verrà visualizzato nella pagina «Chi c'è in Valle»"*
-- Sotto, un'anteprima esatta di come apparirà agli altri.
+- L'intestazione *"Nome pubblico"*.
+- La spiegazione: *"Questo è il nome che verrà visualizzato nella pagina «Chi c'è in Valle» accanto ai giorni che hai prenotato, se selezionerai la spunta «Mostra il nome pubblico». Se la spegni, il nome sparisce subito da tutte le prenotazioni, anche da quelle già fatte."*
+- Il campo di testo in cui si scrive il nome.
+- L'interruttore, etichettato *"Mostra il nome pubblico"* — **spento di default**.
+
+Il campo viene **prima** dell'interruttore perché è la spiegazione a dire cosa fa l'interruttore: chiedere di accendere qualcosa prima di aver visto cosa accende è chiedere una decisione al buio.
+
+- Nelle impostazioni, sotto il blocco, un'anteprima esatta di come il nome apparirà agli altri. Nella schermata del primo accesso non c'è: non c'è ancora niente di salvato da mostrare.
 - Spegnendo l'interruttore, il nome sparisce **immediatamente e retroattivamente** da tutte le prenotazioni, passate e future.
-- L'interruttore si può accendere prima di aver scelto un nome, ma da solo non fa niente: senza un nome non c'è niente da mostrare, quindi la presenza non compare fra i nomi di «Chi c'è in Valle» e non entra nel conteggio di *chi ha reso pubblica la presenza* di §6.2. **Il posto prenotato resta occupato per tutti**: chi non mostra il nome pesa sui posti liberi su totale esattamente come chiunque altro, e rientra fra le «persone che preferiscono non condividere pubblicamente il nome» di §6.6. Le impostazioni lo dicono: *"Hai acceso la visibilità ma non hai ancora scelto un nome: finché non lo scegli comparirai senza nome, come chi ha preferito non condividerlo."*
+- L'interruttore si può accendere prima di aver scelto un nome, ma da solo non fa niente: senza un nome non c'è niente da mostrare, quindi la presenza non compare fra i nomi di «Chi c'è in Valle» e non entra nel conteggio di *chi ha reso pubblica la presenza* di §6.2. **Il posto prenotato resta occupato per tutti**: chi non mostra il nome pesa sui posti liberi su totale esattamente come chiunque altro, e rientra fra le «persone che preferiscono non condividere pubblicamente il nome» di §6.6. Le impostazioni lo dicono: *"Hai acceso la spunta ma non hai ancora scelto un nome: finché non lo scegli comparirai senza nome, come chi ha preferito non condividerlo."*
+
+**Le impostazioni personali sono un elenco solo**, non tre sezioni: email, nome pubblico, dati facoltativi, lingua. Ogni voce ha la stessa intestazione, e quello che si può cambiare si cambia dove si legge — con il proprio pulsante di salvataggio accanto, e per i dati facoltativi anche quello di rimozione. Email e lingua sono in sola lettura. Chi apre questa pagina fa una domanda sola, *"cosa sapete di me"*, e deve trovare una risposta sola.
 
 Regole tecniche:
 - Se `mostra_nome_pubblico` è spento, il nome non deve mai uscire dal database verso una pagina pubblica. Il filtro va imposto a livello di banca dati, non di interfaccia (§8.3).

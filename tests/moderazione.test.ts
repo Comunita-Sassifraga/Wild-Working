@@ -13,6 +13,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { MAX_CAMBI_NOME_GIORNO } from "@/config/limits";
 import {
+  aggiornaDatiFacoltativi,
   impostaMostraNomePubblico,
   impostaNomePubblico,
   MAX_CARATTERI_NOME,
@@ -184,6 +185,50 @@ describe("§6.5 nome pubblico e moderazione", () => {
     }
     const esito = await impostaNomePubblico(chi.client, { nome: "Nadia", mostra: true });
     expect(esito.ok).toBe(true);
+  });
+
+  // -------------------------------------------------------------------------
+  // Schermata del primo accesso (§6.1 punto 5): nome pubblico e cinque campi
+  // insieme. Un nome rifiutato non deve portarsi via quello che è già stato
+  // compilato.
+  // -------------------------------------------------------------------------
+
+  it("un nome rifiutato lascia intatti i dati facoltativi salvati prima", async () => {
+    const chi = await utenteNuovo();
+    await aggiornaDatiFacoltativi(chi.client, chi.id, {
+      eta: "36-50",
+      professione: "Guida escursionistica",
+    });
+    const esito = await impostaNomePubblico(chi.client, {
+      nome: "www.esempio.it",
+      mostra: true,
+    });
+    expect(esito).toMatchObject({ ok: false, motivo: "CONTIENE_CONTATTO" });
+
+    const { data } = await mioProfilo(chi.client, chi.id);
+    expect(data?.eta).toBe("36-50");
+    expect(data?.professione).toBe("Guida escursionistica");
+    // Il nome e l'interruttore si salvano insieme: se il nome è rifiutato,
+    // non resta acceso nemmeno l'interruttore.
+    expect(data?.nome_pubblico).toBeNull();
+    expect(data?.mostra_nome_pubblico).toBe(false);
+  });
+
+  it("nome e cinque campi insieme registrano entrambi i consensi", async () => {
+    const chi = await utenteNuovo();
+    await aggiornaDatiFacoltativi(chi.client, chi.id, { eta: "26-35" });
+    const esito = await impostaNomePubblico(chi.client, { nome: "Nadia Ferrero", mostra: true });
+    expect(esito.ok).toBe(true);
+
+    const { data } = await servizio()
+      .from("consensi")
+      .select("tipo, valore")
+      .eq("utente_id", chi.id)
+      .order("data_ora");
+    expect(data).toEqual([
+      { tipo: "DATI_FACOLTATIVI", valore: "DATO" },
+      { tipo: "NOME_PUBBLICO", valore: "DATO" },
+    ]);
   });
 
   it("il registro dei cambi non è leggibile da nessuno", async () => {

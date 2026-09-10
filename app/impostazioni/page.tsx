@@ -10,7 +10,6 @@ import { MAX_CAMBI_NOME_GIORNO } from "@/config/limits";
 import { utenteAttuale } from "@/lib/auth/sessione";
 import { clientServer } from "@/lib/db/server";
 import {
-  CAMPI_FACOLTATIVI,
   MAX_CARATTERI_MOTIVO,
   MAX_CARATTERI_NOME,
   MAX_CARATTERI_PROFESSIONE,
@@ -20,11 +19,15 @@ import {
   VALORI_RESIDENZA,
 } from "@/lib/db/utenti";
 import { conValori, m } from "@/lib/messaggi";
-import { rimuoviDatiAzione, salvaDatiAzione, salvaNomeAzione } from "./azioni";
+import { rimuoviDatiAzione, salvaBenvenutoAzione, salvaDatiAzione, salvaNomeAzione } from "./azioni";
 
 /**
  * Personal settings — SPEC §6.5, §12 step 6, plus the one-time screen of
  * §6.1 point 5 in "benvenuto" mode.
+ *
+ * One list, in the order of §6.5: email, nome pubblico, dati facoltativi,
+ * lingua. What can be changed sits where it is read, so nobody has to look
+ * for it twice.
  *
  * Server-rendered like every other page: no "use client", so it works with
  * JavaScript switched off. That is also why the preview shows the *saved*
@@ -53,13 +56,23 @@ type Proprieta = {
 const uno = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
 const t = m.impostazioni;
-const titolo = "text-titolo-pagina font-grassetto grande:text-titolo-pagina-grande";
-const sezione = "mt-10 border-t border-linea pt-8";
-const titoloSezione = "text-titolo-sezione font-grassetto";
+const titoloPagina = "text-titolo-pagina font-grassetto grande:text-titolo-pagina-grande";
+const titoloVoce = "text-nota text-testo-secondario";
+const titoloBenvenuto = "text-titolo-sezione font-grassetto";
 const etichetta = "mb-2 block";
 const aiuto = "mt-2 text-nota text-testo-secondario";
 
 type Profilo = NonNullable<Awaited<ReturnType<typeof mioProfilo>>["data"]>;
+
+/** One entry of the list. Same frame whether it is read-only or a form. */
+function Voce({ titolo, children }: { titolo: string; children: React.ReactNode }) {
+  return (
+    <section className="border-b border-linea py-6">
+      <h2 className={titoloVoce}>{titolo}</h2>
+      {children}
+    </section>
+  );
+}
 
 function Scelta({
   nome,
@@ -120,6 +133,49 @@ function Testo({
 }
 
 /**
+ * The public name — SPEC §6.5, read top to bottom: explanation, field, then
+ * the tick. The field comes before the tick because it is the explanation
+ * that says what the tick does: asking someone to turn on a switch before
+ * they have seen what it turns on is asking for a decision in the dark.
+ *
+ * The heading is the field's accessible name (aria-labelledby), so the label
+ * is not repeated right underneath it.
+ */
+function CampiNome({ profilo }: { profilo: Profilo }) {
+  return (
+    <>
+      <p id="spiegazione-nome" className="mt-2">
+        {t.nome.spiegazione}
+      </p>
+      <p className="mt-4">
+        <input
+          id="nome"
+          name="nome"
+          type="text"
+          maxLength={MAX_CARATTERI_NOME}
+          defaultValue={profilo.nome_pubblico ?? ""}
+          aria-labelledby="titolo-nome"
+          aria-describedby="spiegazione-nome aiuto-nome"
+          className={campo}
+        />
+      </p>
+      <p id="aiuto-nome" className={aiuto}>
+        {conValori(t.nome.limite, { caratteri: MAX_CARATTERI_NOME, cambi: MAX_CAMBI_NOME_GIORNO })}
+      </p>
+      <label className="mt-4 flex min-h-tocco items-center gap-3">
+        <input
+          type="checkbox"
+          name="mostra"
+          defaultChecked={profilo.mostra_nome_pubblico}
+          className="accent-verde"
+        />
+        <span>{t.nome.mostra}</span>
+      </label>
+    </>
+  );
+}
+
+/**
  * The five fields of §5.1. Every one of them may stay empty and none blocks
  * anything (rule 17): no asterisk, no `required`, no reminder.
  */
@@ -137,16 +193,6 @@ function CampiFacoltativi({ profilo }: { profilo: Profilo }) {
   );
 }
 
-function Voce({ nome, valore, nota }: { nome: string; valore: string; nota?: string }) {
-  return (
-    <div className="border-b border-linea py-4">
-      <dt className="text-nota text-testo-secondario">{nome}</dt>
-      <dd className="mt-1">{valore}</dd>
-      {nota && <dd className={aiuto}>{nota}</dd>}
-    </div>
-  );
-}
-
 export default async function PaginaImpostazioni({ searchParams }: Proprieta) {
   const [utente, client, parametri] = await Promise.all([
     utenteAttuale(),
@@ -158,18 +204,43 @@ export default async function PaginaImpostazioni({ searchParams }: Proprieta) {
   const { data: profilo } = await mioProfilo(client, utente.id);
   if (!profilo) redirect("/accedi");
 
+  const errori: Record<string, string> = t.errori;
+  const motivo = uno(parametri.errore);
+  const errore = motivo
+    ? conValori(errori[motivo] ?? t.errori.generico, {
+        caratteri: MAX_CARATTERI_NOME,
+        cambi: MAX_CAMBI_NOME_GIORNO,
+      })
+    : undefined;
+
+  const avviso = errore ? (
+    <p role="alert" className="mt-6 text-errore">
+      {errore}
+    </p>
+  ) : null;
+
   // The welcome screen of §6.1 point 5 arrives here from /auth/conferma, and
-  // only on the first sign-in. It shows the five fields and nothing else:
-  // asking about the public name before a person has ever seen the app would
-  // be asking too much, too early.
+  // only on the first sign-in. The public name is offered here and not only
+  // in the settings: it is the function that gives the app its value (§1),
+  // and a field that lives only on a settings page is a field almost nobody
+  // ever fills in. It stays as optional as the other five (rule 17).
   if (uno(parametri.benvenuto)) {
     return (
       <>
-        <h1 className={titolo}>{t.benvenuto.titolo}</h1>
+        <h1 className={titoloPagina}>{t.benvenuto.titolo}</h1>
         <p className="mt-6 italic">{t.benvenuto.introduzione}</p>
-        <form action={salvaDatiAzione} className="mt-8">
-          <input type="hidden" name="benvenuto" value="1" />
-          <CampiFacoltativi profilo={profilo} />
+        {avviso}
+        <form action={salvaBenvenutoAzione} className="mt-8">
+          <h2 id="titolo-nome" className={titoloBenvenuto}>
+            {t.nome.titolo}
+          </h2>
+          <CampiNome profilo={profilo} />
+
+          <h2 className={`mt-10 ${titoloBenvenuto}`}>{t.facoltativi.titolo}</h2>
+          <div className="mt-4">
+            <CampiFacoltativi profilo={profilo} />
+          </div>
+
           {/* "Salta" carries the same weight as "Salva" (§6.1): same height,
               side by side, never a small link at the foot of the page. */}
           <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -185,23 +256,17 @@ export default async function PaginaImpostazioni({ searchParams }: Proprieta) {
     );
   }
 
-  const compilati = CAMPI_FACOLTATIVI.filter((c) => profilo[c] !== null).length;
-  const limiti = { caratteri: MAX_CARATTERI_NOME, cambi: MAX_CAMBI_NOME_GIORNO };
-
   const conferme: Record<string, string> = {
     nome: t.nome.salvato,
     spento: t.nome.spento,
     dati: t.facoltativi.salvati,
     rimossi: t.facoltativi.rimossi,
   };
-  const errori: Record<string, string> = t.errori;
   const salvato = conferme[uno(parametri.salvato) ?? ""];
-  const motivo = uno(parametri.errore);
-  const errore = motivo ? conValori(errori[motivo] ?? t.errori.generico, limiti) : undefined;
 
   return (
     <>
-      <h1 className={titolo}>{t.titolo}</h1>
+      <h1 className={titoloPagina}>{t.titolo}</h1>
       <p className="mt-6 italic">{t.introduzione}</p>
 
       {salvato && (
@@ -209,111 +274,67 @@ export default async function PaginaImpostazioni({ searchParams }: Proprieta) {
           {salvato}
         </p>
       )}
-      {errore && (
-        <p role="alert" className="mt-6 text-errore">
-          {errore}
-        </p>
-      )}
+      {avviso}
 
-      <section className={sezione}>
-        <h2 className={titoloSezione}>{t.tuoiDati.titolo}</h2>
-        <p className="mt-4">{t.tuoiDati.introduzione}</p>
-        <dl className="mt-6 border-t border-linea">
-          <Voce nome={t.tuoiDati.email} valore={profilo.email} nota={t.tuoiDati.emailNota} />
-          <Voce
-            nome={t.tuoiDati.lingua}
-            valore={t.tuoiDati.lingue[profilo.lingua]}
-            nota={t.tuoiDati.linguaNota}
-          />
-          <Voce
-            nome={t.tuoiDati.nomePubblico}
-            valore={profilo.nome_pubblico ?? t.tuoiDati.nomePubblicoVuoto}
-          />
-          <Voce
-            nome={t.tuoiDati.datiFacoltativi}
-            valore={
-              compilati === 0
-                ? t.tuoiDati.datiFacoltativiVuoti
-                : conValori(t.tuoiDati.datiFacoltativiCompilati, { numero: compilati })
-            }
-          />
-        </dl>
-      </section>
+      <div className="mt-8 border-t border-linea">
+        <Voce titolo={t.email}>
+          <p className="mt-1">{profilo.email}</p>
+          <p className={aiuto}>{t.emailNota}</p>
+        </Voce>
 
-      <section className={sezione}>
-        <h2 className={titoloSezione}>{t.nome.titolo}</h2>
-        <form action={salvaNomeAzione} className="mt-6">
-          <label className="flex min-h-tocco items-center gap-3">
-            <input
-              type="checkbox"
-              name="mostra"
-              defaultChecked={profilo.mostra_nome_pubblico}
-              className="accent-verde"
-            />
-            <span>{t.nome.mostra}</span>
-          </label>
-          <p className={aiuto}>{t.nome.mostraNota}</p>
+        <section className="border-b border-linea py-6">
+          <h2 id="titolo-nome" className={titoloVoce}>
+            {t.nome.titolo}
+          </h2>
+          <form action={salvaNomeAzione}>
+            <CampiNome profilo={profilo} />
+            <p className="mt-6">
+              <button type="submit" className={bottonePrimario}>
+                {t.nome.salva}
+              </button>
+            </p>
+          </form>
 
-          <p className="mt-6">
-            <label htmlFor="nome" className={etichetta}>
-              {t.nome.etichetta}
-            </label>
-            <input
-              id="nome"
-              name="nome"
-              type="text"
-              maxLength={MAX_CARATTERI_NOME}
-              defaultValue={profilo.nome_pubblico ?? ""}
-              aria-describedby="aiuto-nome"
-              className={campo}
-            />
-          </p>
-          <p id="aiuto-nome" className={aiuto}>
-            {t.nome.aiuto}. {conValori(t.nome.limite, limiti)}
-          </p>
+          <h3 className="mt-8 text-nota font-grassetto">{t.nome.anteprima}</h3>
+          {profilo.nome_pubblico ? (
+            <p className="mt-2 bg-verde px-6 py-4 text-testo">{profilo.nome_pubblico}</p>
+          ) : (
+            <p className="mt-2 text-testo-secondario">{t.nome.anteprimaVuota}</p>
+          )}
+          {profilo.nome_pubblico && !profilo.mostra_nome_pubblico && (
+            <p className={aiuto}>{t.nome.anteprimaNascosta}</p>
+          )}
+          {!profilo.nome_pubblico && profilo.mostra_nome_pubblico && (
+            <p className="mt-2 text-nota text-avviso">{t.nome.senzaNome}</p>
+          )}
+        </section>
 
-          <p className="mt-8">
-            <button type="submit" className={bottonePrimario}>
-              {t.nome.salva}
+        <Voce titolo={t.facoltativi.titolo}>
+          <p className="mt-2">{t.facoltativi.introduzione}</p>
+          <form action={salvaDatiAzione} className="mt-6">
+            <CampiFacoltativi profilo={profilo} />
+            <p className="mt-6">
+              <button type="submit" className={bottonePrimario}>
+                {t.facoltativi.salva}
+              </button>
+            </p>
+          </form>
+
+          {/* A separate form: "Rimuovi" empties all five at once and is not a
+              variant of "Salva" (§6.5). Immediate, nobody to ask. */}
+          <form action={rimuoviDatiAzione} className="mt-6">
+            <button type="submit" className={bottoneDistruttivo}>
+              {t.facoltativi.rimuovi}
             </button>
-          </p>
-        </form>
+            <p className={aiuto}>{t.facoltativi.rimuoviNota}</p>
+          </form>
+        </Voce>
 
-        <h3 className="mt-8 text-nota font-grassetto">{t.nome.anteprima}</h3>
-        {profilo.nome_pubblico ? (
-          <p className="mt-2 bg-verde px-6 py-4 text-testo">{profilo.nome_pubblico}</p>
-        ) : (
-          <p className="mt-2 text-testo-secondario">{t.nome.anteprimaVuota}</p>
-        )}
-        {profilo.nome_pubblico && !profilo.mostra_nome_pubblico && (
-          <p className={aiuto}>{t.nome.anteprimaNascosta}</p>
-        )}
-        {!profilo.nome_pubblico && profilo.mostra_nome_pubblico && (
-          <p className="mt-2 text-nota text-avviso">{t.nome.senzaNome}</p>
-        )}
-      </section>
-
-      <section className={sezione}>
-        <h2 className={titoloSezione}>{t.facoltativi.titolo}</h2>
-        <p className="mt-4">{t.facoltativi.introduzione}</p>
-        <form action={salvaDatiAzione} className="mt-6">
-          <CampiFacoltativi profilo={profilo} />
-          <p className="mt-8">
-            <button type="submit" className={bottonePrimario}>
-              {t.facoltativi.salva}
-            </button>
-          </p>
-        </form>
-
-        {/* A separate form: "Rimuovi" empties all five at once and is not a
-            variant of "Salva" (§6.5). Immediate, nobody to ask. */}
-        <form action={rimuoviDatiAzione} className="mt-8">
-          <button type="submit" className={bottoneDistruttivo}>
-            {t.facoltativi.rimuovi}
-          </button>
-          <p className={aiuto}>{t.facoltativi.rimuoviNota}</p>
-        </form>
-      </section>
+        <Voce titolo={t.lingua}>
+          <p className="mt-1">{t.lingue[profilo.lingua]}</p>
+          <p className={aiuto}>{t.linguaNota}</p>
+        </Voce>
+      </div>
 
       <p className="mt-10">
         <Link href="/">{m.prenotazioni.vuoto.collegamento}</Link>
