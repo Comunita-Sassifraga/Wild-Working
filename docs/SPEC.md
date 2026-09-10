@@ -237,7 +237,7 @@ Regole:
 Regole generali sul flusso:
 - Non esiste un passaggio separato "registrati" / "accedi": è lo stesso flusso.
 - Il messaggio mostrato dopo l'invio è sempre identico (*"Se l'indirizzo è valido, riceverai un'email"*), sia che l'email esista sia che non esista. Questo evita di rivelare a un estraneo chi è iscritto.
-- Massimo 5 richieste di link per email all'ora, e 20 per indirizzo di rete.
+- Massimo 5 richieste di link per email all'ora, e 20 per indirizzo di rete (parametri di §10). Il conteggio si basa su impronte irreversibili, non sugli indirizzi: nessuna email e nessun indirizzo di rete viene conservato per questo scopo (§7).
 
 Regole sulla schermata dei dati facoltativi (passo 5):
 - Nessun campo è obbligatorio e **nessun campo blocca il proseguimento**: se si lasciano tutti vuoti, la registrazione è completa lo stesso e si arriva alla prenotazione.
@@ -399,6 +399,7 @@ Le stesse due regole valgono per il CSV esportato, che è la via più facile per
 | Account senza accessi da 24 mesi | Ogni notte | Avviso via email a 23 mesi; cancellazione a 24. |
 | Richieste di accesso mai completate | Ogni notte | Cancellate dopo 24 ore |
 | Link di accesso | 15 minuti | Non più utilizzabili; non ne resta traccia |
+| Impronte delle richieste di link (§6.1) | 1 ora | Cancellate. Sono hash con chiave, non indirizzi: nessuna email o indirizzo di rete viene conservato |
 | Log tecnici | 30 giorni | Cancellati. Non devono contenere email in chiaro. |
 
 ### Diritti dell'interessato: dove si esercitano
