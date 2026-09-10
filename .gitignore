@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+build/
+
+# Environment variables — never commit keys
+.env
+.env.local
+.env*.local
+
+# Supabase CLI local state (contains the linked project ref)
+supabase/.temp/
+supabase/.branches/
+
+# Vercel
+.vercel/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
