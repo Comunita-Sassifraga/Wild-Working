@@ -41,6 +41,34 @@ export const GIORNI_ANONIMIZZAZIONE = 30;
 export const MESI_ACCOUNT_DORMIENTE = 24;
 
 /**
+ * Months of inactivity after which the dormant account is warned (§7:
+ * "Avviso via email a 23 mesi; cancellazione a 24"). Missing from the §10
+ * table and added there together with this constant.
+ *
+ * The distance between the two values is also the notice a person is owed:
+ * the cleanup never deletes an account that was not warned at least
+ * MESI_ACCOUNT_DORMIENTE - MESI_AVVISO_DORMIENZA months earlier. A run that
+ * was off for a while therefore warns first and deletes a month later,
+ * instead of catching up by deleting everybody at once.
+ */
+export const MESI_AVVISO_DORMIENZA = 23;
+
+/**
+ * Hours after which a link request that was never opened is removed (§6.1
+ * point 4, §7). Such an address has no profile: only the Auth stub created
+ * when the link was asked for. Missing from the §10 table and added there.
+ */
+export const ORE_RICHIESTE_INCOMPLETE = 24;
+
+/**
+ * Months the consent register is kept after an account is closed (§7).
+ * The rows carry an internal id that no longer resolves to anyone; what
+ * makes the rule applicable is the closing date, noted by the erasure
+ * itself (§5.5). Missing from the §10 table and added there.
+ */
+export const MESI_CONSERVAZIONE_CONSENSI = 24;
+
+/**
  * Free seats from which a cell warns "ultimo posto" instead of showing the
  * plain count (§6.2, §13.7). The threshold was missing from the §10 table
  * and has been added there together with this constant.
@@ -64,6 +92,17 @@ export const MAX_CAMBI_NOME_GIORNO = 3;
  * day after.
  */
 export const ORA_PROMEMORIA = "18:00";
+
+/**
+ * Hour at which the nightly cleanups run (§7, §12 step 11, §10).
+ *
+ * An intention, exactly like ORA_PROMEMORIA: the schedule in vercel.json is
+ * in universal time, so the run happens at 03:00 Italian time in summer and
+ * 02:00 in winter. Nothing here depends on the minute — every cleanup is
+ * expressed in whole days or months, computed in Europe/Rome (§8.4).
+ * Whoever moves this value must move the schedule with it.
+ */
+export const ORA_PULIZIE = "03:00";
 
 /** Sender of every outbound email (D12, §14.2). Never the apex domain. */
 export const EMAIL_MITTENTE = "noreply@coworking.sassifraga.org";

@@ -284,11 +284,19 @@ max_frequency = "5s"
 # 4152127777 = "123456"
 
 # Configure logged in session timeouts.
-# [auth.sessions]
-# Force log out after the specified duration.
-# timebox = "24h"
+# SPEC §10: "Durata della sessione: 30 giorni dall'ultimo utilizzo". Until
+# step 11 the rule was written in the spec but not enforced here, so a
+# refreshing session could live for ever — and `utenti.ultimo_accesso`, which
+# only moves when a sign-in link is opened, would stand still while the person
+# went on using the app every week. The nightly cleanup of §7 reads exactly
+# that column to decide who is dormant: without this line it could close the
+# account of somebody who never stopped coming.
+# No timebox: a session that is being used is not a session to interrupt.
+[auth.sessions]
 # Force log out if the user has been inactive longer than the specified duration.
-# inactivity_timeout = "8h"
+# 720h = 30 days, the value of §10. Change it and DURATA_SESSIONE_GIORNI
+# together.
+inactivity_timeout = "720h"
 
 # This hook runs before a new user is created and allows developers to reject the request based on the incoming user object.
 # [auth.hook.before_user_created]

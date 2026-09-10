@@ -436,6 +436,10 @@
     },
     "azzeramento": {
       "oggetto": "Il tuo nome pubblico è stato rimosso"
+    },
+    "dormienza": {
+      "oggetto": "Il tuo account verrà chiuso fra un mese",
+      "testo": "Non entri nel servizio di prenotazione degli spazi di coworking della Valle Soana dal {data}.\n\nTeniamo i dati soltanto finché servono: gli account fermi da due anni vengono chiusi in automatico. Fra un mese il tuo verrà chiuso, e con lui spariranno il tuo indirizzo, il nome pubblico e quello che avevi scelto di raccontarci.\n\nSe vuoi tenerlo, ti basta entrare una volta: da qui chiedi un nuovo link di accesso e il conto riparte da zero.\n{url}\n\nSe invece non ti serve più, non devi fare niente."
     }
   },
   "campionario": {

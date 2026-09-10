@@ -34,6 +34,21 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_chiusi: {
+        Row: {
+          chiuso_il: string
+          utente_id: string
+        }
+        Insert: {
+          chiuso_il?: string
+          utente_id: string
+        }
+        Update: {
+          chiuso_il?: string
+          utente_id?: string
+        }
+        Relationships: []
+      }
       cambi_nome: {
         Row: {
           cambiato_il: string
@@ -574,6 +589,7 @@ export type Database = {
       }
       utenti: {
         Row: {
+          avviso_dormienza_il: string | null
           avviso_moderazione: string | null
           creato_il: string
           email: string
@@ -589,6 +605,7 @@ export type Database = {
           ultimo_accesso: string
         }
         Insert: {
+          avviso_dormienza_il?: string | null
           avviso_moderazione?: string | null
           creato_il?: string
           email: string
@@ -604,6 +621,7 @@ export type Database = {
           ultimo_accesso?: string
         }
         Update: {
+          avviso_dormienza_il?: string | null
           avviso_moderazione?: string | null
           creato_il?: string
           email?: string
@@ -979,13 +997,32 @@ export type Database = {
         }
         Returns: boolean
       }
+      anonimizza_prenotazioni: { Args: { p_giorni: number }; Returns: number }
+      avvisi_dormienza_da_inviare: {
+        Args: { p_mesi: number }
+        Returns: {
+          email: string
+          ultimo_accesso: string
+          utente_id: string
+        }[]
+      }
       azzera_nome_pubblico: {
         Args: { p_utente_id: string }
         Returns: {
           nome_rimosso: string
         }[]
       }
+      cancella_account_dormienti: {
+        Args: { p_mesi: number; p_mesi_avviso: number }
+        Returns: number
+      }
+      cancella_consensi_scaduti: { Args: { p_mesi: number }; Returns: number }
+      cancella_impronte_scadute: { Args: never; Returns: number }
       cancella_mio_account: { Args: never; Returns: undefined }
+      cancella_richieste_incomplete: {
+        Args: { p_ore: number }
+        Returns: number
+      }
       consenti_richiesta_link: {
         Args: {
           p_impronta_email: string
@@ -1000,7 +1037,7 @@ export type Database = {
         Returns: boolean
       }
       esegui_cancellazione: {
-        Args: { p_utente_id: string }
+        Args: { p_copia_stat?: boolean; p_utente_id: string }
         Returns: undefined
       }
       fine_finestra: { Args: never; Returns: string }

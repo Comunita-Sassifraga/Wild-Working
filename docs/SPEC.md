@@ -161,7 +161,7 @@ Una sede è prenotabile in una certa data se, e solo se, **tutte** queste condiz
 | `gruppo_id` | identificativo | Collega le due prenotazioni di una giornata intera |
 | `stato` | `ATTIVA` / `ANNULLATA` | |
 | `creata_il` | data e ora | |
-| `anonimizzata` | sì/no | Diventa sì dopo 30 giorni: il legame con l'utente viene reciso |
+| `anonimizzata` | sì/no | Diventa sì quando il **giorno prenotato** è più vecchio di 30 giorni — non il giorno in cui la prenotazione è stata fatta: è la data della presenza, ed è ciò di cui la riga parla. Il legame con l'utente viene reciso |
 | `stat_eta` | fascia d'età, come §5.1 | Vuoto fino all'anonimizzazione. Vedi sotto |
 | `stat_genere` | come §5.1 | Idem |
 | `stat_professione` | testo, max 100 caratteri | Idem |
@@ -202,6 +202,8 @@ I due consensi sono **indipendenti**: si può dare l'uno senza l'altro, e revoca
 Questa tabella è **append-only**: non si modifica e non si cancella nulla, si aggiunge una riga a ogni cambiamento. Serve a dimostrare, se richiesto, quando un consenso è stato dato o ritirato (art. 7.1 GDPR).
 
 Il consenso `DATI_FACOLTATIVI` si considera revocato quando tutti e cinque i campi sono vuoti, qualunque sia la strada con cui sono stati svuotati (pulsante "Rimuovi" o modifica manuale): il registro segue lo stato reale dei dati, e le righe le scrive il database da solo a ogni cambiamento. Per la stessa ragione una riga di revoca del `NOME_PUBBLICO` può nascere anche da un azzeramento dell'amministratore (§6.5): il registro segue lo stato reale della visibilità, non soltanto le scelte della persona. Il registro sopravvive alla cancellazione dell'account (§7): le righe conservano l'identificativo interno dell'utente, che dopo la cancellazione non rimanda più a nessuno. La cancellazione stessa (art. 17) scrive una riga di revoca per ogni consenso ancora attivo in quel momento, per la stessa ragione di sempre: il registro segue lo stato reale del trattamento, e con l'account il trattamento finisce (decisione del 11/09).
+
+Perché la conservazione di 24 mesi (§7) sia applicabile, la chiusura di un account — richiesta dalla persona o decisa dalla pulizia notturna — annota internamente **la data della chiusura**, insieme al solo identificativo interno. Senza quella data non ci sarebbe modo di sapere da quando contare: le righe del registro portano un identificativo che non rimanda più a nessuno, e una chiusura che non revoca nulla non scrive nessuna riga. L'annotazione non contiene nessun dato personale, non è leggibile da nessuno se non dalle pulizie automatiche, e sparisce insieme alle righe di consenso a cui si riferisce (decisione del 11/09).
 
 ### 5.6 incarichi
 
@@ -587,16 +589,20 @@ Valori che devono essere modificabili senza toccare la logica del programma. Viv
 | Durata della sessione | 30 giorni dall'ultimo utilizzo |
 | Giorni prima dell'anonimizzazione | 30 |
 | Mesi prima della cancellazione di un account dormiente | 24 |
+| `MESI_AVVISO_DORMIENZA` — mesi di inattività dopo cui parte l'avviso (§7) | **23** |
+| `ORE_RICHIESTE_INCOMPLETE` — ore dopo cui sparisce una richiesta di link mai usata (§6.1) | **24** |
+| `MESI_CONSERVAZIONE_CONSENSI` — mesi di conservazione del registro dei consensi dopo la chiusura dell'account (§7) | **24** |
 | `EMAIL_MODERAZIONE` — destinatario degli avvisi sui nomi pubblici (§6.5) | da definire, casella del Direttivo, **mai un indirizzo personale** |
 | `EMAIL_MITTENTE` — mittente di tutte le email dell'app (D12) | `noreply@coworking.sassifraga.org` |
 | `MAX_CAMBI_NOME_GIORNO` — modifiche del nome pubblico per utente al giorno | **3** |
 | `ORA_PROMEMORIA` — ora in cui parte il promemoria del giorno dopo (§6.3) | **18:00** (Europe/Rome) |
+| `ORA_PULIZIE` — ora in cui girano le pulizie notturne (§7) | **03:00** (Europe/Rome) |
 | `SOGLIA_ULTIMI_POSTI` — posti liberi da cui la cella avvisa "ultimo posto" | **1** |
 | `URL_INFORMATIVA_PRIVACY` — indirizzo dell'informativa linkata prima dell'accesso (§6.1) | da definire, pagina su `www.sassifraga.org` |
 
 **`FINESTRA_GIORNI` è una fonte di verità unica.** Governa insieme la validazione della prenotazione, la vista di disponibilità e la pagina pubblica. I tre valori devono coincidere per costruzione, non essere impostati separatamente: altrimenti l'app finirebbe per mostrare giorni non prenotabili o nascondere giorni prenotabili.
 
-**`ORA_PROMEMORIA` è un'intenzione, non un orologio al minuto.** Il giro è programmato su Vercel, che ragiona in orario universale: una sola esecuzione al giorno, alle 16:00 universali, cioè le 18:00 italiane d'estate e le 17:00 d'inverno. Per un promemoria serale quell'ora di scarto non cambia nulla, e costa una esecuzione al giorno invece di ventiquattro. Chi cambia questo valore deve cambiare anche la programmazione in `vercel.json`: le due non si allineano da sole.
+**`ORA_PROMEMORIA` è un'intenzione, non un orologio al minuto.** Il giro è programmato su Vercel, che ragiona in orario universale: una sola esecuzione al giorno, alle 16:00 universali, cioè le 18:00 italiane d'estate e le 17:00 d'inverno. Per un promemoria serale quell'ora di scarto non cambia nulla, e costa una esecuzione al giorno invece di ventiquattro. Chi cambia questo valore deve cambiare anche la programmazione in `vercel.json`: le due non si allineano da sole. Lo stesso vale per `ORA_PULIZIE`, programmato allo stesso modo: le pulizie di §7 ragionano in giorni e in mesi interi, calcolati in `Europe/Rome`, e il minuto in cui partono non cambia il loro esito.
 
 **`ORA_APERTURA_FINESTRA` esiste per un problema prevedibile.** Con una finestra mobile, nei periodi di punta i posti del nuovo giorno si esauriranno subito dopo l'apertura, premiando chi sta sveglio. Con 14 giorni e le capienze attuali è improbabile che accada subito, quindi il valore iniziale è mezzanotte. Se dovesse diventare un problema di equità, si sposta l'apertura a un'ora civile (es. 08:00) cambiando un parametro, senza toccare il codice.
 
