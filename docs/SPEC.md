@@ -528,7 +528,6 @@ Comuni: Ronco Coworking e Bar Soana → Ronco Canavese; Valprato Coworking, Valp
 - Serve una **conferma dell'email** prima della prima prenotazione? Con il link magico la verifica è implicita (per entrare devi accedere alla casella): probabilmente no. -> Update 10/09: no.
 - Il **nome pubblico va moderato**? → **Deciso**: sì. Moderazione successiva, con filtro automatico, avviso all'amministratore e azione di azzeramento. Vedi D14 e §6.5: non è più una decisione aperta.
 - Le  sedi vanno mostrate anche su **mappa**? Utile per chi non conosce la valle. Costo basso. -> Update: forse in uno sviluppo futuro.
-- **Etichette dei campi modificabili dal pannello** (aggiunto 10/09). I nomi interni dei campi (`motivo_visita`, `residenza`...) non compaiono mai nelle pagine: i testi letti dagli utenti stanno in `messages/it.json`, separati dal codice. Oggi cambiarli richiede uno sviluppatore e un rilascio. Si vuole che l'amministratore possa rinominare a piacere le etichette dei cinque campi facoltativi (e i relativi testi di aiuto) dal pannello, senza rilascio: una tabella `etichette` con i testi predefiniti, letta dall'app al posto del file. Da costruire al passo 8 (§12) come voce del pannello. Limiti: si rinominano le etichette e il testo mostrato delle opzioni, **non** si aggiungono o tolgono categorie (sono fisse, perché su di esse si calcolano le statistiche di §6.8); i testi devono restare coerenti con l'informativa privacy.
 
 ---
 
