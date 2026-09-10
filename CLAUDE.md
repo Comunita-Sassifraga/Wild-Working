@@ -380,6 +380,14 @@ These exist and must never be deleted or weakened to make a build pass:
   `MAX_CAMBI_NOME_GIORNO + 1`-th change in a day is refused and sends nothing;
   an admin clear empties the name, sets `mostra_nome_pubblico` to false, emails
   the user, and leaves that user's `prenotazioni` untouched.
+- `tests/diritti.test.ts` — "Scarica i miei dati" carries the profile, the
+  bookings still linked to the person and their own `consensi` rows, and never
+  another person's row, never `posto_progressivo`, never a `stat_` column;
+  erasure (art. 17) frees the bookings whose fascia has not begun, anonymises
+  every booking of that person with `stat_*` left **empty**, writes the
+  revocation rows, removes profile, sign-in identity, incarichi, moderazioni
+  and `cambi_nome`, keeps the `consensi` rows, and can only ever touch the
+  caller's own account.
 - `tests/tokens.test.ts` — a lint-style check that no component file contains a
   hex colour, a raw `px` value, or a stock Tailwind palette class; and that
   every foreground/background pair declared in `tokens.ts` reaches 4.5:1.

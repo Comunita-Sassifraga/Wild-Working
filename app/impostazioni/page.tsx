@@ -33,7 +33,8 @@ import {
  *
  * One list, in the order of §6.5: email, nome pubblico, dati facoltativi,
  * lingua. What can be changed sits where it is read, so nobody has to look
- * for it twice.
+ * for it twice. Under the list, and outside it, the two rights of §7 that a
+ * person exercises alone — download and erasure (§12 step 10).
  *
  * Server-rendered like every other page: no "use client", so it works with
  * JavaScript switched off. That is also why the preview shows the *saved*
@@ -366,6 +367,33 @@ export default async function PaginaImpostazioni({ searchParams }: Proprieta) {
           <p className={aiuto}>{t.linguaNota}</p>
         </Voce>
       </div>
+
+      {/* The two rights of §7 that a person exercises alone. They sit under
+          the list and outside it, and on purpose: the list answers "cosa
+          sapete di me", these two say what can be done with it. Neither is a
+          variant of Salva — one is a download, the other leads to a page of
+          its own where the consequences are spelled out before anything
+          happens. */}
+      <section className="mt-10 border-t border-linea pt-6">
+        <h2 className="text-titolo-sezione font-grassetto">{t.diritti.titolo}</h2>
+        <p className="mt-4">{t.diritti.introduzione}</p>
+
+        {/* A plain link, not a form: it is a GET that returns a file, so it
+            works with JavaScript switched off like everything else here. */}
+        <p className="mt-6">
+          <a href="/impostazioni/dati" download className={bottoneSecondario}>
+            {t.diritti.scarica}
+          </a>
+        </p>
+        <p className={aiuto}>{t.diritti.scaricaNota}</p>
+
+        <p className="mt-8">
+          <Link href="/impostazioni/cancella" className={bottoneDistruttivo}>
+            {t.diritti.cancella}
+          </Link>
+        </p>
+        <p className={aiuto}>{t.diritti.cancellaNota}</p>
+      </section>
 
       <p className="mt-10">
         <Link href="/">{m.prenotazioni.vuoto.collegamento}</Link>

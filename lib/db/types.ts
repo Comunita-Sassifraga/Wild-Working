@@ -691,6 +691,22 @@ export type Database = {
           },
         ]
       }
+      miei_dati_prenotazioni: {
+        Row: {
+          comune: string | null
+          creata_il: string | null
+          data: string | null
+          fascia: Database["public"]["Enums"]["fascia"] | null
+          gruppo_id: string | null
+          id: string | null
+          indirizzo: string | null
+          ora_fine: string | null
+          ora_inizio: string | null
+          sede_nome: string | null
+          stato: Database["public"]["Enums"]["stato_prenotazione"] | null
+        }
+        Relationships: []
+      }
       nomi_pubblici_moderazione: {
         Row: {
           avviso_in_attesa: boolean | null
@@ -969,6 +985,7 @@ export type Database = {
           nome_rimosso: string
         }[]
       }
+      cancella_mio_account: { Args: never; Returns: undefined }
       consenti_richiesta_link: {
         Args: {
           p_impronta_email: string
@@ -981,6 +998,10 @@ export type Database = {
       dentro_giorno_mese: {
         Args: { p_data: string; p_fine: string; p_inizio: string }
         Returns: boolean
+      }
+      esegui_cancellazione: {
+        Args: { p_utente_id: string }
+        Returns: undefined
       }
       fine_finestra: { Args: never; Returns: string }
       finestra_giorni: { Args: never; Returns: number }

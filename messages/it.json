@@ -20,7 +20,8 @@
     "esci": "Esci",
     "miePrenotazioni": "Le mie prenotazioni",
     "impostazioni": "Impostazioni",
-    "amministrazione": "Amministrazione"
+    "amministrazione": "Amministrazione",
+    "cancellato": "Il tuo account è stato cancellato. I posti che avevi prenotato sono tornati liberi."
   },
   "disponibilita": {
     "introduzione": "Qui vedi quanti posti restano liberi negli spazi di coworking della valle, da oggi ai prossimi {giorni} giorni. Scegli un giorno sul calendario.",
@@ -173,6 +174,34 @@
       "rimuovi": "Rimuovi i miei dati facoltativi",
       "rimuoviNota": "Svuota tutti e cinque i campi. È immediato e non richiede l'intervento di nessuno.",
       "rimossi": "Dati rimossi. Non compaiono più da nessuna parte."
+    },
+    "diritti": {
+      "titolo": "I tuoi dati",
+      "introduzione": "Queste due cose le decidi tu, subito, senza doverle chiedere a nessuno.",
+      "scarica": "Scarica i miei dati",
+      "scaricaNota": "Un file con tutto quello che conserviamo su di te: il profilo, le tue prenotazioni e il registro dei tuoi consensi.",
+      "cancella": "Cancella il mio account",
+      "cancellaNota": "Immediato e definitivo. Prima di procedere ti spieghiamo per esteso cosa succede."
+    },
+    "cancella": {
+      "titolo": "Cancella il mio account",
+      "introduzione": "Leggi cosa succede, poi decidi. Da qui non si torna indietro.",
+      "cosaSuccede": "Cosa succede",
+      "punti": [
+        "Le tue prenotazioni non ancora cominciate vengono annullate, e i posti tornano liberi per qualcun altro nello stesso momento.",
+        "Il tuo nome pubblico sparisce da «Chi c'è in Valle».",
+        "I tuoi dati facoltativi vengono svuotati e non entrano in nessun conteggio, nemmeno nei totali.",
+        "Le prenotazioni che hai già usato restano nei conteggi di quanto sono stati usati gli spazi, ma senza più niente che le colleghi a te.",
+        "Resta solo il registro dei consensi, con un identificativo che non rimanda più a nessuno: la legge ci chiede di poter dimostrare quando un consenso è stato dato o ritirato. Si cancella da solo dopo 24 mesi.",
+        "Con questo indirizzo non entri più. Se un giorno tornerai, ricomincerai da capo."
+      ],
+      "prenotazioniAnnullate": "Hai {numero} prenotazioni che verranno annullate.",
+      "unaPrenotazioneAnnullata": "Hai 1 prenotazione che verrà annullata.",
+      "scarica": "Se vuoi tenere una copia di quello che conserviamo, scaricala adesso: dopo non sarà più possibile.",
+      "conferma": "Sì, cancella il mio account",
+      "annulla": "Lascia stare",
+      "definitivo": "La cancellazione è immediata e non si può annullare.",
+      "errore": "Non siamo riusciti a cancellare l'account. Riprova tra qualche minuto."
     },
     "benvenuto": {
       "titolo": "Raccontaci qualcosa di te",

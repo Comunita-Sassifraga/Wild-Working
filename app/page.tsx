@@ -34,7 +34,7 @@ import { esciAzione } from "./accedi/azioni";
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ data?: string | string[] }>;
+  searchParams: Promise<{ data?: string | string[]; cancellato?: string | string[] }>;
 }) {
   const [utente, client, parametri] = await Promise.all([
     utenteAttuale(),
@@ -78,6 +78,14 @@ export default async function Home({
         {m.home.titolo}
       </h1>
       <p className="mt-6 italic">{conValori(t.introduzione, { giorni: FINESTRA_GIORNI })}</p>
+
+      {/* Where a person lands after erasing their account (§7, step 10). The
+          app starts here, and here there is nothing left of them to show. */}
+      {parametri.cancellato !== undefined && (
+        <p role="status" className="mt-6">
+          {m.home.cancellato}
+        </p>
+      )}
 
       <Rimando
         href="/chi-ce-in-valle"

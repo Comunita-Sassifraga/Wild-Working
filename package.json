@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint",
     "test": "vitest run",
-    "test:rls": "vitest run tests/rls.test.ts tests/public-name.test.ts tests/dati-facoltativi.test.ts tests/periodi-attivita.test.ts tests/disponibilita.test.ts tests/prenotazione.test.ts tests/moderazione.test.ts tests/chi-ce.test.ts tests/amministrazione.test.ts tests/promemoria.test.ts",
+    "test:rls": "vitest run tests/rls.test.ts tests/public-name.test.ts tests/dati-facoltativi.test.ts tests/periodi-attivita.test.ts tests/disponibilita.test.ts tests/prenotazione.test.ts tests/moderazione.test.ts tests/chi-ce.test.ts tests/amministrazione.test.ts tests/promemoria.test.ts tests/diritti.test.ts",
     "db:reset": "supabase db reset",
     "db:types": "supabase gen types typescript --local > lib/db/types.ts"
   },
