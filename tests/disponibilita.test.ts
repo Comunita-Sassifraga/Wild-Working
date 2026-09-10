@@ -15,7 +15,7 @@ import { SOGLIA_ULTIMI_POSTI } from "@/config/limits";
 import { aggiungiGiorni, fineFinestra, giornoSettimana, oggiRoma } from "@/lib/dates";
 import { disponibilitaPubblica } from "@/lib/db/disponibilita";
 import { prenotaPosto } from "@/lib/db/prenotazioni";
-import { statoCella, type Cella } from "@/lib/disponibilita";
+import { giornoScelto, statoCella, type Cella, type Giorno } from "@/lib/disponibilita";
 import {
   creaChiusura,
   creaSede,
@@ -183,5 +183,48 @@ describe("§6.2 vista della disponibilità", () => {
     // Le prenotazioni da cui i conteggi nascono restano irraggiungibili.
     const { error: prenotazioni } = await anon.from("prenotazioni").select("id").limit(1);
     expect(prenotazioni).not.toBeNull();
+  });
+});
+
+/**
+ * The day the page opens on. A date arriving from the address bar is never
+ * trusted: when it names a day nobody can open, the page falls back to the
+ * default view — and, in `app/page.tsx`, sends the browser back to `/` so
+ * that the address stops claiming a day it is not showing.
+ */
+describe("§6.2 giorno scelto da un indirizzo", () => {
+  const adesso = new Date("2026-09-10T09:00:00Z"); // giovedì, Europe/Rome
+  const oggi = "2026-09-10";
+
+  const calendario = (statoDiOggi: Giorno["stato"] = "LIBERO") =>
+    new Map<string, Giorno>([
+      ["2026-09-07", { data: "2026-09-07", stato: "PASSATO" }],
+      ["2026-09-09", { data: "2026-09-09", stato: "PASSATO" }],
+      [oggi, { data: oggi, stato: statoDiOggi }],
+      ["2026-09-11", { data: "2026-09-11", stato: "LIBERO" }],
+      ["2026-09-13", { data: "2026-09-13", stato: "CHIUSO" }],
+      ["2026-09-14", { data: "2026-09-14", stato: "ESAURITO" }],
+      ["2026-09-25", { data: "2026-09-25", stato: "OLTRE" }],
+    ]);
+
+  it("apre su oggi quando l'indirizzo non chiede niente", () => {
+    expect(giornoScelto(calendario(), undefined, adesso)).toBe(oggi);
+  });
+
+  it("apre sul giorno chiesto, quando è un giorno che si può aprire", () => {
+    expect(giornoScelto(calendario(), "2026-09-11", adesso)).toBe("2026-09-11");
+    // Anche un giorno esaurito si può guardare: è pieno, non inesistente.
+    expect(giornoScelto(calendario(), "2026-09-14", adesso)).toBe("2026-09-14");
+  });
+
+  it("ripiega su oggi davanti a una data inventata, passata, chiusa o fuori finestra", () => {
+    for (const richiesta of ["test", "", "2026-13-45", "2026-09-09", "2026-09-13", "2026-09-25"]) {
+      expect(giornoScelto(calendario(), richiesta, adesso), richiesta).toBe(oggi);
+    }
+  });
+
+  it("se oggi è chiuso, apre sul primo giorno utile della finestra", () => {
+    expect(giornoScelto(calendario("CHIUSO"), undefined, adesso)).toBe("2026-09-11");
+    expect(giornoScelto(calendario("CHIUSO"), "test", adesso)).toBe("2026-09-11");
   });
 });

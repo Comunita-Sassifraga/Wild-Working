@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Calendario } from "@/components/Calendario";
 import { SediFuoriPeriodo } from "@/components/SediFuoriPeriodo";
 import { TabellaGiorno } from "@/components/TabellaGiorno";
@@ -49,6 +50,14 @@ export default async function Home({
   const giorni = giorniDelCalendario(celle, settimane);
   const richiesta = Array.isArray(parametri.data) ? parametri.data[0] : parametri.data;
   const scelto = giornoScelto(giorni, richiesta);
+
+  // An address that asks for a day that does not exist, or that nobody can
+  // book — a past day, a closed one, one beyond the window — falls back to
+  // the default view. It also loses the date it asked for: an address bar
+  // that still said `?data=test` while the page showed today would be
+  // claiming something untrue, and a link shared from here would carry the
+  // lie along.
+  if (richiesta !== undefined && richiesta !== scelto) redirect("/");
 
   const celleGiorno = celleDelGiorno(celle, scelto);
   const inStagione = (sedeId: string) =>
