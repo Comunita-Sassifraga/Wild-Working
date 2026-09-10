@@ -47,11 +47,14 @@ export function statoCella(cella: Cella): StatoCella {
  */
 export type StatoGiorno = "PASSATO" | "OLTRE" | "CHIUSO" | "ESAURITO" | "LIBERO";
 
+/**
+ * A day carries its state and nothing else. The calendar says whether the
+ * day is open, not how open: the counts belong to the table of the chosen
+ * day, sede by sede (§6.2).
+ */
 export type Giorno = {
   data: DataISO;
   stato: StatoGiorno;
-  /** Free seats across every sede and fascia of that day. */
-  liberi: number;
 };
 
 /** True for the states a visitor can open. */
@@ -77,18 +80,23 @@ export function giorniDelCalendario(
   const giorni = new Map<DataISO, Giorno>();
   for (const data of settimane.flat()) {
     if (data < oggi) {
-      giorni.set(data, { data, stato: "PASSATO", liberi: 0 });
+      giorni.set(data, { data, stato: "PASSATO" });
       continue;
     }
     if (data > fine) {
-      giorni.set(data, { data, stato: "OLTRE", liberi: 0 });
+      giorni.set(data, { data, stato: "OLTRE" });
       continue;
     }
+    // Open if at least one fascia of one sede still has room; sold out when
+    // every open fascia is full; closed when no sede is open at all.
     const aperte = (perData.get(data) ?? []).filter((c) => c.prenotabile);
-    const liberi = aperte.reduce((somma, c) => somma + c.liberi, 0);
     const stato: StatoGiorno =
-      aperte.length === 0 ? "CHIUSO" : liberi === 0 ? "ESAURITO" : "LIBERO";
-    giorni.set(data, { data, stato, liberi });
+      aperte.length === 0
+        ? "CHIUSO"
+        : aperte.some((c) => c.liberi > 0)
+          ? "LIBERO"
+          : "ESAURITO";
+    giorni.set(data, { data, stato });
   }
   return giorni;
 }

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { dataEstesa, giornoDelMese, meseBreve, type DataISO } from "@/lib/dates";
 import { giornoApribile, type Giorno, type StatoGiorno } from "@/lib/disponibilita";
-import { conValori, m } from "@/lib/messaggi";
+import { m } from "@/lib/messaggi";
 
 /**
  * The calendar of SPEC §6.2 — whole weeks, from the Monday of the current
@@ -24,17 +24,23 @@ type Proprieta = {
 
 // The background lives on the cell itself, so that a short day and a tall one
 // in the same week are filled to the same height.
-const cella = "flex h-full min-h-tocco flex-col items-center justify-center px-1 py-2 text-center";
+// Children stretch to the column width — not `items-center`, which would let
+// a long word grow past the cell instead of wrapping inside it.
+const cella = "flex h-full min-h-tocco flex-col justify-center px-0 py-2 text-center";
 const sfondoSpento = "bg-superficie-scura text-testo-secondario";
 const sfondoAperto = "bg-superficie text-testo";
 const sfondoScelto = "bg-verde text-testo";
 
-/** The word or count under the day number, and the empty string when there is none. */
+/**
+ * The word under the day number, and the empty string when there is none.
+ * One word, never a count: the calendar says whether the day is open, the
+ * table below says how many places are left and where (§6.2).
+ */
 function etichetta(giorno: Giorno): string {
   const t = m.disponibilita.calendario;
   switch (giorno.stato) {
     case "LIBERO":
-      return conValori(t.liberi, { liberi: giorno.liberi });
+      return t.disponibile;
     case "ESAURITO":
       return t.esaurito;
     case "CHIUSO":
@@ -60,16 +66,21 @@ function Casella({ giorno, scelto }: { giorno: Giorno; scelto: boolean }) {
   const contenuto = (
     <>
       <Numero data={giorno.data} />
-      {testo ? <span className="text-nota">{testo}</span> : null}
+      {/* A calendar column is narrower than the word: let it hyphenate, and
+          break it anyway where the browser has no Italian dictionary. */}
+      {testo ? <span className="hyphens-auto break-words text-nota">{testo}</span> : null}
     </>
   );
 
   if (scelto) {
     return (
+      // Not bolded as a whole: the day number is already bold everywhere, and
+      // bold widens the label past the column. The chosen day is told apart by
+      // the verde fill, by not being a link, and by the heading right below.
       <span
         aria-current="date"
         aria-label={`${nome}, ${m.disponibilita.calendario.scelto}`}
-        className={`${cella} font-grassetto`}
+        className={cella}
       >
         {contenuto}
       </span>
@@ -122,7 +133,7 @@ export function Calendario({ settimane, giorni, scelto }: Proprieta) {
         {settimane.map((settimana) => (
           <tr key={settimana[0]}>
             {settimana.map((data) => {
-              const giorno = giorni.get(data) ?? { data, stato: "OLTRE" as StatoGiorno, liberi: 0 };
+              const giorno = giorni.get(data) ?? { data, stato: "OLTRE" as StatoGiorno };
               const evidenziato = data === scelto && !fuoriFinestra.includes(giorno.stato);
               return (
                 <td
