@@ -16,12 +16,21 @@ le regole per chi lavora sul codice sono in `CLAUDE.md`.
 npm install
 npx supabase start        # avvia Postgres, Auth e API in locale
 npm run db:reset          # applica le migration e i dati di partenza
-npm run dev               # http://localhost:3000
+npm run dev               # http://127.0.0.1:3000
 ```
+
+Apri l'app su `127.0.0.1`, non su `localhost`: i link nelle email di accesso
+puntano lì e il cookie di sessione vale per quell'indirizzo. Le email in
+locale non partono: finiscono in Mailpit, <http://127.0.0.1:54324>.
 
 Copia `.env.local.example` in `.env.local` e riempilo con i valori di
 `npx supabase status -o env`. `CHIAVE_IMPRONTE_ACCESSO` è una stringa lunga
 a piacere, inventata: non va presa da Supabase. Il file è ignorato da git.
+
+Su Windows, se PowerShell rifiuta `npm` ("L'esecuzione di script è
+disabilitata"), usa `npm.cmd` al posto di `npm`, oppure abilita una volta gli
+script locali con `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`.
+I comandi vanno lanciati dalla cartella del progetto.
 
 ## Comandi
 

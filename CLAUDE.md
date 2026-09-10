@@ -181,6 +181,7 @@ translate them, do not mix languages within an identifier.
 | `stat_*`               | Snapshot of the five fields copied onto a `prenotazione` at anonymisation time (SPEC §5.3). No longer personal data — nothing links them back to a person. |
 | `consenso`             | Append-only log. Two independent types: `NOME_PUBBLICO` and `DATI_FACOLTATIVI`. Either can be given or revoked without touching the other.      |
 | `moderazione`          | After-the-fact clearing of an offensive `nome_pubblico` by an admin, plus the blocklist and notification around it. See SPEC §6.5.              |
+| `impronta`             | Keyed hash of an email or network address, used only by the link request limit (`richieste_link`, SPEC §6.1). Never reversible, expires after one hour. No address of either kind is ever stored. |
 
 Code comments and commit messages: English.
 Anything a user reads: Italian, in `messages/it.json` — never hardcoded in JSX,
@@ -193,11 +194,15 @@ even for the MVP.
 The app must be visually continuous with `www.sassifraga.org` (Google Sites).
 Full definition in **SPEC §13** — read it before building any screen.
 
-Single source of truth: `config/tokens.ts`, created **before the first screen**
-(step 3 of SPEC §12), mirrored into the Tailwind theme. The stock Tailwind
-palette is disabled — only these tokens exist. The project uses Tailwind v4:
-whether the mirror is a `tailwind.config.ts` loaded via `@config` or a generated
-`@theme` block is decided at step 3, not before.
+Single source of truth: `config/tokens.ts`, created **before the first styled
+screen** (step 3 of SPEC §12), mirrored into the Tailwind theme. The stock
+Tailwind palette is disabled — only these tokens exist. The project uses
+Tailwind v4: whether the mirror is a `tailwind.config.ts` loaded via `@config`
+or a generated `@theme` block is decided at step 3, not before.
+
+The only screens that exist before step 3 are the sign-in pages of step 2
+(`app/accedi`, `app/page.tsx`): deliberately unstyled, no class and no visual
+value at all. Step 3 dresses them; do not add styling to them before then.
 
 ```
 sfondo             #EBE8DD   page background
@@ -258,6 +263,21 @@ what to do next, not what went wrong internally.
 - Configurable values from SPEC §10 live in `config/limits.ts`, not inline.
 - Errors shown to users are in plain Italian, no technical jargon, and always
   say what to do next.
+- **Supabase runs server-side only.** Pages, Server Actions and Route Handlers
+  get their client from `clientServer()` in `lib/db/server.ts`, bound to the
+  session cookie; `proxy.ts` refreshes that cookie on every request. There is
+  no browser Supabase client and no `NEXT_PUBLIC_` variable: keys never reach
+  the browser. Server-side env vars are read once in `lib/env.ts`.
+- **Sign-in logic lives in `lib/auth/`** as pure functions over a client
+  (`richiediLink`, `verificaLink`, `esci`), shared by the pages and the tests.
+  The hourly link limit is enforced by `consenti_richiesta_link()` in the
+  database on `impronta` values, never in application memory.
+- **The link token travels in the URL of `/auth/conferma`.** Never print that
+  URL. `next.config.ts` excludes it from the dev request log; keep it out of
+  any other log, error message or analytics event (rule 4).
+- The first sign-in is reported by `registra_accesso()` (`primoAccesso` in
+  `verificaLink`). Step 6 uses it to show the one-time optional-fields screen
+  of SPEC §6.1 point 5; until then the route sends everyone to `/`.
 
 ---
 
@@ -271,7 +291,12 @@ npm run test         # unit + integration
 npm run test:rls     # RLS policy tests — must pass before any commit
 npm run test:e2e     # Playwright
 npx supabase db reset # rebuild local db from migrations + seed
+npm run db:types     # regenerate lib/db/types.ts after a migration
 ```
+
+After editing `supabase/config.toml` (auth settings, email templates) run
+`npx supabase stop` then `npx supabase start`: `db reset` does not reload
+the Auth service. Local emails land in Mailpit at http://127.0.0.1:54324.
 
 ---
 
@@ -314,6 +339,14 @@ These exist and must never be deleted or weakened to make a build pass:
   is not bookable and does not appear in the availability grid; a sede with
   `sempre_disponibile = true` ignores periods entirely; overlapping periods
   behave as a union; shortening a period does not delete existing bookings.
+- `tests/accesso.test.ts` — the real sign-in flow through the local mailbox:
+  the `utenti` row does not exist before the link is opened and holds only
+  the email afterwards; the same link opens nothing a second time; the first
+  sign-in is reported as such and later ones are not; the
+  `MAX_LINK_PER_EMAIL_ORA + 1`-th request for an email and the
+  `MAX_LINK_PER_RETE_ORA + 1`-th from a network send nothing; `richieste_link`
+  is unreadable by anon and authenticated; `otp_expiry` in `config.toml` and
+  the templates agree with `VALIDITA_LINK_MINUTI`.
 
 If a change breaks one of these, the change is wrong. Do not adjust the test.
 
