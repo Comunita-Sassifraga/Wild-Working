@@ -173,6 +173,9 @@ translate them, do not mix languages within an identifier.
 | `periodo_attivita`     | Seasonal availability range for a sede. Multiple allowed, may overlap (union wins), may recur yearly. Distinct from `chiusura`.         |
 | `finestra_prenotabile` | Bookable window: today through today + `FINESTRA_GIORNI`, inclusive. Rolling — a new day opens at `ORA_APERTURA_FINESTRA`, Europe/Rome. |
 | `referente`            | Site steward, sees own sede only, today + `FINESTRA_GIORNI` — never a hardcoded day count                                               |
+| `incarico`             | Role assignment. `REFERENTE` always has a `sede_id`; `AMMINISTRATORE` never does — admins are global (SPEC §5.6).                       |
+| `giorni_apertura`      | Weekdays a sede is open, default LUN–SAB, admin-editable per sede. Fifth bookability condition of SPEC §5.2.                            |
+| `sedi.note`            | Practical info (Wi-Fi, keys). Authenticated users only — never in a public view, never contains passwords.                              |
 | `posto_progressivo`    | Internal seat number 1..capienza. **Never shown to users.**                                                                             |
 | `dati_facoltativi`     | The five consent-based statistical fields: `eta`, `genere`, `professione`, `motivo_visita`, `residenza`. Never public, never per-user in admin. |
 | `stat_*`               | Snapshot of the five fields copied onto a `prenotazione` at anonymisation time (SPEC §5.3). No longer personal data — nothing links them back to a person. |
@@ -191,8 +194,10 @@ The app must be visually continuous with `www.sassifraga.org` (Google Sites).
 Full definition in **SPEC §13** — read it before building any screen.
 
 Single source of truth: `config/tokens.ts`, created **before the first screen**
-(step 3 of SPEC §12), mirrored into `tailwind.config.ts`. The stock Tailwind
-palette is disabled — only these tokens exist.
+(step 3 of SPEC §12), mirrored into the Tailwind theme. The stock Tailwind
+palette is disabled — only these tokens exist. The project uses Tailwind v4:
+whether the mirror is a `tailwind.config.ts` loaded via `@config` or a generated
+`@theme` block is decided at step 3, not before.
 
 ```
 sfondo             #EBE8DD   page background
@@ -248,8 +253,8 @@ what to do next, not what went wrong internally.
   timezone to `Europe/Rome`; never call `new Date()` directly for window logic.
 - Bookability of a sede on a date is decided by one shared function
   (`isSedeBookable`), applied identically in the availability view, the public
-  page, and the booking write path. Do not reimplement the four conditions of
-  SPEC §5.2 in more than one place.
+  page, and the booking write path. Do not reimplement the five conditions of
+  SPEC §5.2 (including `giorni_apertura`) in more than one place.
 - Configurable values from SPEC §10 live in `config/limits.ts`, not inline.
 - Errors shown to users are in plain Italian, no technical jargon, and always
   say what to do next.

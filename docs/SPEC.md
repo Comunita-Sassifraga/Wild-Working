@@ -94,6 +94,8 @@ Sette entità. Descritte prima a parole, poi in tabella.
 - Un **incarico** assegna il ruolo di referente a un utente per una sede.
 - Un **periodo attività** indica in quali periodi dell'anno la sede è attiva.
 
+Due archivi di supporto richiesti da §6.5 e §6.7 non sono ancora descritti qui: l'**elenco dei termini vietati** e il **registro delle moderazioni** (chi, quando, quale nome è stato rimosso). Vanno aggiunti a questa sezione quando si costruisce la moderazione (passi 6 e 8 di §12).
+
 ### 5.1 utenti
 
 | Campo                  | Tipo                                                    | Obbligatorio | Note                                               |
@@ -125,8 +127,8 @@ Non esiste un campo password: l'accesso avviene via link inviato per email (§6.
 | `capienza`           | numero         | **DA CONFERMARE** — vedi §11                                                                                                              |
 | `orario_mattina`     | testo          | Default `09:00–13:00`                                                                                                                     |
 | `orario_pomeriggio`  | testo          | Default `14:00–18:00`                                                                                                                     |
-| `giorni_apertura`    | elenco         | Default lun–ven                                                                                                                           |
-| `note`               | testo libero   | Wi‑Fi, chiavi, accesso, dotazioni                                                                                                         |
+| `giorni_apertura`    | elenco         | Default lun–sab. Modificabile per sede dal pannello. Concorre alla prenotabilità (condizione 5 sotto)                                     |
+| `note`               | testo libero   | Wi‑Fi, chiavi, accesso, dotazioni. Visibile solo agli utenti registrati, mai nelle pagine pubbliche. Non contiene mai password o codici    |
 | `attiva`             | sì/no          | Interruttore generale. Se spento, la sede scompare ovunque, a prescindere dai periodi. Serve per sospensioni immediate o non pianificate. |
 | `sempre_disponibile` | sì/no          | Se sì, la sede ignora i periodi di attività ed è disponibile tutto l'anno. Default: sì.                                                   |
 
@@ -135,7 +137,8 @@ Una sede è prenotabile in una certa data se, e solo se, **tutte** queste condiz
 1. `attiva` è sì;
 2. `sempre_disponibile` è sì **oppure** la data ricade dentro almeno un periodo di attività (§5.7);
 3. la data non ricade in una chiusura (§5.4);
-4. la data è dentro la finestra prenotabile (§6.3).
+4. la data è dentro la finestra prenotabile (§6.3);
+5. il giorno della settimana è fra i `giorni_apertura` della sede.
 
 ### 5.3 prenotazioni
 
@@ -190,9 +193,13 @@ I due consensi sono **indipendenti**: si può dare l'uno senza l'altro, e revoca
 
 Questa tabella è **append-only**: non si modifica e non si cancella nulla, si aggiunge una riga a ogni cambiamento. Serve a dimostrare, se richiesto, quando un consenso è stato dato o ritirato (art. 7.1 GDPR).
 
+Il consenso `DATI_FACOLTATIVI` si considera revocato quando tutti e cinque i campi sono vuoti, qualunque sia la strada con cui sono stati svuotati (pulsante "Rimuovi" o modifica manuale): il registro segue lo stato reale dei dati, e le righe le scrive il database da solo a ogni cambiamento. Il registro sopravvive alla cancellazione dell'account (§7): le righe conservano l'identificativo interno dell'utente, che dopo la cancellazione non rimanda più a nessuno.
+
 ### 5.6 incarichi
 
 `id`, `utente_id`, `sede_id`, `ruolo` (`REFERENTE` / `AMMINISTRATORE`), `attivo`.
+
+`sede_id` è obbligatorio per `REFERENTE` e vuoto per `AMMINISTRATORE`: l'amministratore è globale e vale su tutte le sedi (§4).
 
 ### 5.7 periodi_attivita
 
@@ -263,7 +270,7 @@ Vincoli:
 - Non si può prenotare nel passato.
 - Non si può prenotare oltre **oggi + `FINESTRA_GIORNI` inclusi** (14 al lancio). Esempio con 14: sabato 15 agosto si può prenotare fino a sabato 29 agosto compreso; domenica 30 agosto è il primo giorno non prenotabile.
 - Il calcolo di "oggi" avviene sempre nel fuso orario **Europe/Rome**, mai in orario universale (§8.4).
-- Non si può avere più di una prenotazione attiva nella stessa data e fascia (nemmeno in sedi diverse).
+- Non si può avere più di una prenotazione attiva nella stessa data e fascia (nemmeno in sedi diverse). Il vincolo è imposto dal database, come quello di §8.1.
 - Non si può prenotare una sede chiusa o disattivata.
 
 ### 6.4 Annullare
@@ -381,7 +388,7 @@ Le stesse due regole valgono per il CSV esportato, che è la via più facile per
 | Residenza             | No           | Per raccogliere dati facoltativi, utili a capire l'utilità del servizio di coworkin | Art. 6.1.a — **consenso**, revocabile                   | L'utente. L'amministratore solo in forma aggregata (§6.8), mai collegato all'identità   | Finché il consenso è attivo                   |
 | Lingua                | No           | Mostrare l'interfaccia nella lingua giusta                                          | Art. 6.1.b                                              | Solo il sistema                                                                         | Finché l'account esiste                       |
 | Prenotazioni          | Sì           | Erogare il servizio                                                                 | Art. 6.1.b                                              | Come l'email                                                                            | 30 giorni in forma riferibile, poi anonimizzate (§5.3) |
-| Registro dei consensi | Sì           | Dimostrare quando un consenso è stato dato o revocato                               | Art. 6.1.c — obbligo di legge (art. 7.1 GDPR)           | Solo amministratore                                                                     | 24 mesi dopo la chiusura dell'account         |
+| Registro dei consensi | Sì           | Dimostrare quando un consenso è stato dato o revocato                               | Art. 6.1.c — obbligo di legge (art. 7.1 GDPR)           | L'utente, per le proprie righe (anche in "Scarica i miei dati"). L'amministratore, tutte | 24 mesi dopo la chiusura dell'account         |
 | Data ultimo accesso   | Sì           | Cancellare gli account dormienti                                                    | Art. 6.1.f — legittimo interesse alla minimizzazione    | Solo il sistema                                                                         | Finché l'account esiste                       |
 
 ### Conservazione e cancellazione automatica
@@ -420,7 +427,7 @@ Le stesse due regole valgono per il CSV esportato, che è la via più facile per
 
 Il caso critico dell'intero sistema. Un controllo del tipo "conta le prenotazioni, se sono meno della capienza inserisci" **non funziona**: due richieste simultanee contano entrambe lo stesso numero e inseriscono entrambe.
 
-Soluzione adottata: ogni prenotazione riceve un `posto_progressivo` da 1 a capienza, e la banca dati impone che la combinazione `(sede, data, fascia, posto_progressivo)` sia **unica**. Il vincolo è imposto dal database stesso, non dal programma: la seconda richiesta viene rifiutata a livello di archivio, ed è tecnicamente impossibile scavalcarla. L'applicazione riprova con il numero successivo finché ce ne sono; quando finiscono, comunica "non ci sono più posti".
+Soluzione adottata: ogni prenotazione riceve un `posto_progressivo` da 1 a capienza, e la banca dati impone che la combinazione `(sede, data, fascia, posto_progressivo)` sia **unica fra le prenotazioni attive**: una prenotazione annullata libera il proprio numero, che può essere riassegnato. Il vincolo è imposto dal database stesso, non dal programma: la seconda richiesta viene rifiutata a livello di archivio, ed è tecnicamente impossibile scavalcarla. L'applicazione riprova con il numero successivo finché ce ne sono; quando finiscono, comunica "non ci sono più posti".
 
 L'utente non vede mai il numero: per lui esiste solo "un posto".
 
@@ -474,7 +481,7 @@ Da non costruire ora. In ordine di priorità:
 
 ## 10. Parametri configurabili
 
-Valori che devono essere modificabili senza toccare il codice:
+Valori che devono essere modificabili senza toccare la logica del programma. Vivono in un unico file di configurazione (`config/limits.ts`): cambiarli richiede un rilascio, non una riscrittura. `FINESTRA_GIORNI` ha una copia nel database, usata dalle regole di accesso del referente; un test automatico verifica che le due copie coincidano.
 
 | Parametro | Valore iniziale |
 |---|---|
@@ -506,12 +513,14 @@ Contatto privacy: Letizia Melano
 
 | Sede               | **Capienza ufficiale di ciascuna sede. Nota: dev'essere comunque modificabile dal pannello di amministrazione** | Orari e giorni di apertura effettivi | Sede stagionale? | Indirizzi esatti | Referente Sede |     |
 | ------------------ | --------------------------------------------------------------------------------------------------------------- | ------------------------------------ | ---------------- | ---------------- | -------------- | --- |
-| Ronco Coworking    | 6 persone                                                                                                       | 09:00 - 18:00, lun-ven               | No               | Ancora ND        | Ancora ND      |     |
-| Valprato Coworking | 4 persone                                                                                                       | 09:00 - 18:00, lun-ven               | Sì               | Ancora ND        | Ancora ND      |     |
-| Valprato Comune    | 8 persone                                                                                                       | 09:00 - 18:00, lun-ven               | Sì               | Ancora ND        | Ancora ND      |     |
-| Ingria Coworking   | 4 persone                                                                                                       | 09:00 - 18:00, lun-ven               | Sì               | Ancora ND        | Ancora ND      |     |
-| Pigna              | 6 persone                                                                                                       | 09:00 - 18:00, lun-ven               | Sì               | Ancora ND        | Ancora ND      |     |
-| Bar Soana          | 6 persone                                                                                                       | 09:00 - 18:00, lun-ven               | Sì               | Ancora ND        | Ancora ND      |     |
+| Ronco Coworking    | 6 persone                                                                                                       | 09:00 - 18:00, lun-sab               | No               | Ancora ND        | Ancora ND      |     |
+| Valprato Coworking | 4 persone                                                                                                       | 09:00 - 18:00, lun-sab               | Sì               | Ancora ND        | Ancora ND      |     |
+| Valprato Comune    | 8 persone                                                                                                       | 09:00 - 18:00, lun-sab               | Sì               | Ancora ND        | Ancora ND      |     |
+| Ingria Coworking   | 4 persone                                                                                                       | 09:00 - 18:00, lun-sab               | Sì               | Ancora ND        | Ancora ND      |     |
+| Pigna              | 6 persone                                                                                                       | 09:00 - 18:00, lun-sab               | Sì               | Ancora ND        | Ancora ND      |     |
+| Bar Soana          | 6 persone                                                                                                       | 09:00 - 18:00, lun-sab               | Sì               | Ancora ND        | Ancora ND      |     |
+
+Comuni: Ronco Coworking e Bar Soana → Ronco Canavese; Valprato Coworking, Valprato Comune e Pigna → Valprato Soana; Ingria Coworking → Ingria. Le sedi stagionali non hanno ancora i periodi: finché non vengono inseriti dal pannello, i dati di sviluppo usano un periodo segnaposto (1 giugno – 30 settembre, ricorrente) etichettato "da confermare".
 
 
 ### B. Da valutare
