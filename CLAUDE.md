@@ -19,7 +19,7 @@ If code and spec disagree, the spec wins — flag the discrepancy, do not silent
 - Supabase (Postgres + Auth), **eu-central-1 / Frankfurt**
 - Auth: **magic link only**. No passwords, no OAuth, no social login.
 - Resend for transactional email, sending from `noreply@coworking.sassifraga.org`
-- Deployed on Vercel, served at **`coworking.sassifraga.org`**
+- Deployed on Vercel, served at **`prenota.sassifraga.org`**
 - PWA: installable, read-only offline cache of availability
 
 The app lives on its own subdomain, never under `www.sassifraga.org/...` — the

@@ -42,7 +42,7 @@ Lo strumento è realizzato e messo a disposizione da Comunità Sassifraga APS. G
 | D8  | Finestra di prenotazione                  | Si può prenotare da oggi fino a **oggi + 14 giorni inclusi**. Finestra mobile: ogni giorno si apre un nuovo giorno e si chiude quello trascorso.                                                                                             |
 | D9  | Stagionalità delle sedi                   | Una sede può essere disponibile solo in certi periodi dell'anno. I periodi sono dati modificabili dall'amministratore, non regole scritte nel codice. Fuori dai propri periodi una sede non è prenotabile e scompare dalla vista principale. |
 | D10 | Titolare del trattamento                  | Solo Comunità Sassifraga APS. Contatto privacy: Letizia Melano. **Il software non trasmette mai dati personali ai Comuni.** I Comuni ricevono statistiche aggregate. Se un Comune ha bisogno di sapere chi si trova nel proprio immobile (sicurezza, assicurazione), lo gestisce con un registro presenze cartaceo in loco, che è un trattamento suo, separato e indipendente da questo strumento. |
-| D11 | Indirizzo del servizio                    | Sottodominio **`coworking.sassifraga.org`**. Non una sottocartella di `www.sassifraga.org`: il sito è su Google Sites, che non permette di dirottare un percorso verso un'applicazione esterna. Vedi §14.                                    |
+| D11 | Indirizzo del servizio                    | Sottodominio **`prenota.sassifraga.org`**. Non una sottocartella di `www.sassifraga.org`: il sito è su Google Sites, che non permette di dirottare un percorso verso un'applicazione esterna. Vedi §14.                                    |
 | D12 | Mittente delle email                      | Le email dell'app partono da un **sottodominio dedicato** (`noreply@coworking.sassifraga.org`), mai dal dominio principale. Protegge la consegna della posta istituzionale. Vedi §14.                                                        |
 | D13 | Dati facoltativi                          | Cinque campi facoltativi (età, genere, professione, motivo della visita, residenza), raccolti su consenso separato e revocabile. Richiedibili anche in registrazione, ma mai bloccanti. Usati solo in forma aggregata (§6.8).               |
 | D14 | Moderazione del nome pubblico             | Moderazione **successiva**: il nome è pubblico subito, l'amministratore viene avvisato e può azzerarlo. Filtro automatico in scrittura come prima difesa.                                                                                   |
@@ -660,7 +660,7 @@ Il sito parla in modo diretto, sobrio, non promozionale ("Lavoriamo con il terri
 
 ### 14.1 Indirizzo del servizio
 
-Il servizio vive su **`coworking.sassifraga.org`** (D11).
+Il servizio vive su **`prenota.sassifraga.org`** (D11).
 
 Non su `www.sassifraga.org/coworking`: il sito istituzionale è costruito con Google Sites, che non consente di dirottare una sottocartella verso un'applicazione esterna. Non è una limitazione aggirabile.
 
