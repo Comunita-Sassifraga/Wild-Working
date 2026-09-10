@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint",
     "test": "vitest run",
-    "test:rls": "vitest run tests/rls.test.ts tests/public-name.test.ts tests/dati-facoltativi.test.ts",
+    "test:rls": "vitest run tests/rls.test.ts tests/public-name.test.ts tests/dati-facoltativi.test.ts tests/periodi-attivita.test.ts tests/disponibilita.test.ts",
     "db:reset": "supabase db reset",
     "db:types": "supabase gen types typescript --local > lib/db/types.ts"
   },

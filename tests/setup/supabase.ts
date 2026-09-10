@@ -136,6 +136,34 @@ export async function creaSede(sede: NuovaSede): Promise<string> {
   return data.id;
 }
 
+type NuovoPeriodo = Omit<Database["public"]["Tables"]["periodi_attivita"]["Insert"], "etichetta"> & {
+  etichetta?: string;
+};
+
+/** Adds a periodo_attivita to a sede (SPEC §5.7). */
+export async function creaPeriodo(periodo: NuovoPeriodo): Promise<string> {
+  const { data, error } = await servizio()
+    .from("periodi_attivita")
+    .insert({ etichetta: "Periodo di prova", ...periodo })
+    .select("id")
+    .single();
+  if (error) throw new Error(`creaPeriodo failed: ${error.code}`);
+  return data.id;
+}
+
+/** Adds a chiusura. `fascia` absent means the whole day (SPEC §5.4). */
+export async function creaChiusura(
+  chiusura: Database["public"]["Tables"]["chiusure"]["Insert"],
+): Promise<string> {
+  const { data, error } = await servizio()
+    .from("chiusure")
+    .insert(chiusura)
+    .select("id")
+    .single();
+  if (error) throw new Error(`creaChiusura failed: ${error.code}`);
+  return data.id;
+}
+
 export async function assegnaIncarico(
   utenteId: string,
   ruolo: Database["public"]["Enums"]["ruolo_incarico"],

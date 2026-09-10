@@ -137,7 +137,7 @@ Una sede è prenotabile in una certa data se, e solo se, **tutte** queste condiz
 
 1. `attiva` è sì;
 2. `sempre_disponibile` è sì **oppure** la data ricade dentro almeno un periodo di attività (§5.7);
-3. la data non ricade in una chiusura (§5.4);
+3. la combinazione data + fascia non ricade in una chiusura (§5.4); una chiusura senza fascia vale per tutte le fasce del giorno;
 4. la data è dentro la finestra prenotabile (§6.3);
 5. il giorno della settimana è fra i `giorni_apertura` della sede.
 
@@ -248,9 +248,13 @@ Regole sulla schermata dei dati facoltativi (passo 5):
 
 ### 6.2 Vedere la disponibilità
 
-Vista predefinita: **le sedi attive affiancate, sull'intera finestra prenotabile — oggi e i `FINESTRA_GIORNI` successivi.**
+Vista predefinita: **un calendario dell'intera finestra prenotabile — oggi e i `FINESTRA_GIORNI` successivi — e, per il giorno scelto, le sedi attive affiancate.**
 
-Non si mostrano giorni non prenotabili: la vista coincide esattamente con ciò su cui l'utente può agire. Mostrare disponibilità che non si può ancora prenotare genera solo frustrazione.
+Il calendario copre settimane intere: dal lunedì della settimana in corso alla domenica della settimana in cui cade l'ultimo giorno prenotabile. Con `FINESTRA_GIORNI` a 14 sono tre righe, da lunedì a domenica. I giorni su cui non si può agire restano visibili ma spenti e non selezionabili: quelli già passati, quelli oltre la finestra, e quelli in cui nessuna sede è aperta. Le settimane restano intere perché un calendario che comincia a metà settimana si legge male.
+
+Ogni giorno riporta in cifre, e non con il solo colore, quanti posti restano liberi in valle. I giorni spenti perché chiusi lo dichiarano ("chiuso"); quelli spenti perché passati o non ancora dentro la finestra portano solo il numero, senza spiegazione: il calendario stesso mostra già dove si trova oggi. All'apertura è selezionato oggi. Ogni giorno prenotabile ha un proprio indirizzo web, condivisibile.
+
+Sotto il calendario, per il giorno scelto, le sedi sulle righe e le due fasce sulle colonne.
 
 Le sedi fuori dal proprio periodo di attività **non compaiono nella griglia**, ma sono elencate sotto, in una sezione separata e discreta: *"Sedi non disponibili in questo periodo"*, con l'etichetta del prossimo periodo e la data di riapertura, se nota. Farle sparire del tutto porterebbe le persone a credere che abbiano chiuso definitivamente.
 
@@ -515,6 +519,7 @@ Valori che devono essere modificabili senza toccare la logica del programma. Viv
 | `EMAIL_MODERAZIONE` — destinatario degli avvisi sui nomi pubblici (§6.5) | da definire, casella del Direttivo, **mai un indirizzo personale** |
 | `EMAIL_MITTENTE` — mittente di tutte le email dell'app (D12) | `noreply@coworking.sassifraga.org` |
 | `MAX_CAMBI_NOME_GIORNO` — modifiche del nome pubblico per utente al giorno | **3** |
+| `SOGLIA_ULTIMI_POSTI` — posti liberi da cui la cella avvisa "ultimo posto" | **1** |
 | `URL_INFORMATIVA_PRIVACY` — indirizzo dell'informativa linkata prima dell'accesso (§6.1) | da definire, pagina su `www.sassifraga.org` |
 
 **`FINESTRA_GIORNI` è una fonte di verità unica.** Governa insieme la validazione della prenotazione, la vista di disponibilità e la pagina pubblica. I tre valori devono coincidere per costruzione, non essere impostati separatamente: altrimenti l'app finirebbe per mostrare giorni non prenotabili o nascondere giorni prenotabili.
@@ -559,7 +564,7 @@ Comuni: Ronco Coworking e Bar Soana → Ronco Canavese; Valprato Coworking, Valp
 4. Visualizzazione della disponibilità (senza registrazione)
 5. Prenotazione e annullamento
 6. Impostazioni personali: nome pubblico e consenso
-7. Pagina pubblica "Chi c'è"
+7. Pagina pubblica "Chi c'è" — insieme ai **due collegamenti reciproci** con la pagina della disponibilità (§6.2 e §6.6), lasciati fuori dal passo 4 perché la pagina di destinazione non esisteva ancora
 8. Pannello di amministrazione
 9. Email automatiche e allegato calendario
 10. Diritti dell'interessato: scarica dati, cancella account

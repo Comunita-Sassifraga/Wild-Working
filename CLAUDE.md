@@ -275,10 +275,13 @@ what to do next, not what went wrong internally.
   timestamps — DST changes would shift them. See SPEC §8.4. All "today" and
   window computations go through a single helper in `lib/dates.ts` that pins the
   timezone to `Europe/Rome`; never call `new Date()` directly for window logic.
-- Bookability of a sede on a date is decided by one shared function
-  (`isSedeBookable`), applied identically in the availability view, the public
-  page, and the booking write path. Do not reimplement the five conditions of
-  SPEC §5.2 (including `giorni_apertura`) in more than one place.
+- Bookability of a sede on a date and fascia is decided by one shared
+  function, `public.sede_prenotabile(sede_id, data, fascia)` in the database
+  (`supabase/migrations/*_disponibilita.sql`), applied identically in the
+  availability view, the public page, and the booking write path. It lives in
+  SQL because it must also hold where application code cannot be trusted to
+  have run. Do not reimplement the five conditions of SPEC §5.2 (including
+  `giorni_apertura`) in more than one place, and never in TypeScript.
 - Configurable values from SPEC §10 live in `config/limits.ts`, not inline.
 - Errors shown to users are in plain Italian, no technical jargon, and always
   say what to do next.
@@ -358,6 +361,11 @@ These exist and must never be deleted or weakened to make a build pass:
   is not bookable and does not appear in the availability grid; a sede with
   `sempre_disponibile = true` ignores periods entirely; overlapping periods
   behave as a union; shortening a period does not delete existing bookings.
+- `tests/disponibilita.test.ts` — the availability view covers exactly today
+  through today + `FINESTRA_GIORNI` and never the past; a switched-off sede
+  does not appear; `giorni_apertura` and `chiusure` decide bookability per
+  day and per fascia, a chiusura on one fascia leaving the other open; the
+  view carries counts only — no email, no `nome_pubblico`, no `utente_id`.
 - `tests/accesso.test.ts` — the real sign-in flow through the local mailbox:
   the `utenti` row does not exist before the link is opened and holds only
   the email afterwards; the same link opens nothing a second time; the first

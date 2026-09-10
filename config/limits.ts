@@ -40,6 +40,13 @@ export const GIORNI_ANONIMIZZAZIONE = 30;
 /** Months of inactivity before a dormant account is deleted (§7). */
 export const MESI_ACCOUNT_DORMIENTE = 24;
 
+/**
+ * Free seats from which a cell warns "ultimo posto" instead of showing the
+ * plain count (§6.2, §13.7). The threshold was missing from the §10 table
+ * and has been added there together with this constant.
+ */
+export const SOGLIA_ULTIMI_POSTI = 1;
+
 /** Public-name changes allowed per user per day (§6.5). */
 export const MAX_CAMBI_NOME_GIORNO = 3;
 

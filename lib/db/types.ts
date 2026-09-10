@@ -78,6 +78,20 @@ export type Database = {
             foreignKeyName: "chiusure_sede_id_fkey"
             columns: ["sede_id"]
             isOneToOne: false
+            referencedRelation: "aperture_future"
+            referencedColumns: ["sede_id"]
+          },
+          {
+            foreignKeyName: "chiusure_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "disponibilita_pubblica"
+            referencedColumns: ["sede_id"]
+          },
+          {
+            foreignKeyName: "chiusure_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
             referencedRelation: "sedi"
             referencedColumns: ["id"]
           },
@@ -141,6 +155,20 @@ export type Database = {
             foreignKeyName: "incarichi_sede_id_fkey"
             columns: ["sede_id"]
             isOneToOne: false
+            referencedRelation: "aperture_future"
+            referencedColumns: ["sede_id"]
+          },
+          {
+            foreignKeyName: "incarichi_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "disponibilita_pubblica"
+            referencedColumns: ["sede_id"]
+          },
+          {
+            foreignKeyName: "incarichi_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
             referencedRelation: "sedi"
             referencedColumns: ["id"]
           },
@@ -193,6 +221,20 @@ export type Database = {
           sede_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "periodi_attivita_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "aperture_future"
+            referencedColumns: ["sede_id"]
+          },
+          {
+            foreignKeyName: "periodi_attivita_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "disponibilita_pubblica"
+            referencedColumns: ["sede_id"]
+          },
           {
             foreignKeyName: "periodi_attivita_sede_id_fkey"
             columns: ["sede_id"]
@@ -262,6 +304,20 @@ export type Database = {
           utente_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "aperture_future"
+            referencedColumns: ["sede_id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "disponibilita_pubblica"
+            referencedColumns: ["sede_id"]
+          },
           {
             foreignKeyName: "prenotazioni_sede_id_fkey"
             columns: ["sede_id"]
@@ -405,14 +461,51 @@ export type Database = {
       }
     }
     Views: {
+      aperture_future: {
+        Row: {
+          data_apertura: string | null
+          etichetta: string | null
+          sede_id: string | null
+        }
+        Relationships: []
+      }
+      disponibilita_pubblica: {
+        Row: {
+          capienza: number | null
+          data: string | null
+          fascia: Database["public"]["Enums"]["fascia"] | null
+          in_stagione: boolean | null
+          liberi: number | null
+          prenotabile: boolean | null
+          prenotati: number | null
+          pubbliche: number | null
+          sede_id: string | null
+        }
+        Relationships: []
+      }
       occupazione_pubblica: {
         Row: {
           data: string | null
           fascia: Database["public"]["Enums"]["fascia"] | null
           prenotati: number | null
+          pubbliche: number | null
           sede_id: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "aperture_future"
+            referencedColumns: ["sede_id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "disponibilita_pubblica"
+            referencedColumns: ["sede_id"]
+          },
           {
             foreignKeyName: "prenotazioni_sede_id_fkey"
             columns: ["sede_id"]
@@ -445,6 +538,20 @@ export type Database = {
             foreignKeyName: "prenotazioni_sede_id_fkey"
             columns: ["sede_id"]
             isOneToOne: false
+            referencedRelation: "aperture_future"
+            referencedColumns: ["sede_id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "disponibilita_pubblica"
+            referencedColumns: ["sede_id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
             referencedRelation: "sedi"
             referencedColumns: ["id"]
           },
@@ -465,6 +572,20 @@ export type Database = {
           sede_id: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "aperture_future"
+            referencedColumns: ["sede_id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "disponibilita_pubblica"
+            referencedColumns: ["sede_id"]
+          },
           {
             foreignKeyName: "prenotazioni_sede_id_fkey"
             columns: ["sede_id"]
@@ -567,8 +688,29 @@ export type Database = {
         }
         Returns: boolean
       }
+      dentro_giorno_mese: {
+        Args: { p_data: string; p_fine: string; p_inizio: string }
+        Returns: boolean
+      }
       fine_finestra: { Args: never; Returns: string }
       finestra_giorni: { Args: never; Returns: number }
+      giorno_di: {
+        Args: { p_data: string }
+        Returns: Database["public"]["Enums"]["giorno_settimana"]
+      }
+      giorno_mese: { Args: { p_data: string }; Returns: number }
+      in_chiusura: {
+        Args: {
+          p_data: string
+          p_fascia: Database["public"]["Enums"]["fascia"]
+          p_sede_id: string
+        }
+        Returns: boolean
+      }
+      in_periodo_attivita: {
+        Args: { p_data: string; p_sede_id: string }
+        Returns: boolean
+      }
       is_amministratore: { Args: never; Returns: boolean }
       is_referente_di: { Args: { p_sede_id: string }; Returns: boolean }
       oggi_roma: { Args: never; Returns: string }
@@ -582,6 +724,18 @@ export type Database = {
       }
       registra_accesso: { Args: never; Returns: boolean }
       sede_attiva: { Args: { p_sede_id: string }; Returns: boolean }
+      sede_in_stagione: {
+        Args: { p_data: string; p_sede_id: string }
+        Returns: boolean
+      }
+      sede_prenotabile: {
+        Args: {
+          p_data: string
+          p_fascia: Database["public"]["Enums"]["fascia"]
+          p_sede_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       fascia: "MATTINA" | "POMERIGGIO"

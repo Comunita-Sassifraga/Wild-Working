@@ -14,10 +14,46 @@
   },
   "home": {
     "titolo": "Coworking in Valle Soana",
-    "collegato": "Sei collegato. Le prenotazioni arrivano con i prossimi passi di costruzione.",
+    "collegato": "Sei collegato.",
     "nonCollegato": "Per prenotare devi entrare con la tua email.",
     "entra": "Entra",
     "esci": "Esci"
+  },
+  "disponibilita": {
+    "introduzione": "Qui vedi quanti posti restano liberi negli spazi di coworking della valle, da oggi ai prossimi {giorni} giorni. Scegli un giorno sul calendario.",
+    "calendario": {
+      "titolo": "Scegli il giorno",
+      "giorniSettimana": ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"],
+      "liberi": "{liberi} liberi",
+      "esaurito": "esaurito",
+      "chiuso": "chiuso",
+      "scelto": "giorno scelto"
+    },
+    "fasce": {
+      "MATTINA": "Mattina",
+      "POMERIGGIO": "Pomeriggio"
+    },
+    "sede": "Sede",
+    "celle": {
+      "liberi": "{liberi} / {capienza}",
+      "postiLiberi": "posti liberi",
+      "unPostoLibero": "posto libero",
+      "ultimi": "Ultimo posto",
+      "ultimiAlPlurale": "Ultimi {liberi} posti",
+      "esaurito": "Esaurito",
+      "chiuso": "Chiuso",
+      "pubbliche": "{numero} hanno reso pubblica la presenza",
+      "unaPubblica": "1 ha reso pubblica la presenza"
+    },
+    "nessunaSede": {
+      "titolo": "Nessuno spazio aperto",
+      "testo": "Il giorno che hai scelto non ha spazi aperti. Prova con un altro giorno sul calendario."
+    },
+    "fuoriPeriodo": {
+      "titolo": "Sedi non disponibili in questo periodo",
+      "riapre": "Riapre il {data} — {etichetta}",
+      "riaperturaSconosciuta": "Data di riapertura non ancora fissata"
+    }
   },
   "accesso": {
     "titolo": "Entra con la tua email",

@@ -1,37 +1,98 @@
 import Link from "next/link";
-import { bottonePrimario } from "@/components/controlli";
+import { Calendario } from "@/components/Calendario";
+import { SediFuoriPeriodo } from "@/components/SediFuoriPeriodo";
+import { TabellaGiorno } from "@/components/TabellaGiorno";
+import { bottoneSecondario } from "@/components/controlli";
+import { FINESTRA_GIORNI } from "@/config/limits";
 import { utenteAttuale } from "@/lib/auth/sessione";
-import { m } from "@/lib/messaggi";
+import { settimaneCalendario } from "@/lib/dates";
+import { apertureFuture, disponibilitaPubblica, sediPubbliche } from "@/lib/db/disponibilita";
+import { clientServer } from "@/lib/db/server";
+import { celleDelGiorno, giorniDelCalendario, giornoScelto } from "@/lib/disponibilita";
+import { conValori, m } from "@/lib/messaggi";
 import { esciAzione } from "./accedi/azioni";
 
-// Placeholder home page, so that sign-in has somewhere to land. The
-// availability view replaces it at step 4 of SPEC §12.
-export default async function Home() {
-  const utente = await utenteAttuale();
+/**
+ * Availability — SPEC §6.2, §12 step 4. Readable without signing in:
+ * registering is only needed to book.
+ *
+ * The chosen day travels in the address (`/?data=…`), so every day has a
+ * shareable address and the page stays entirely server-rendered: choosing a
+ * day is an ordinary link, and the page works with JavaScript switched off.
+ *
+ * Counts only. The names of the people who made their presence public belong
+ * to "Chi c'è in Valle" and never appear here (rule 8).
+ *
+ * TODO step 7: when "Chi c'è in Valle" exists, add the link §6.2 asks for —
+ * under this introduction and above the calendar, with the note "Guarda chi
+ * c'è in valle nei prossimi giorni". A plain verde-testo link, never a Stile
+ * 2 band. The mirror link back to this page is described in §6.6.
+ */
+
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ data?: string | string[] }>;
+}) {
+  const [utente, client, parametri] = await Promise.all([
+    utenteAttuale(),
+    clientServer(),
+    searchParams,
+  ]);
+  const [sedi, celle, aperture] = await Promise.all([
+    sediPubbliche(client),
+    disponibilitaPubblica(client),
+    apertureFuture(client),
+  ]);
+
+  const settimane = settimaneCalendario();
+  const giorni = giorniDelCalendario(celle, settimane);
+  const richiesta = Array.isArray(parametri.data) ? parametri.data[0] : parametri.data;
+  const scelto = giornoScelto(giorni, richiesta);
+
+  const celleGiorno = celleDelGiorno(celle, scelto);
+  const inStagione = (sedeId: string) =>
+    celleGiorno.some((c) => c.sedeId === sedeId && c.inStagione);
+  const sediAperte = sedi.filter((s) => inStagione(s.id));
+  const sediFuoriPeriodo = sedi.filter(
+    (s) => !inStagione(s.id) && celleGiorno.some((c) => c.sedeId === s.id),
+  );
+  const qualcosaDiAperto = celleGiorno.some((c) => c.prenotabile);
+
+  const t = m.disponibilita;
+
   return (
     <>
-      <h1 className="text-titolo-pagina font-grassetto grande:text-titolo-pagina-grande">{m.home.titolo}</h1>
+      <h1 className="text-titolo-pagina font-grassetto grande:text-titolo-pagina-grande">
+        {m.home.titolo}
+      </h1>
+      <p className="mt-6 italic">{conValori(t.introduzione, { giorni: FINESTRA_GIORNI })}</p>
+
       {utente ? (
-        <>
-          <p className="mt-6">{m.home.collegato}</p>
-          <form action={esciAzione} className="mt-8">
-            {/* Primary on purpose, like "Entra": the maintainer wants the two
-                buttons of this placeholder page to match. */}
-            <button type="submit" className={bottonePrimario}>
-              {m.home.esci}
-            </button>
-          </form>
-        </>
+        <form action={esciAzione} className="mt-6 flex flex-wrap items-center gap-4">
+          <span>{m.home.collegato}</span>
+          <button type="submit" className={bottoneSecondario}>
+            {m.home.esci}
+          </button>
+        </form>
       ) : (
-        <>
-          <p className="mt-6">{m.home.nonCollegato}</p>
-          <p className="mt-8">
-            <Link href="/accedi" className={bottonePrimario}>
-              {m.home.entra}
-            </Link>
-          </p>
-        </>
+        <p className="mt-6">
+          {m.home.nonCollegato} <Link href="/accedi">{m.home.entra}</Link>
+        </p>
       )}
+
+      <Calendario settimane={settimane} giorni={giorni} scelto={scelto} />
+
+      {qualcosaDiAperto ? (
+        <TabellaGiorno data={scelto} sedi={sediAperte} celle={celleGiorno} />
+      ) : (
+        <section className="mt-8 bg-verde px-6 py-8 text-testo">
+          <h2 className="text-titolo-sezione font-grassetto">{t.nessunaSede.titolo}</h2>
+          <p className="mt-4">{t.nessunaSede.testo}</p>
+        </section>
+      )}
+
+      <SediFuoriPeriodo sedi={sediFuoriPeriodo} aperture={aperture} />
     </>
   );
 }
