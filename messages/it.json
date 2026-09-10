@@ -30,5 +30,36 @@
     "emailNonValida": "Controlla l'indirizzo email e riprova.",
     "invioFallito": "Non riusciamo a inviare l'email in questo momento. Riprova tra qualche minuto.",
     "linkNonValido": "Questo link non è più valido: è già stato usato o sono passati più di {minuti} minuti. Chiedine un altro qui sotto."
+  },
+  "campionario": {
+    "titolo": "Campionario dei token",
+    "introduzione": "Questa pagina esiste solo in sviluppo. Mostra ogni valore di SPEC §13 almeno una volta, così l'aspetto si controlla qui prima di usarlo altrove.",
+    "sezioni": {
+      "testo": "Testo",
+      "collegamenti": "Collegamenti e pulsanti",
+      "campi": "Campi",
+      "griglia": "Celle della griglia",
+      "messaggi": "Avvisi ed errori",
+      "stile2": "Stile 2"
+    },
+    "corpo": "Testo corrente su sfondo crema. Le date e i conteggi usano lo zero barrato del carattere: 0, 10, 2026.",
+    "nota": "Nota di supporto, più piccola, in testo secondario.",
+    "corsivo": "Il corsivo è riservato ai testi introduttivi, come questo.",
+    "collegamento": "Un collegamento su sfondo chiaro",
+    "primario": "Prenota",
+    "secondario": "Torna indietro",
+    "distruttivo": "Annulla prenotazione",
+    "etichettaCampo": "Un campo di testo",
+    "celle": {
+      "liberi": "4 posti liberi",
+      "ultimi": "Ultimi 2",
+      "esaurito": "Esaurito",
+      "chiuso": "Chiuso"
+    },
+    "avviso": "Avviso non bloccante: restano pochi posti per il pomeriggio.",
+    "errore": "Quel posto è appena stato preso. Prova con il pomeriggio o con un'altra sede.",
+    "stile2Titolo": "Prenotazione confermata",
+    "stile2Testo": "Blocco in Stile 2: sfondo verde, testo scuro. Serve per conferme e stati vuoti, mai per griglie o moduli.",
+    "stile2Collegamento": "Un collegamento su verde, in testo scuro"
   }
 }
