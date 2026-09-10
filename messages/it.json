@@ -2,6 +2,16 @@
   "app": {
     "nome": "Prenota — Comunità Sassifraga"
   },
+  "intestazione": {
+    "nome": "Comunità Sassifraga"
+  },
+  "pieDiPagina": {
+    "denominazione": "Comunità Sassifraga APS",
+    "dati": "Codice fiscale 92527790015 · Sede legale: Piazza Municipio 2, Ronco Canavese",
+    "email": "info@sassifraga.org",
+    "informativa": "Informativa privacy",
+    "sito": "www.sassifraga.org"
+  },
   "home": {
     "titolo": "Coworking in Valle Soana",
     "collegato": "Sei collegato. Le prenotazioni arrivano con i prossimi passi di costruzione.",

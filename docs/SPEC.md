@@ -594,7 +594,7 @@ L'identità ha due configurazioni:
 
 Nessun altro colore. Non esistono grigi generici, blu di sistema, o verdi diversi da questi due.
 
-**Testo sui riempimenti verdi:** sempre `testo` (`#1C1C1C`), mai bianco. Il bianco su `#3FB75A` ha un contrasto di 2,6:1 e non è leggibile. Il nero su verde arriva a 6,1:1 — ed è esattamente l'abbinamento dello Stile 2.
+**Testo sui riempimenti verdi:** sempre `testo` (`#1C1C1C`), mai bianco. Il bianco su `#3FB75A` ha un contrasto di 2,6:1 e non è leggibile. Il nero su verde arriva a 6,6:1 — ed è esattamente l'abbinamento dello Stile 2.
 
 ### 13.4 Tipografia
 
@@ -624,7 +624,7 @@ Deroga necessaria: la **griglia di disponibilità** ha bisogno di celle riconosc
 
 Il sito non ha pulsanti: usa collegamenti verdi sottolineati. L'app ne ha bisogno, quindi **[derivato]**:
 
-- **Collegamenti**: `verde-testo`, sempre sottolineati. Mai verde chiaro (§13.7).
+- **Collegamenti**: `verde-testo`, sempre sottolineati. Mai verde chiaro (§13.7). Sui blocchi Stile 2 i collegamenti sono in `testo`, sottolineati: `verde-testo` sul verde non è leggibile (2,6:1).
 - **Azione principale** (Prenota, Conferma): riempimento `verde`, testo `testo`, angoli 4px.
 - **Azione secondaria**: contorno in `testo`, sfondo trasparente.
 - **Azione distruttiva** (Annulla prenotazione, Cancella account): testo in `errore`, senza riempimento.

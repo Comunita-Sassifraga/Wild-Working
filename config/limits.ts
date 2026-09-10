@@ -59,5 +59,12 @@ export const EMAIL_MODERAZIONE: string | undefined = process.env.EMAIL_MODERAZIO
  */
 export const URL_INFORMATIVA_PRIVACY = "https://www.sassifraga.org/privacy-coworking";
 
+/**
+ * Institutional site, linked from the header logo and the footer (§13.8,
+ * §14.3). Not in the §10 table: it is the destination of a link, not a
+ * limit, but it belongs with the other addresses.
+ */
+export const URL_SITO = "https://www.sassifraga.org";
+
 /** IANA timezone in which "today" is always computed (§8.4). */
 export const FUSO_ORARIO = "Europe/Rome";

@@ -1,7 +1,40 @@
 @import "tailwindcss";
 
+/* The stock breakpoints (sm, md, lg…) survive the config below: clear them,
+   so that `grande:` from the tokens is the only one (§13.4). */
+@theme {
+  --breakpoint-*: initial;
+}
+
+@config "../tailwind.config.ts";
+
 /*
- * Intentionally empty beyond the import. The theme (colours, font, scale)
- * is generated from config/tokens.ts at step 3 of SPEC §12; no visual value
- * may be written here by hand (CLAUDE.md rule 12).
+ * Base rules — SPEC §13. Written with @apply on the token classes, so that
+ * every value comes from config/tokens.ts through tailwind.config.ts
+ * (CLAUDE.md rule 12): no literal here. Values from the config are inlined
+ * by Tailwind, not exposed as CSS variables, which is why @apply is used
+ * instead of var().
  */
+@layer base {
+  html {
+    color-scheme: light;
+    @apply bg-sfondo text-testo;
+  }
+
+  /* Body size goes on body, not html: rem units stay relative to the
+     browser's root size, so system text zoom (§13.7) keeps working. */
+  body {
+    @apply text-corpo;
+  }
+
+  /* Links: verde-testo, always underlined (§13.6). On a Stile 2 block a
+     component sets text-testo instead: verde-testo on verde is 2.6:1. */
+  a {
+    @apply text-verde-testo underline;
+  }
+
+  /* Every keyboard-focusable element shows an outline (§13.7). */
+  :focus-visible {
+    @apply outline-fuoco outline-testo outline-offset-fuoco;
+  }
+}

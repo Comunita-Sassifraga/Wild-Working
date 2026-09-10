@@ -1,31 +1,35 @@
 import Link from "next/link";
+import { bottonePrimario, bottoneSecondario } from "@/components/controlli";
 import { utenteAttuale } from "@/lib/auth/sessione";
 import { m } from "@/lib/messaggi";
 import { esciAzione } from "./accedi/azioni";
 
 // Placeholder home page, so that sign-in has somewhere to land. The
-// availability view replaces it at step 4 of SPEC §12. Unstyled on purpose
-// (see app/accedi/page.tsx).
+// availability view replaces it at step 4 of SPEC §12.
 export default async function Home() {
   const utente = await utenteAttuale();
   return (
-    <main>
-      <h1>{m.home.titolo}</h1>
+    <>
+      <h1 className="text-titolo-pagina font-grassetto grande:text-titolo-pagina-grande">{m.home.titolo}</h1>
       {utente ? (
         <>
-          <p>{m.home.collegato}</p>
-          <form action={esciAzione}>
-            <button type="submit">{m.home.esci}</button>
+          <p className="mt-6">{m.home.collegato}</p>
+          <form action={esciAzione} className="mt-8">
+            <button type="submit" className={bottoneSecondario}>
+              {m.home.esci}
+            </button>
           </form>
         </>
       ) : (
         <>
-          <p>{m.home.nonCollegato}</p>
-          <p>
-            <Link href="/accedi">{m.home.entra}</Link>
+          <p className="mt-6">{m.home.nonCollegato}</p>
+          <p className="mt-8">
+            <Link href="/accedi" className={bottonePrimario}>
+              {m.home.entra}
+            </Link>
           </p>
         </>
       )}
-    </main>
+    </>
   );
 }

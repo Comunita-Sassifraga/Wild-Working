@@ -46,10 +46,13 @@ npm run db:types     # rigenera lib/db/types.ts dopo una migration
 ## Struttura
 
 ```
-app/                  Next.js (App Router). Le pagine di accesso del passo 2
-                      sono senza stile: si vestono dal passo 3 (SPEC §12)
+app/                  Next.js (App Router): layout, pagine, CSS di base
+app/font.ts           Inclusive Sans, ospitato in app/fonts/ (mai da Google)
+components/           intestazione, piè di pagina, classi dei controlli
 config/limits.ts      parametri di SPEC §10 — unica fonte di verità
 config/tokens.ts      identità visiva di SPEC §13 — unica fonte di verità
+tailwind.config.ts    tema Tailwind generato da config/tokens.ts
+public/logo.png       logo ufficiale, in attesa della versione SVG (SPEC §13.10)
 lib/auth/             accesso via link email (SPEC §6.1): richiesta, verifica,
                       uscita, limite delle richieste, cookie di sessione
 lib/dates.ts          "oggi" e finestra prenotabile, sempre in Europe/Rome

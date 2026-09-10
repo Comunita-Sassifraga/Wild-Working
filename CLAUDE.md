@@ -194,15 +194,25 @@ even for the MVP.
 The app must be visually continuous with `www.sassifraga.org` (Google Sites).
 Full definition in **SPEC §13** — read it before building any screen.
 
-Single source of truth: `config/tokens.ts`, created **before the first styled
-screen** (step 3 of SPEC §12), mirrored into the Tailwind theme. The stock
-Tailwind palette is disabled — only these tokens exist. The project uses
-Tailwind v4: whether the mirror is a `tailwind.config.ts` loaded via `@config`
-or a generated `@theme` block is decided at step 3, not before.
+Single source of truth: `config/tokens.ts`, mirrored into the Tailwind theme
+by `tailwind.config.ts`, which `app/globals.css` loads through `@config`
+(Tailwind v4). Every theme namespace set there **replaces** the Tailwind
+default: the stock palette, sizes, weights, radii, breakpoints and shadows do
+not exist — only the token classes do (`bg-sfondo`, `text-verde-testo`,
+`text-corpo`, `font-grassetto`, `rounded-controllo`, `min-h-tocco`,
+`max-w-contenuto`, `grande:`…). Font sizes are named `corpo`, `nota`,
+`titolo-*`, so `text-testo` is always the colour. Config values are inlined
+by Tailwind, not exposed as CSS variables: the base rules in `globals.css`
+use `@apply` on token classes, never `var()` and never a literal.
+`tests/tokens.test.ts` compiles the theme and fails on any stock class or
+literal in `app/` or `components/` — comments included, so do not write
+"4px" even in a comment there.
 
-The only screens that exist before step 3 are the sign-in pages of step 2
-(`app/accedi`, `app/page.tsx`): deliberately unstyled, no class and no visual
-value at all. Step 3 dresses them; do not add styling to them before then.
+Shared controls (`bottonePrimario`, `bottoneSecondario`, `bottoneDistruttivo`,
+`campo`) live in `components/controlli.ts`; header and footer in
+`components/`. The font is declared once in `app/font.ts` (`next/font/local`,
+files in `app/fonts/`) and reaches the theme as `--font-inclusive`. The header
+logo is `public/logo.png` until the SVG of SPEC §13.10 arrives.
 
 ```
 sfondo             #EBE8DD   page background
@@ -248,6 +258,8 @@ what to do next, not what went wrong internally.
 ## Conventions
 
 - Server Components by default. `"use client"` only where interaction requires it.
+- `app/layout.tsx` mounts header, `<main>` (one text column) and footer. Pages
+  return their content only, never their own `<main>`.
 - All database access through typed helpers in `lib/db/`. No raw Supabase calls
   scattered in components.
 - Every schema change is a migration file in `supabase/migrations/`. Never edit
