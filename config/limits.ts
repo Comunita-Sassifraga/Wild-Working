@@ -25,8 +25,14 @@ export const MAX_PRENOTAZIONI_SETTIMANA: number | null = null;
 /** Validity of the sign-in link, in minutes (§6.1). */
 export const VALIDITA_LINK_MINUTI = 15;
 
-/** Session duration, in days (§6.1). */
+/** Session duration, in days, counted from the last use (§6.1). */
 export const DURATA_SESSIONE_GIORNI = 30;
+
+/** Link requests allowed per email address per hour (§6.1). */
+export const MAX_LINK_PER_EMAIL_ORA = 5;
+
+/** Link requests allowed per network address per hour (§6.1). */
+export const MAX_LINK_PER_RETE_ORA = 20;
 
 /** Days after which a booking is anonymised (§5.3, §7). */
 export const GIORNI_ANONIMIZZAZIONE = 30;
@@ -45,6 +51,13 @@ export const EMAIL_MITTENTE = "noreply@coworking.sassifraga.org";
  * never a personal address. Read from the environment; undefined until set.
  */
 export const EMAIL_MODERAZIONE: string | undefined = process.env.EMAIL_MODERAZIONE;
+
+/**
+ * Privacy notice linked above the sign-in button (§6.1, §14.4). The notice
+ * is a new page on the institutional site, still to be written: placeholder
+ * address, to confirm.
+ */
+export const URL_INFORMATIVA_PRIVACY = "https://www.sassifraga.org/privacy-coworking";
 
 /** IANA timezone in which "today" is always computed (§8.4). */
 export const FUSO_ORARIO = "Europe/Rome";

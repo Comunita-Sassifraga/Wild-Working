@@ -222,7 +222,10 @@ enable_signup = true
 # addresses. If disabled, only the new email is required to confirm.
 double_confirm_changes = true
 # If enabled, users need to confirm their email address before signing in.
-enable_confirmations = false
+# On: a first-time address is confirmed only when its link is opened, and the
+# profile row is created at that moment (SPEC §6.1 point 4). Matches the cloud
+# default, so local and production behave the same.
+enable_confirmations = true
 # If enabled, users will need to reauthenticate or have logged in recently to change their password.
 secure_password_change = false
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
@@ -230,7 +233,20 @@ max_frequency = "1s"
 # Number of characters used in the email OTP.
 otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
-otp_expiry = 3600
+# 15 minutes (SPEC §6.1, §10): mirror of VALIDITA_LINK_MINUTI in
+# config/limits.ts. tests/accesso.test.ts asserts the two agree.
+otp_expiry = 900
+
+# Sign-in emails, in Italian (SPEC §6.1, §13.9). `confirmation` goes to a
+# first-time address, `magic_link` to a known one; same wording, different
+# link type. `supabase config push` sends these to the linked project.
+[auth.email.template.confirmation]
+subject = "Il tuo link per entrare in Prenota"
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.magic_link]
+subject = "Il tuo link per entrare in Prenota"
+content_path = "./supabase/templates/magic_link.html"
 
 # Use a production-ready SMTP server
 # [auth.email.smtp]

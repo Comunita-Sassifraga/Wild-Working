@@ -292,6 +292,27 @@ export type Database = {
           },
         ]
       }
+      richieste_link: {
+        Row: {
+          id: string
+          impronta_email: string
+          impronta_rete: string
+          richiesta_il: string
+        }
+        Insert: {
+          id?: string
+          impronta_email: string
+          impronta_rete: string
+          richiesta_il?: string
+        }
+        Update: {
+          id?: string
+          impronta_email?: string
+          impronta_rete?: string
+          richiesta_il?: string
+        }
+        Relationships: []
+      }
       sedi: {
         Row: {
           attiva: boolean
@@ -537,6 +558,15 @@ export type Database = {
       }
     }
     Functions: {
+      consenti_richiesta_link: {
+        Args: {
+          p_impronta_email: string
+          p_impronta_rete: string
+          p_max_email: number
+          p_max_rete: number
+        }
+        Returns: boolean
+      }
       fine_finestra: { Args: never; Returns: string }
       finestra_giorni: { Args: never; Returns: number }
       is_amministratore: { Args: never; Returns: boolean }
@@ -550,6 +580,7 @@ export type Database = {
         }
         Returns: string
       }
+      registra_accesso: { Args: never; Returns: boolean }
       sede_attiva: { Args: { p_sede_id: string }; Returns: boolean }
     }
     Enums: {

@@ -1,1 +1,24 @@
-{}
+{
+  "app": {
+    "nome": "Prenota — Comunità Sassifraga"
+  },
+  "home": {
+    "titolo": "Coworking in Valle Soana",
+    "collegato": "Sei collegato. Le prenotazioni arrivano con i prossimi passi di costruzione.",
+    "nonCollegato": "Per prenotare devi entrare con la tua email.",
+    "entra": "Entra",
+    "esci": "Esci"
+  },
+  "accesso": {
+    "titolo": "Entra con la tua email",
+    "introduzione": "Ti mandiamo un link: cliccandolo entri, senza password. Se è la prima volta, il tuo profilo viene creato in quel momento.",
+    "etichettaEmail": "La tua email",
+    "informativa": "Leggi l'informativa privacy",
+    "consenso": "Registrandoti accetti che la tua email sia usata per gestire le prenotazioni. È l'unico dato obbligatorio che dovrai fornire: se vorrai compilare gli altri, ci serviranno a migliorare il servizio di coworking.",
+    "invia": "Inviami il link",
+    "inviato": "Se l'indirizzo è valido, riceverai un'email. Il link vale {minuti} minuti e si usa una volta sola.",
+    "emailNonValida": "Controlla l'indirizzo email e riprova.",
+    "invioFallito": "Non riusciamo a inviare l'email in questo momento. Riprova tra qualche minuto.",
+    "linkNonValido": "Questo link non è più valido: è già stato usato o sono passati più di {minuti} minuti. Chiedine un altro qui sotto."
+  }
+}

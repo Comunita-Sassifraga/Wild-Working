@@ -1,0 +1,9 @@
+<!-- Sign-in link for a first-time address — SPEC §6.1 point 4. The wording
+     is the same as magic_link.html; only the link type differs. Opening it
+     creates the profile with the email and nothing else (rule 17). -->
+<p>Ciao,</p>
+<p>ecco il link per entrare in Prenota, il servizio di prenotazione degli spazi di coworking della Valle Soana:</p>
+<p><a href="{{ .SiteURL }}/auth/conferma?token_hash={{ .TokenHash }}&amp;type=signup">Entra</a></p>
+<p>Il link vale 15 minuti e si usa una volta sola. Se è scaduto, chiedine un altro dalla pagina di accesso.</p>
+<p>Se non hai chiesto tu questo link, ignora questa email: senza aprirlo nessuno può entrare e nessun profilo viene creato.</p>
+<p>Comunità Sassifraga APS</p>

@@ -22,7 +22,11 @@ type Ambiente = {
   anonKey: string;
   serviceKey: string;
   jwtSecret: string;
+  /** Local mailbox (Mailpit) that receives every email the stack sends. */
+  postaUrl: string;
 };
+
+const POSTA_LOCALE = "http://127.0.0.1:54324";
 
 let cache: Ambiente | undefined;
 
@@ -36,7 +40,7 @@ export function ambiente(): Ambiente {
     jwtSecret: process.env.SUPABASE_JWT_SECRET,
   };
   if (daEnv.url && daEnv.anonKey && daEnv.serviceKey && daEnv.jwtSecret) {
-    cache = daEnv as Ambiente;
+    cache = { ...(daEnv as Omit<Ambiente, "postaUrl">), postaUrl: process.env.SUPABASE_MAIL_URL ?? POSTA_LOCALE };
     return cache;
   }
   const valori = leggiSupabaseStatus();
@@ -45,6 +49,7 @@ export function ambiente(): Ambiente {
     anonKey: valori.ANON_KEY,
     serviceKey: valori.SERVICE_ROLE_KEY,
     jwtSecret: valori.JWT_SECRET,
+    postaUrl: valori.MAILPIT_URL ?? valori.INBUCKET_URL ?? POSTA_LOCALE,
   };
   for (const [k, v] of Object.entries(cache)) {
     if (!v) throw new Error(`supabase status did not provide ${k}; is the local stack running?`);
@@ -173,3 +178,57 @@ export async function pulisci(opts: { utenti?: UtenteTest[]; sedi?: string[] }):
 
 /** Postgres "permission denied" / RLS violation, as PostgREST reports it. */
 export const CODICE_PERMESSO_NEGATO = "42501";
+
+// ---------------------------------------------------------------------------
+// Local mailbox. The stack delivers every email to Mailpit, which exposes a
+// small HTTP API. Used by the sign-in tests to pick the link out of the
+// message, the way a person would. Addresses are passed to the API only,
+// never printed.
+// ---------------------------------------------------------------------------
+
+type MessaggioPosta = { ID: string };
+
+async function messaggiPer(email: string): Promise<MessaggioPosta[]> {
+  const url = `${ambiente().postaUrl}/api/v1/search?query=${encodeURIComponent(`to:"${email}"`)}`;
+  const risposta = await fetch(url);
+  if (!risposta.ok) throw new Error(`mailbox search failed: ${risposta.status}`);
+  const corpo = (await risposta.json()) as { messages?: MessaggioPosta[] };
+  return corpo.messages ?? [];
+}
+
+/** Number of emails delivered to an address so far. */
+export async function contaEmail(email: string): Promise<number> {
+  return (await messaggiPer(email)).length;
+}
+
+/**
+ * Waits for the (giaViste + 1)-th email to an address and returns the sign-in
+ * link it carries, as `token_hash` and `type`.
+ */
+export async function linkDaEmail(
+  email: string,
+  giaViste = 0,
+): Promise<{ tokenHash: string; tipo: string }> {
+  const scadenza = Date.now() + 15_000;
+  let messaggi: MessaggioPosta[] = [];
+  while (Date.now() < scadenza) {
+    messaggi = await messaggiPer(email);
+    if (messaggi.length > giaViste) break;
+    await new Promise((r) => setTimeout(r, 250));
+  }
+  if (messaggi.length <= giaViste) throw new Error("no sign-in email arrived in time");
+
+  // Newest first: the message we want is the most recent one.
+  const risposta = await fetch(`${ambiente().postaUrl}/api/v1/message/${messaggi[0].ID}`);
+  if (!risposta.ok) throw new Error(`mailbox read failed: ${risposta.status}`);
+  const corpo = (await risposta.json()) as { HTML?: string; Text?: string };
+  const testo = (corpo.HTML ?? corpo.Text ?? "").replace(/&amp;/g, "&");
+  const m = /token_hash=([^&"'\s<]+)&type=([a-z_]+)/.exec(testo);
+  if (!m) throw new Error("the email carries no sign-in link");
+  return { tokenHash: m[1], tipo: m[2] };
+}
+
+/** Pauses longer than the minimum interval between two emails to one address (config.toml max_frequency). */
+export async function attendiIntervalloPosta(): Promise<void> {
+  await new Promise((r) => setTimeout(r, 1_200));
+}
