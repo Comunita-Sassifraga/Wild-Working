@@ -375,6 +375,10 @@ Mostra, per ciascuna sede disponibile: **l'intera finestra prenotabile — oggi 
 
 I due gruppi stanno in una riga sola, non in due elenchi separati: prima i nomi, poi chi manca. Per esteso: *"Mario Rossi, Chiara Bianchi + 2 persone che preferiscono non condividere pubblicamente il nome"*. Al singolare: *"… + 1 persona che preferisce non condividere pubblicamente il nome"*. Se nessuno ha reso pubblico il nome resta la sola coda, senza il `+`: *"3 persone che preferiscono non condividere pubblicamente il nome"*. Il numero è la differenza fra i prenotati e i nomi mostrati: non identifica nessuno, e dice quanto è pieno lo spazio, che è ciò che serve a chi sta decidendo dove andare. Chi tiene il nome nascosto non sparisce: occupa un posto e si vede che lo occupa.
 
+**Le due fasce, separate.** Dentro ogni giorno la mattina e il pomeriggio hanno una riga ciascuna, con il proprio orario: si prenota una fascia, non un giorno, e chi arriva nel pomeriggio deve poter sapere chi troverà. Chi ha prenotato la giornata intera compare in tutte e due. Una fascia in cui non c'è nessuno non porta nessuna riga.
+
+**Solo i giorni in cui c'è qualcuno.** La finestra resta quella di §6.2 — oggi e i `FINESTRA_GIORNI` successivi — ma di quella finestra si elencano soltanto i giorni con almeno un prenotato: con tre sedi, quindici giorni e due fasce sarebbero novanta blocchi quasi tutti vuoti, illeggibili proprio da telefono, che è da dove questa pagina viene guardata. Una sede senza nessun prenotato resta nell'elenco con la sola riga *"Da oggi ai prossimi `FINESTRA_GIORNI` giorni non c'è ancora nessuno"*: farla sparire direbbe che ha chiuso.
+
 **Non mostra mai il passato.** Un archivio pubblico di dove una persona è stata nei mesi scorsi è un dato molto più invasivo di "domani sarò a Ronco", anche se composto dagli stessi elementi.
 
 **È l'unico posto in cui compaiono i nomi pubblici.** La griglia di §6.2 si ferma ai conteggi. Chi in futuro volesse aggiungere i nomi anche alla griglia sta cancellando la ragione per cui questa pagina esiste.

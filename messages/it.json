@@ -23,6 +23,8 @@
   },
   "disponibilita": {
     "introduzione": "Qui vedi quanti posti restano liberi negli spazi di coworking della valle, da oggi ai prossimi {giorni} giorni. Scegli un giorno sul calendario.",
+    "rimandoChiCe": "Chi c'è in Valle",
+    "rimandoChiCeNota": "Guarda chi c'è in valle nei prossimi giorni",
     "calendario": {
       "titolo": "Scegli il giorno",
       "giorniSettimana": ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"],
@@ -58,6 +60,25 @@
       "titolo": "Sedi non disponibili in questo periodo",
       "riapre": "Riapre il {data} — {etichetta}",
       "riaperturaSconosciuta": "Data di riapertura non ancora fissata"
+    }
+  },
+  "chiCe": {
+    "titolo": "Chi c'è in Valle",
+    "introduzione": "Chi ha scelto di farsi vedere negli spazi di coworking della valle, da oggi ai prossimi {giorni} giorni. Per guardare non serve registrarsi.",
+    "descrizione": "Chi c'è negli spazi di coworking della Valle Soana, da oggi ai prossimi giorni.",
+    "rimando": "Vedi la disponibilità",
+    "rimandoNota": "Guarda quanti posti restano e prenota il tuo",
+    "fascia": "{fascia} {orario}",
+    "nessunoInSede": "Da oggi ai prossimi {giorni} giorni non c'è ancora nessuno.",
+    "vuoto": {
+      "titolo": "Ancora nessuno",
+      "testo": "Nei prossimi giorni non ha ancora prenotato nessuno. Puoi essere il primo: scegli un giorno e una sede dalla pagina della disponibilità."
+    },
+    "riga": {
+      "separatore": ", ",
+      "nomiECoda": "{nomi} + {coda}",
+      "senzaNome": "{numero} persone che preferiscono non condividere pubblicamente il nome",
+      "unSenzaNome": "1 persona che preferisce non condividere pubblicamente il nome"
     }
   },
   "prenota": {

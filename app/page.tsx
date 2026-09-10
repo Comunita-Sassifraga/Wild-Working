@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Calendario } from "@/components/Calendario";
+import { Rimando } from "@/components/Rimando";
 import { SediFuoriPeriodo } from "@/components/SediFuoriPeriodo";
 import { TabellaGiorno } from "@/components/TabellaGiorno";
 import { bottoneSecondario } from "@/components/controlli";
@@ -22,12 +23,11 @@ import { esciAzione } from "./accedi/azioni";
  * day is an ordinary link, and the page works with JavaScript switched off.
  *
  * Counts only. The names of the people who made their presence public belong
- * to "Chi c'è in Valle" and never appear here (rule 8).
- *
- * TODO step 7: when "Chi c'è in Valle" exists, add the link §6.2 asks for —
- * under this introduction and above the calendar, with the note "Guarda chi
- * c'è in valle nei prossimi giorni". A plain verde-testo link, never a Stile
- * 2 band. The mirror link back to this page is described in §6.6.
+ * to "Chi c'è in Valle" and never appear here (rule 8). The link to that page
+ * sits under the introduction and above the calendar (§6.2): from a phone the
+ * grid is long, and a link at the end of it would go unseen — and it is right
+ * there that the question comes up, reading "2 hanno reso pubblica la
+ * presenza" and wanting to know who they are.
  */
 
 export default async function Home({
@@ -76,6 +76,8 @@ export default async function Home({
         {m.home.titolo}
       </h1>
       <p className="mt-6 italic">{conValori(t.introduzione, { giorni: FINESTRA_GIORNI })}</p>
+
+      <Rimando href="/chi-ce-in-valle" etichetta={t.rimandoChiCe} nota={t.rimandoChiCeNota} />
 
       {utente ? (
         <form action={esciAzione} className="mt-6 flex flex-wrap items-center gap-4">
