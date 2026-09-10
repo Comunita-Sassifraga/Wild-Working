@@ -228,11 +228,11 @@ Regole:
 ### 6.1 Registrazione e accesso
 
 1. L'utente inserisce la propria email.
-2. **Prima** del pulsante di invio, vede il link all'informativa privacy e la frase: *"Registrandoti accetti che la tua email sia usata per gestire le prenotazioni. E' l'unico dato obbligatorio che dovrai fornire: se vorrai compilare gli altri, ci serviranno a migliorare il servizio di coworking."*
+2. **Prima** del pulsante di invio, vede il link all'informativa privacy e la frase: *"Registrandoti accetti che la tua email sia usata per gestire le prenotazioni. È l'unico dato obbligatorio che dovrai fornire: se vorrai compilare gli altri, ci serviranno a migliorare il servizio di coworking."*
 3. Riceve un'email con un link valido **15 minuti**, utilizzabile **una sola volta**.
-4. Cliccando, entra. Se è la prima volta, l'account viene creato in quel momento.
+4. Cliccando, entra. Se è la prima volta, il profilo viene creato in quel momento. Un'email che ha richiesto un link senza mai usarlo non ha un profilo e viene eliminata dalla pulizia notturna (§7).
 5. **Solo al primo accesso**, subito dopo la creazione dell'account, compare una schermata con i cinque campi facoltativi (§6.5), introdotta da: *"Se vuoi, raccontaci qualcosa di te. Ci serve solo per capire chi usa gli spazi e migliorarli. Puoi saltare, compilarne solo alcuni, o cambiarli quando vuoi."*
-6. La sessione dura **30 giorni**, poi va richiesto un nuovo link.
+6. La sessione dura **30 giorni dall'ultimo utilizzo**, poi va richiesto un nuovo link.
 
 Regole generali sul flusso:
 - Non esiste un passaggio separato "registrati" / "accedi": è lo stesso flusso.
@@ -397,7 +397,8 @@ Le stesse due regole valgono per il CSV esportato, che è la via più facile per
 |---|---|---|
 | Prenotazioni oltre 30 giorni | Ogni notte | Si recide il legame con l'utente. Restano il conteggio, la sede e — se il consenso è attivo — i cinque valori facoltativi copiati nei campi `stat_` (§5.3), senza sapere di chi fossero. |
 | Account senza accessi da 24 mesi | Ogni notte | Avviso via email a 23 mesi; cancellazione a 24. |
-| Link di accesso scaduti | Ogni ora | Cancellati. |
+| Richieste di accesso mai completate | Ogni notte | Cancellate dopo 24 ore |
+| Link di accesso | 15 minuti | Non più utilizzabili; non ne resta traccia |
 | Log tecnici | 30 giorni | Cancellati. Non devono contenere email in chiaro. |
 
 ### Diritti dell'interessato: dove si esercitano
@@ -490,12 +491,15 @@ Valori che devono essere modificabili senza toccare la logica del programma. Viv
 | Massimo prenotazioni attive per utente | **nessun limite** (D7) |
 | Massimo prenotazioni a settimana per utente | **nessun limite** (D7) |
 | Validità del link di accesso | 15 minuti |
-| Durata della sessione | 30 giorni |
+| `MAX_LINK_PER_EMAIL_ORA` — richieste di link per email all'ora | **5** |
+| `MAX_LINK_PER_RETE_ORA` — richieste di link per indirizzo di rete all'ora | **20** |
+| Durata della sessione | 30 giorni dall'ultimo utilizzo |
 | Giorni prima dell'anonimizzazione | 30 |
 | Mesi prima della cancellazione di un account dormiente | 24 |
 | `EMAIL_MODERAZIONE` — destinatario degli avvisi sui nomi pubblici (§6.5) | da definire, casella del Direttivo, **mai un indirizzo personale** |
 | `EMAIL_MITTENTE` — mittente di tutte le email dell'app (D12) | `noreply@coworking.sassifraga.org` |
 | `MAX_CAMBI_NOME_GIORNO` — modifiche del nome pubblico per utente al giorno | **3** |
+| `URL_INFORMATIVA_PRIVACY` — indirizzo dell'informativa linkata prima dell'accesso (§6.1) | da definire, pagina su `www.sassifraga.org` |
 
 **`FINESTRA_GIORNI` è una fonte di verità unica.** Governa insieme la validazione della prenotazione, la vista di disponibilità e la pagina pubblica. I tre valori devono coincidere per costruzione, non essere impostati separatamente: altrimenti l'app finirebbe per mostrare giorni non prenotabili o nascondere giorni prenotabili.
 
@@ -534,8 +538,8 @@ Comuni: Ronco Coworking e Bar Soana → Ronco Canavese; Valprato Coworking, Valp
 ## 12. Ordine di costruzione
 
 1. Struttura dei dati e politiche di accesso, con i test di §8.1 e §8.3
-2. Accesso via link email
-3. **Identità visiva: file dei token (§13)** — prima di qualsiasi schermata
+2. Accesso via link email (le due pagine nascono senza stile e vengono vestite al passo 3)
+3. **Identità visiva: file dei token (§13)** — prima di qualsiasi schermata definitiva
 4. Visualizzazione della disponibilità (senza registrazione)
 5. Prenotazione e annullamento
 6. Impostazioni personali: nome pubblico e consenso
