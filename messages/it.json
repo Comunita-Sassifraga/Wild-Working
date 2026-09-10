@@ -24,7 +24,7 @@
     "calendario": {
       "titolo": "Scegli il giorno",
       "giorniSettimana": ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"],
-      "disponibile": "Di­spo­ni­bile",
+      "libero": "Li­be­ro",
       "esaurito": "Esau­ri­to",
       "chiuso": "Chiu­so",
       "scelto": "giorno scelto"

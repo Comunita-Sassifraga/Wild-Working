@@ -40,7 +40,7 @@ function etichetta(giorno: Giorno): string {
   const t = m.disponibilita.calendario;
   switch (giorno.stato) {
     case "LIBERO":
-      return t.disponibile;
+      return t.libero;
     case "ESAURITO":
       return t.esaurito;
     case "CHIUSO":
