@@ -385,7 +385,10 @@ deno_version = 2
 # secret_key = "env(SECRET_VALUE)"
 
 [analytics]
-enabled = true
+# Disabled: the vector log collector cannot reach the Docker socket on
+# Docker Desktop for Windows and restart-loops. Only affects the Logs
+# screen of local Studio; no other service depends on it.
+enabled = false
 port = 54327
 # Configure one of the supported backends: `postgres`, `bigquery`.
 backend = "postgres"
