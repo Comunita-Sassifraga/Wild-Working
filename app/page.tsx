@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { bottonePrimario, bottoneSecondario } from "@/components/controlli";
+import { bottonePrimario } from "@/components/controlli";
 import { utenteAttuale } from "@/lib/auth/sessione";
 import { m } from "@/lib/messaggi";
 import { esciAzione } from "./accedi/azioni";
@@ -15,7 +15,9 @@ export default async function Home() {
         <>
           <p className="mt-6">{m.home.collegato}</p>
           <form action={esciAzione} className="mt-8">
-            <button type="submit" className={bottoneSecondario}>
+            {/* Primary on purpose, like "Entra": the maintainer wants the two
+                buttons of this placeholder page to match. */}
+            <button type="submit" className={bottonePrimario}>
               {m.home.esci}
             </button>
           </form>
