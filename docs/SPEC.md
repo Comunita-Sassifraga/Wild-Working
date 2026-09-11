@@ -599,14 +599,14 @@ Valori che devono essere modificabili senza toccare la logica del programma. Viv
 |---|---|
 | `FINESTRA_GIORNI` — giorni prenotabili oltre oggi | **14** |
 | `ORA_APERTURA_FINESTRA` — ora in cui si apre il nuovo giorno | **00:00** (Europe/Rome) |
-| Massimo prenotazioni attive per utente | **nessun limite** (D7) |
-| Massimo prenotazioni a settimana per utente | **nessun limite** (D7) |
-| Validità del link di accesso | 15 minuti |
+| `MAX_PRENOTAZIONI_ATTIVE` — massimo prenotazioni attive per utente | **nessun limite** (D7) |
+| `MAX_PRENOTAZIONI_SETTIMANA` — massimo prenotazioni a settimana per utente | **nessun limite** (D7) |
+| `VALIDITA_LINK_MINUTI` — validità del link di accesso | 15 minuti |
 | `MAX_LINK_PER_EMAIL_ORA` — richieste di link per email all'ora | **5** |
 | `MAX_LINK_PER_RETE_ORA` — richieste di link per indirizzo di rete all'ora | **20** |
-| Durata della sessione | 30 giorni dall'ultimo utilizzo |
-| Giorni prima dell'anonimizzazione | 30 |
-| Mesi prima della cancellazione di un account dormiente | 24 |
+| `DURATA_SESSIONE_GIORNI` — durata della sessione | 30 giorni dall'ultimo utilizzo |
+| `GIORNI_ANONIMIZZAZIONE` — giorni prima dell'anonimizzazione | 30 |
+| `MESI_ACCOUNT_DORMIENTE` — mesi prima della cancellazione di un account dormiente | 24 |
 | `MESI_AVVISO_DORMIENZA` — mesi di inattività dopo cui parte l'avviso (§7) | **23** |
 | `ORE_RICHIESTE_INCOMPLETE` — ore dopo cui sparisce una richiesta di link mai usata (§6.1) | **24** |
 | `MESI_CONSERVAZIONE_CONSENSI` — mesi di conservazione del registro dei consensi dopo la chiusura dell'account (§7) | **24** |
@@ -652,6 +652,69 @@ Comuni: Ronco Coworking e Bar Soana → Ronco Canavese; Valprato Coworking, Valp
 - Serve una **conferma dell'email** prima della prima prenotazione? Con il link magico la verifica è implicita (per entrare devi accedere alla casella): probabilmente no. -> Update 10/09: no.
 - Il **nome pubblico va moderato**? → **Deciso**: sì. Moderazione successiva, con filtro automatico, avviso all'amministratore e azione di azzeramento. Vedi D14 e §6.5: non è più una decisione aperta.
 - Le  sedi vanno mostrate anche su **mappa**? Utile per chi non conosce la valle. Costo basso. -> Update: forse in uno sviluppo futuro.
+
+### C. Rimandato a dopo il rilascio
+
+Non sono cose dimenticate: sono cose che si possono fare **dopo** che il
+prototipo è in mano alle persone, senza che nulla vada perduto nel frattempo.
+Aggiornato all'11/09, chiuso il passo 13.
+
+**Contenuti che mette una persona, dal pannello**
+
+- **Elenco dei termini vietati** (§5.8). Nasce vuoto. Finché è vuoto il primo
+  livello di §6.5 non ferma niente, e reggono gli altri due — l'avviso
+  all'amministratore e l'azzeramento — più i divieti automatici su link,
+  indirizzi email e numeri di telefono, che non dipendono dall'elenco. Si
+  compila con calma, guardando i nomi che arrivano davvero: un elenco scritto
+  a tavolino contiene parole che nessuno userebbe e non contiene quelle che
+  serviranno.
+- **Periodi di attività definitivi** delle cinque sedi stagionali (§5.7,
+  §11.A). Al rilascio si inserisce quello che si sa; il resto si corregge dal
+  pannello in meno di un minuto, che è esattamente perché sono dati e non
+  codice (D9).
+- **Capienze e orari definitivi** (§11.A): i valori di §11.A sono quelli
+  raccolti il 10/09 e vanno confermati dai Comuni.
+- **Incarichi di referente** (§5.6): i nomi non sono ancora stati raccolti. La
+  vista del referente esiste e resta vuota finché non si assegna nessuno.
+
+**Funzioni**
+
+- **Passo 12 — statistiche ed esportazione** (§6.8), con
+  `tests/statistiche.test.ts`. Si riprende quando serve la prima
+  rendicontazione ad APICE. Tutto ciò che non si recupera più tardi — i campi
+  `stat_` (§5.3), i conteggi delle persone distinte (§6.8) e i posti offerti
+  (§5.10) — è già in esercizio dal passo 11 e si accumula da solo, anche senza
+  nessuna schermata che lo legga.
+- **Cancellazione di un account dal pannello** (§6.7). La voce c'è, spenta. I
+  due diritti che la legge impone di rendere immediati sono già nelle
+  impostazioni della persona (§7); questa schermata serve solo alle richieste
+  che arrivano per iscritto da chi non riesce più ad accedere alla propria
+  casella, che è il caso raro.
+- **Le nove voci di §9**, che restano fuori dall'MVP per scelta e non per
+  dimenticanza. Fra queste **inglese e francese**: i testi sono già tutti in
+  `messages/it.json`, separati dal codice, e il campo `lingua` esiste — manca
+  la traduzione, non il posto dove metterla.
+- **Mappa delle sedi** (§11.B), se si deciderà di farla.
+
+**Materiali** (§13.10)
+
+- Logo in formato vettoriale, versione del logo per fondo verde, e **icona
+  disegnata per il telefono**: quella in uso è provvisoria, ricavata dal logo
+  PNG. Si sostituiscono i file e nient'altro.
+
+**Cose da guardare con l'uso vero**
+
+- **L'apertura a tutto schermo su iPhone precedenti a iOS 17.4.** L'app scrive
+  il contrassegno moderno; quelli vecchi capiscono solo il contrassegno
+  storico di Apple. Si aggiunge una riga, se la prova su un iPhone vero mostra
+  che serve.
+- **`ORA_APERTURA_FINESTRA`** (§10) resta a mezzanotte finché la corsa al
+  posto non diventa un problema di equità. Allora si sposta a un'ora civile
+  cambiando un parametro.
+- **Il tetto giornaliero di invii** del fornitore di posta (§14.2), che è
+  condiviso fra promemoria e avvisi di moderazione.
+- **Una pagina intermedia "Entra"**, se i filtri antispam di qualche azienda
+  apriranno i link di accesso al posto delle persone, consumandoli.
 
 ---
 

@@ -313,6 +313,17 @@ what to do next, not what went wrong internally.
   run, in universal time, which is why `ORA_PROMEMORIA` is an intent and not a
   clock (§10). The RLS-bypassing client is built in `lib/db/servizio.ts` alone;
   never reach for it from a page or from an action serving a person's request.
+- **The offline copy keeps the availability page and nothing else.**
+  `public/sw.js` is the only place that decides what a browser may keep, and
+  it may keep `/`, the courtesy page `/senza-collegamento`, and the files
+  those are drawn with. Never "Chi c'è in Valle" — §6.5 promises a public
+  name switched off disappears from every booking at once, and a copy on
+  somebody else's phone would outlive that promise — and never a page of a
+  person's own. Pages are asked of the network first, so online what is on
+  screen is always the server's. `app/manifest.ts` carries the installation,
+  with its names from `messages/it.json` and its colours from `tokens.ts`;
+  the icons are provisional and rebuilt by `strumenti/genera-icone.mjs`.
+  `tests/installabilita.test.ts` runs `sw.js` and enforces all of it.
 - The first sign-in is reported by `registra_accesso()` (`primoAccesso` in
   `verificaLink`). Step 6 uses it to show the one-time optional-fields screen
   of SPEC §6.1 point 5; until then the route sends everyone to `/`.
@@ -386,6 +397,17 @@ except the one marked as still to come:
   statistics view or CSV export returns an `email`, a `nome_pubblico` or a
   `utente_id`; no returned row maps to a single user; a category containing
   one person is still reported with its real count.
+- `tests/chi-ce.test.ts` — the public page of §6.6: the line of people reads
+  exactly as the spec words it, only the days and fasce with somebody in them
+  are listed, a giornata intera appears in both, a sede with nobody keeps its
+  line; and, through the anonymous client, a name comes out only with the
+  switch on and only inside the window, never with an id, an email or an
+  optional field beside it.
+- `tests/amministrazione.test.ts` — nobody but an amministratore reaches any
+  table, view or action of the panel (§6.7); the moderation screen carries no
+  email address; a clear empties the name, notifies and leaves the bookings
+  alone; and a capienza lowered, a chiusura added, a sede suspended or a
+  weekday removed produce a list to act on and never a cancellation (rule 6).
 - `tests/dati-facoltativi.test.ts` — the five optional fields are unreachable
   from any anonymous query, from the public page and from the referente view;
   registration completes with all of them empty; revocation clears all five and
