@@ -117,7 +117,7 @@ export const ORA_PROMEMORIA = "18:00";
 export const ORA_PULIZIE = "03:00";
 
 /** Sender of every outbound email (D12, §14.2). Never the apex domain. */
-export const EMAIL_MITTENTE = "noreply@coworking.sassifraga.org";
+export const EMAIL_MITTENTE = "noreply@wildworking.sassifraga.org";
 
 /**
  * Recipient of public-name moderation notices (§6.5). A board mailbox,
@@ -145,7 +145,7 @@ export const URL_SITO = "https://www.sassifraga.org";
  * something computed. `URL_APP` overrides it in development, where the same
  * links have to point at the local server.
  */
-export const URL_APP = process.env.URL_APP ?? "https://prenota.sassifraga.org";
+export const URL_APP = process.env.URL_APP ?? "https://wildworking.sassifraga.org";
 
 /** IANA timezone in which "today" is always computed (§8.4). */
 export const FUSO_ORARIO = "Europe/Rome";

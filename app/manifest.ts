@@ -22,7 +22,7 @@ import { m } from "@/lib/messaggi";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: m.app.nomeInstallato,
+    name: m.app.nome,
     short_name: m.app.nomeBreve,
     description: m.app.descrizione,
     lang: "it",

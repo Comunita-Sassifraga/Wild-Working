@@ -25,7 +25,7 @@ import { colori } from "@/config/tokens";
 import { m } from "@/lib/messaggi";
 
 const RADICE = join(import.meta.dirname, "..");
-const ORIGINE = "https://prenota.sassifraga.org";
+const ORIGINE = "https://wildworking.sassifraga.org";
 
 // ---------------------------------------------------------------------------
 // 1. The manifest
@@ -35,7 +35,7 @@ describe("manifesto per l'installazione (SPEC §12 passo 13)", () => {
   const manifest = manifesto();
 
   it("porta i nomi dei testi, non nomi scritti nel codice", () => {
-    expect(manifest.name).toBe(m.app.nomeInstallato);
+    expect(manifest.name).toBe(m.app.nome);
     expect(manifest.short_name).toBe(m.app.nomeBreve);
     expect(manifest.description).toBe(m.app.descrizione);
     // What fits under the icon on a phone is about twelve characters.

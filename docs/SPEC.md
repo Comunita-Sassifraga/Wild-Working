@@ -1,6 +1,6 @@
 # SPEC — Prenotazione postazioni coworking Valle Soana
 
-**Progetto:** Comunità Sassifraga APS
+**Progetto:** Wild Working — Comunità Sassifraga APS
 **Versione:** 0.1 (bozza da validare)
 **Data:** settembre 2026
 **Stato:** in definizione — vedi §11 "Decisioni ancora aperte"
@@ -42,11 +42,12 @@ Lo strumento è realizzato e messo a disposizione da Comunità Sassifraga APS. G
 | D8  | Finestra di prenotazione                  | Si può prenotare da oggi fino a **oggi + 14 giorni inclusi**. Finestra mobile: ogni giorno si apre un nuovo giorno e si chiude quello trascorso.                                                                                             |
 | D9  | Stagionalità delle sedi                   | Una sede può essere disponibile solo in certi periodi dell'anno. I periodi sono dati modificabili dall'amministratore, non regole scritte nel codice. Fuori dai propri periodi una sede non è prenotabile e scompare dalla vista principale. |
 | D10 | Titolare del trattamento                  | Solo Comunità Sassifraga APS. Contatto privacy: Letizia Melano. **Il software non trasmette mai dati personali ai Comuni.** I Comuni ricevono statistiche aggregate. Se un Comune ha bisogno di sapere chi si trova nel proprio immobile (sicurezza, assicurazione), lo gestisce con un registro presenze cartaceo in loco, che è un trattamento suo, separato e indipendente da questo strumento. |
-| D11 | Indirizzo del servizio                    | Sottodominio **`prenota.sassifraga.org`**. Non una sottocartella di `www.sassifraga.org`: il sito è su Google Sites, che non permette di dirottare un percorso verso un'applicazione esterna. Vedi §14.                                    |
-| D12 | Mittente delle email                      | Le email dell'app partono da un **sottodominio dedicato** (`noreply@coworking.sassifraga.org`), mai dal dominio principale. Protegge la consegna della posta istituzionale. Vedi §14.                                                        |
+| D11 | Indirizzo del servizio                    | Sottodominio **`wildworking.sassifraga.org`**. Non una sottocartella di `www.sassifraga.org`: il sito è su Google Sites, che non permette di dirottare un percorso verso un'applicazione esterna. Vedi §14.                                    |
+| D12 | Mittente delle email                      | Le email dell'app partono da un **sottodominio dedicato** (`noreply@wildworking.sassifraga.org`), mai dal dominio principale. Protegge la consegna della posta istituzionale. Vedi §14.                                                        |
 | D13 | Dati facoltativi                          | Cinque campi facoltativi (età, genere, professione, motivo della visita, residenza), raccolti su consenso separato e revocabile. Richiedibili anche in registrazione, ma mai bloccanti. Usati solo in forma aggregata (§6.8).               |
 | D14 | Moderazione del nome pubblico             | Moderazione **successiva**: il nome è pubblico subito, l'amministratore viene avvisato e può azzerarlo. Filtro automatico in scrittura come prima difesa.                                                                                   |
 | D15 | Divisione fra le due pagine pubbliche     | La griglia di disponibilità mostra **conteggi**: posti liberi su totale e numero di presenze pubbliche. I **nomi pubblici** compaiono soltanto nella pagina "Chi c'è in Valle". Ogni pagina rimanda all'altra con un collegamento e una nota. Vedi §6.2 e §6.6.                        |
+| D16 | Nome del servizio                         | **Wild Working**. Per esteso, dove serve dire chi lo fa: *Wild Working — Comunità Sassifraga*. Il nome vive nel titolo della pagina, sotto l'icona sul telefono, nel titolo della schermata di disponibilità e nelle email di accesso; non compare nell'intestazione, che resta logo più "Comunità Sassifraga" (§13.8). Non tocca il verbo *prenotare*: il pulsante che prenota continua a dire "Prenota", e i nomi di dati e tabelle restano quelli del glossario (§3). Un nome inglese non dice da solo di cosa si tratta, quindi dove compare per la prima volta — le email, la descrizione dell'app — lo accompagna sempre la frase che lo spiega: *"il servizio di prenotazione degli spazi di coworking della Valle Soana"*. Decisione dell'11/09, che sostituisce il precedente "Prenota". |
 
 ---
 
@@ -611,7 +612,7 @@ Valori che devono essere modificabili senza toccare la logica del programma. Viv
 | `ORE_RICHIESTE_INCOMPLETE` — ore dopo cui sparisce una richiesta di link mai usata (§6.1) | **24** |
 | `MESI_CONSERVAZIONE_CONSENSI` — mesi di conservazione del registro dei consensi dopo la chiusura dell'account (§7) | **24** |
 | `EMAIL_MODERAZIONE` — destinatario degli avvisi sui nomi pubblici (§6.5) | da definire, casella del Direttivo, **mai un indirizzo personale** |
-| `EMAIL_MITTENTE` — mittente di tutte le email dell'app (D12) | `noreply@coworking.sassifraga.org` |
+| `EMAIL_MITTENTE` — mittente di tutte le email dell'app (D12) | `noreply@wildworking.sassifraga.org` |
 | `MAX_CAMBI_NOME_GIORNO` — modifiche del nome pubblico per utente al giorno | **3** |
 | `ORA_PROMEMORIA` — ora in cui parte il promemoria del giorno dopo (§6.3) | **18:00** (Europe/Rome) |
 | `ORA_PULIZIE` — ora in cui girano le pulizie notturne (§7) | **03:00** (Europe/Rome) |
@@ -858,7 +859,7 @@ Il sito parla in modo diretto, sobrio, non promozionale ("Lavoriamo con il terri
 
 ### 14.1 Indirizzo del servizio
 
-Il servizio vive su **`prenota.sassifraga.org`** (D11).
+Il servizio vive su **`wildworking.sassifraga.org`** (D11).
 
 Non su `www.sassifraga.org/coworking`: il sito istituzionale è costruito con Google Sites, che non consente di dirottare una sottocartella verso un'applicazione esterna. Non è una limitazione aggirabile.
 
@@ -868,7 +869,7 @@ Il sottodominio si crea con un singolo record DNS presso il registrar di `sassif
 
 ### 14.2 Posta in uscita
 
-Tutte le email dell'app partono da **`noreply@coworking.sassifraga.org`** (D12), mai dal dominio principale.
+Tutte le email dell'app partono da **`noreply@wildworking.sassifraga.org`** (D12), mai dal dominio principale.
 
 La ragione è concreta: `sassifraga.org` ha già i record di posta di Google Workspace. Aggiungere un secondo mittente autorizzato sul dominio principale, se fatto male, può far finire nello spam **anche la posta istituzionale di `info@sassifraga.org`** — un danno più grave del problema che si sta risolvendo. Autenticando un sottodominio separato, reputazione e configurazione restano isolate.
 
@@ -882,4 +883,4 @@ Le pagine informative — presentazione del coworking, contatti, informativa pri
 
 - **Chi controlla il registrar di `sassifraga.org`.** Serve accesso ai record DNS. Se è nelle mani di una sola persona o di un account personale, va spostato su un account dell'associazione con almeno due amministratori: perdere il dominio significherebbe perdere sito, posta istituzionale e app insieme.
 - **L'informativa privacy dell'app è un documento nuovo**, non quella del sito: tratta dati diversi per finalità diverse. Va linkata dall'app prima della registrazione (§6.1).
-- **Il sottodominio di posta va autenticato** presso il fornitore (record SPF, DKIM e DMARC su `coworking.sassifraga.org`), e la chiave del fornitore va messa fra le variabili d'ambiente insieme al segreto del programmatore di orari e all'indirizzo `EMAIL_MODERAZIONE`. Finché la chiave manca, l'app non manda niente e non se ne accorge nessuno: il promemoria è l'unica email che una persona riceve dopo l'accesso, e la sua assenza non blocca nulla. Va quindi verificato a mano che il primo promemoria parta davvero.
+- **Il sottodominio di posta va autenticato** presso il fornitore (record SPF, DKIM e DMARC su `wildworking.sassifraga.org`), e la chiave del fornitore va messa fra le variabili d'ambiente insieme al segreto del programmatore di orari e all'indirizzo `EMAIL_MODERAZIONE`. Finché la chiave manca, l'app non manda niente e non se ne accorge nessuno: il promemoria è l'unica email che una persona riceve dopo l'accesso, e la sua assenza non blocca nulla. Va quindi verificato a mano che il primo promemoria parta davvero.

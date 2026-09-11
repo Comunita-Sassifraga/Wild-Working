@@ -1,4 +1,4 @@
-# prenota.sassifraga.org
+# wildworking.sassifraga.org
 
 Sistema di prenotazione delle postazioni di coworking della Valle Soana,
 realizzato da Comunità Sassifraga APS. La specifica è in `docs/SPEC.md`;
@@ -86,8 +86,8 @@ tests/                test richiesti da CLAUDE.md
   di posta o di rete, viene scritto nel database.
 - In locale le email arrivano a Mailpit: <http://127.0.0.1:54324>.
 - **Per la produzione**, da fare una volta prima del rilascio: impostare
-  `site_url = "https://prenota.sassifraga.org"` e il mittente SMTP di Resend
-  (`noreply@coworking.sassifraga.org`, SPEC §14.2) nel progetto Supabase, poi
+  `site_url = "https://wildworking.sassifraga.org"` e il mittente SMTP di Resend
+  (`noreply@wildworking.sassifraga.org`, SPEC §14.2) nel progetto Supabase, poi
   `supabase config push` per caricare durata del link e modelli email. Le
   modifiche a `config.toml` in locale richiedono `supabase stop` e
   `supabase start`, non basta `db reset`.

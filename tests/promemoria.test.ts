@@ -97,7 +97,7 @@ describe("§6.3 promemoria della sera prima", () => {
 
     const email = await attendiEmail(u.email);
     expect(await contaEmail(u.email)).toBe(1);
-    expect(email.da).toBe("noreply@coworking.sassifraga.org");
+    expect(email.da).toBe("noreply@wildworking.sassifraga.org");
     expect(email.oggetto).toContain("Ronco Coworking di prova");
     // Il giorno per esteso, le due fasce con il proprio orario, e le
     // informazioni pratiche della sede (§5.2).

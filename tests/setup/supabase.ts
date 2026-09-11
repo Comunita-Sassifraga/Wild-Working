@@ -250,17 +250,33 @@ export const CODICE_PERMESSO_NEGATO = "42501";
 
 type MessaggioPosta = { ID: string };
 
-async function messaggiPer(email: string): Promise<MessaggioPosta[]> {
+/**
+ * The messages to an address: how many there are in all, and the most recent
+ * ones.
+ *
+ * The count is the one the mailbox reports for the search — `messages_count`,
+ * never `total`, which is every message in the mailbox whoever it was for —
+ * and never the length of the list. The search answers with a page of at most
+ * fifty, and the addresses that stay the same across runs, like the
+ * moderation mailbox, pass fifty after enough of them. Counting the page
+ * would freeze at fifty, and every wait for "one more email" would then time
+ * out on a suite with nothing wrong with it.
+ */
+async function messaggiPer(email: string): Promise<{ totale: number; recenti: MessaggioPosta[] }> {
   const url = `${ambiente().postaUrl}/api/v1/search?query=${encodeURIComponent(`to:"${email}"`)}`;
   const risposta = await fetch(url);
   if (!risposta.ok) throw new Error(`mailbox search failed: ${risposta.status}`);
-  const corpo = (await risposta.json()) as { messages?: MessaggioPosta[] };
-  return corpo.messages ?? [];
+  const corpo = (await risposta.json()) as {
+    messages_count?: number;
+    messages?: MessaggioPosta[];
+  };
+  const recenti = corpo.messages ?? [];
+  return { totale: corpo.messages_count ?? recenti.length, recenti };
 }
 
 /** Number of emails delivered to an address so far. */
 export async function contaEmail(email: string): Promise<number> {
-  return (await messaggiPer(email)).length;
+  return (await messaggiPer(email)).totale;
 }
 
 /**
@@ -272,16 +288,15 @@ export async function linkDaEmail(
   giaViste = 0,
 ): Promise<{ tokenHash: string; tipo: string }> {
   const scadenza = Date.now() + 15_000;
-  let messaggi: MessaggioPosta[] = [];
-  while (Date.now() < scadenza) {
-    messaggi = await messaggiPer(email);
-    if (messaggi.length > giaViste) break;
+  let posta = await messaggiPer(email);
+  while (Date.now() < scadenza && posta.totale <= giaViste) {
     await new Promise((r) => setTimeout(r, 250));
+    posta = await messaggiPer(email);
   }
-  if (messaggi.length <= giaViste) throw new Error("no sign-in email arrived in time");
+  if (posta.totale <= giaViste) throw new Error("no sign-in email arrived in time");
 
   // Newest first: the message we want is the most recent one.
-  const risposta = await fetch(`${ambiente().postaUrl}/api/v1/message/${messaggi[0].ID}`);
+  const risposta = await fetch(`${ambiente().postaUrl}/api/v1/message/${posta.recenti[0].ID}`);
   if (!risposta.ok) throw new Error(`mailbox read failed: ${risposta.status}`);
   const corpo = (await risposta.json()) as { HTML?: string; Text?: string };
   const testo = (corpo.HTML ?? corpo.Text ?? "").replace(/&amp;/g, "&");
@@ -299,15 +314,14 @@ export type EmailRicevuta = { da: string; oggetto: string; testo: string };
  */
 export async function attendiEmail(email: string, giaViste = 0): Promise<EmailRicevuta> {
   const scadenza = Date.now() + 10_000;
-  let messaggi: MessaggioPosta[] = [];
-  while (Date.now() < scadenza) {
-    messaggi = await messaggiPer(email);
-    if (messaggi.length > giaViste) break;
+  let posta = await messaggiPer(email);
+  while (Date.now() < scadenza && posta.totale <= giaViste) {
     await new Promise((r) => setTimeout(r, 200));
+    posta = await messaggiPer(email);
   }
-  if (messaggi.length <= giaViste) throw new Error("no email arrived in time");
+  if (posta.totale <= giaViste) throw new Error("no email arrived in time");
 
-  const risposta = await fetch(`${ambiente().postaUrl}/api/v1/message/${messaggi[0].ID}`);
+  const risposta = await fetch(`${ambiente().postaUrl}/api/v1/message/${posta.recenti[0].ID}`);
   if (!risposta.ok) throw new Error(`mailbox read failed: ${risposta.status}`);
   const corpo = (await risposta.json()) as {
     From?: { Address?: string };
@@ -324,7 +338,7 @@ export async function attendiEmail(email: string, giaViste = 0): Promise<EmailRi
  */
 export async function nessunaEmailOltre(email: string, giaViste = 0): Promise<number> {
   await new Promise((r) => setTimeout(r, 1_000));
-  return (await messaggiPer(email)).length - giaViste;
+  return (await messaggiPer(email)).totale - giaViste;
 }
 
 /** Pauses longer than the minimum interval between two emails to one address (config.toml max_frequency). */

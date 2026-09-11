@@ -1,7 +1,6 @@
 {
   "app": {
-    "nome": "Prenota — Comunità Sassifraga",
-    "nomeInstallato": "Wild Working — Comunità Sassifraga",
+    "nome": "Wild Working — Comunità Sassifraga",
     "nomeBreve": "Wild Working",
     "descrizione": "Prenota una postazione negli spazi di coworking della Valle Soana e guarda chi c'è."
   },
@@ -52,7 +51,7 @@
     "torna": "Torna alla disponibilità"
   },
   "home": {
-    "titolo": "Coworking in Valle Soana",
+    "titolo": "Wild Working in Valle Soana",
     "collegato": "Sei collegato.",
     "nonCollegato": "Per prenotare devi entrare con la tua email.",
     "entra": "Entra",
