@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Calendario } from "@/components/Calendario";
+import { AvvisoCopiaLocale } from "@/components/CopiaLocale";
 import { Rimando } from "@/components/Rimando";
 import { SediFuoriPeriodo } from "@/components/SediFuoriPeriodo";
 import { TabellaGiorno } from "@/components/TabellaGiorno";
@@ -8,7 +9,7 @@ import { bottoneSecondario } from "@/components/controlli";
 import { FINESTRA_GIORNI } from "@/config/limits";
 import { sonoAmministratore } from "@/lib/auth/ruoli";
 import { utenteAttuale } from "@/lib/auth/sessione";
-import { settimaneCalendario } from "@/lib/dates";
+import { istanteGenerazione, settimaneCalendario } from "@/lib/dates";
 import { apertureFuture, disponibilitaPubblica, sediPubbliche } from "@/lib/db/disponibilita";
 import { clientServer } from "@/lib/db/server";
 import { celleDelGiorno, giorniDelCalendario, giornoScelto } from "@/lib/disponibilita";
@@ -71,9 +72,16 @@ export default async function Home({
   const qualcosaDiAperto = celleGiorno.some((c) => c.prenotabile);
 
   const t = m.disponibilita;
+  const generata = istanteGenerazione();
 
   return (
     <>
+      {/* Above everything, because it is about everything below it: this is
+          the page the browser keeps a copy of, and offline the copy is what
+          is on screen (§8.4). The notice stays out of the introduction →
+          link → grid order §6.2 fixes. */}
+      <AvvisoCopiaLocale generatoIl={generata.iso} quando={generata.esteso} />
+
       <h1 className="text-titolo-pagina font-grassetto grande:text-titolo-pagina-grande">
         {m.home.titolo}
       </h1>

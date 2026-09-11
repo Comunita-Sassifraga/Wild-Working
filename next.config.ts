@@ -21,6 +21,18 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ["127.0.0.1", process.env.DEV_ORIGINE_RETE].filter(
     (origine): origine is string => Boolean(origine),
   ),
+  // public/sw.js decides what stays readable without a connection (§8.4).
+  // A browser that kept its own old copy of that file could go on serving
+  // the pages by yesterday's rules for up to a day after a release, so it
+  // is asked to check this one every time.
+  async headers() {
+    return [
+      {
+        source: "/sw.js",
+        headers: [{ key: "Cache-Control", value: "no-cache, must-revalidate" }],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

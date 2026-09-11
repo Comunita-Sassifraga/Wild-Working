@@ -79,6 +79,18 @@ export const SOGLIA_ULTIMI_POSTI = 1;
 export const MAX_CAMBI_NOME_GIORNO = 3;
 
 /**
+ * Minutes after which what is on screen is announced as no longer current
+ * (§8.4 "Sede senza connessione", §12 step 13, §10).
+ *
+ * A page that has just been produced by the server is seconds old; one that
+ * the browser took out of its own copy, with no connection, is hours or days
+ * old. The distance between the two is what the notice is built on, so the
+ * value only has to sit well clear of a live render — and low enough that a
+ * page left open long enough to be wrong says so.
+ */
+export const MINUTI_COPIA_VECCHIA = 30;
+
+/**
  * Hour at which the reminder of the evening before goes out (§6.3, §10).
  *
  * Declared here as the intent; what actually fires the job is the schedule in

@@ -53,6 +53,10 @@ config/limits.ts      parametri di SPEC §10 — unica fonte di verità
 config/tokens.ts      identità visiva di SPEC §13 — unica fonte di verità
 tailwind.config.ts    tema Tailwind generato da config/tokens.ts
 public/logo.png       logo ufficiale, in attesa della versione SVG (SPEC §13.10)
+public/icona-*.png    icone per la schermata Home, provvisorie: le rifà
+                      strumenti/genera-icone.mjs partendo dal logo
+public/sw.js          la copia locale: cosa resta leggibile senza collegamento
+app/manifest.ts       come l'app si presenta al telefono che la installa
 lib/auth/             accesso via link email (SPEC §6.1): richiesta, verifica,
                       uscita, limite delle richieste, cookie di sessione
 lib/dates.ts          "oggi" e finestra prenotabile, sempre in Europe/Rome
@@ -91,6 +95,28 @@ tests/                test richiesti da CLAUDE.md
   aziendali aprono i link in anticipo per controllarli e consumerebbero il
   link al posto della persona: se dovesse capitare, si aggiunge una pagina
   intermedia con un pulsante "Entra".
+
+## Installazione sul telefono e lettura senza collegamento (SPEC §12 passo 13)
+
+- La copia locale (`public/sw.js`) **non parte in `npm run dev`**: il browser
+  la accetta solo su `https://…` o su `localhost`, e in sviluppo terrebbe da
+  parte pagine che stai ancora cambiando. Per provarla:
+
+  ```bash
+  npm run build
+  npm start            # poi apri http://localhost:3000
+  ```
+
+  Chrome propone di installare l'app dalla barra degli indirizzi; a server
+  spento, ricaricando, la disponibilità resta con l'avviso di §8.4 e ogni
+  altra pagina risponde con `/senza-collegamento`.
+- Dal telefono sulla rete locale (`http://192.168.…`) l'installazione e la
+  copia **non funzionano**: non è un indirizzo sicuro. Si provano una volta
+  pubblicata l'app.
+- Le icone si rifanno con `node strumenti/genera-icone.mjs` dopo aver
+  sostituito `public/logo.png`. Servono `sharp`, che arriva con Next.
+- Cambiando `public/sw.js` va alzato `VERSIONE` in cima al file: è così che
+  le copie vecchie vengono buttate.
 
 ## Note per chi modifica il database
 

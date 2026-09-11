@@ -135,6 +135,22 @@ export function istanteEsteso(istanteIso: string): string {
   return formatoIstante.format(new Date(istanteIso));
 }
 
+/**
+ * The moment a page was produced, for the notice of §8.4: the machine-
+ * readable instant, which the browser compares with its own clock, and the
+ * same instant written out for a person to read.
+ *
+ * Not window logic — nothing is decided from it — but it is read in
+ * Europe/Rome like every other hour this app shows.
+ */
+export function istanteGenerazione(adesso: Date = new Date()): {
+  iso: string;
+  esteso: string;
+} {
+  const iso = adesso.toISOString();
+  return { iso, esteso: istanteEsteso(iso) };
+}
+
 /** "ott" — shown in the calendar on the first of a month, which the window can cross. */
 export function meseBreve(data: DataISO): string {
   return formatoMese.format(istante(data));

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { URL_INFORMATIVA_PRIVACY, URL_SITO } from "@/config/limits";
 import { m } from "@/lib/messaggi";
 
@@ -16,6 +17,9 @@ export function PieDiPagina() {
         <p className="flex flex-wrap gap-6">
           <a href={URL_INFORMATIVA_PRIVACY}>{t.informativa}</a>
           <a href={URL_SITO}>{t.sito}</a>
+          {/* On iPhone nothing ever offers the installation (§12 step 13):
+              whoever wants the app on the Home screen has to be told how. */}
+          <Link href="/installa">{t.installa}</Link>
         </p>
       </div>
     </footer>

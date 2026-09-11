@@ -560,7 +560,7 @@ Serve una suite di test che, impersonando un utente qualunque, provi a leggere l
 | Doppio clic sul pulsante "prenota" | Una sola prenotazione (protezione contro l'invio ripetuto) |
 | Link di accesso già usato | Messaggio chiaro e possibilità di richiederne un altro |
 | Cambio di ora legale | Le fasce sono orari locali, non istanti assoluti |
-| Sede senza connessione | La versione installata mostra l'ultima situazione scaricata, con la data dell'aggiornamento e l'avviso che potrebbe non essere aggiornata. Prenotare richiede connessione. |
+| Sede senza connessione | Resta consultabile l'ultima **disponibilità** scaricata, con la data dell'aggiornamento e l'avviso che potrebbe non essere aggiornata. Vale su qualunque browser recente, che l'app sia installata sulla schermata Home o no. «Chi c'è in Valle» **non** si conserva sul telefono: §6.5 promette che un nome pubblico spento sparisce subito da tutte le prenotazioni, e una copia salvata su un telefono altrui lo terrebbe in vita. Prenotare richiede connessione. |
 | Prenotazione inviata a cavallo della mezzanotte | La finestra viene ricalcolata al momento della scrittura sul database, non al caricamento della pagina. Una richiesta partita alle 23:59 per il giorno appena uscito dalla finestra viene rifiutata con un messaggio chiaro. |
 | Calcolo di "oggi" | Sempre in fuso `Europe/Rome`. Un server in orario universale considererebbe ancora "ieri" fino alle 02:00 italiane in ora legale, aprendo o chiudendo la finestra nel giorno sbagliato. |
 | Periodo di attività accorciato con prenotazioni dentro | Nessuna cancellazione automatica. L'amministratore vede l'elenco delle prenotazioni rimaste fuori stagione e decide. Stessa regola di §8.2. |
@@ -616,6 +616,7 @@ Valori che devono essere modificabili senza toccare la logica del programma. Viv
 | `ORA_PROMEMORIA` — ora in cui parte il promemoria del giorno dopo (§6.3) | **18:00** (Europe/Rome) |
 | `ORA_PULIZIE` — ora in cui girano le pulizie notturne (§7) | **03:00** (Europe/Rome) |
 | `SOGLIA_ULTIMI_POSTI` — posti liberi da cui la cella avvisa "ultimo posto" | **1** |
+| `MINUTI_COPIA_VECCHIA` — minuti dopo cui la disponibilità a schermo si dichiara non più aggiornata (§8.4) | **30** |
 | `URL_INFORMATIVA_PRIVACY` — indirizzo dell'informativa linkata prima dell'accesso (§6.1) | da definire, pagina su `www.sassifraga.org` |
 
 **`FINESTRA_GIORNI` è una fonte di verità unica.** Governa insieme la validazione della prenotazione, la vista di disponibilità e la pagina pubblica. I tre valori devono coincidere per costruzione, non essere impostati separatamente: altrimenti l'app finirebbe per mostrare giorni non prenotabili o nascondere giorni prenotabili.
@@ -668,7 +669,7 @@ Comuni: Ronco Coworking e Bar Soana → Ronco Canavese; Valprato Coworking, Valp
 10. Diritti dell'interessato: scarica dati, cancella account
 11. Pulizie automatiche notturne, e con loro l'annotazione dei posti offerti (§5.10): non è una pulizia, ma è l'unica cosa del passo 12 che va messa in esercizio prima del rilascio, perché il suo dato non si recupera dopo
 12. Statistiche ed esportazione
-13. Installabilità sul telefono e funzionamento offline in lettura
+13. Installabilità sul telefono e funzionamento offline in lettura: manifesto e icona per la schermata Home, copia locale della sola disponibilità con l'avviso di §8.4, e una pagina che spiega come si installa — su iPhone non lo propone nessuno
 
 Ogni passo si considera concluso solo quando funziona, è salvato nel controllo di versione, e i test passano.
 
@@ -786,7 +787,7 @@ Il sito parla in modo diretto, sobrio, non promozionale ("Lavoriamo con il terri
 |---|---|
 | Logo in formato vettoriale (`.svg`) | Il PNG sgrana su schermi ad alta densità e nelle dimensioni grandi |
 | Versione del logo per sfondo verde | Il logo è verde su trasparente: sui blocchi Stile 2 sparirebbe. Serve in `#1C1C1C` o in `#EBE8DD` |
-| Icona per l'installazione su telefono | Quadrata, 512×512px, logo su fondo pieno (crema o verde), con margine interno |
+| Icona per l'installazione su telefono | Quadrata, 512×512px, logo su fondo pieno (crema o verde), con margine interno. **Provvisoria in uso**, ricavata dal logo PNG su fondo crema, come `public/logo.png`: si sostituisce insieme al logo definitivo |
 
 ---
 

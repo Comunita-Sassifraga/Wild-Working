@@ -404,6 +404,13 @@ except the one marked as still to come:
   revocation rows, removes profile, sign-in identity, incarichi, moderazioni
   and `cambi_nome`, keeps the `consensi` rows, and can only ever touch the
   caller's own account.
+- `tests/installabilita.test.ts` — the manifest carries the names of
+  `messages/it.json` and the colours of `tokens.ts`; every declared icon
+  exists and is square at the size it declares; and — the point of the file —
+  `public/sw.js` is actually run and asked, address by address, what it would
+  keep offline: the availability page and the files it is drawn with, never
+  `chi-ce-in-valle`, never a person's own pages, never another origin, and
+  nothing at all for a request that writes.
 - `tests/tokens.test.ts` — a lint-style check that no component file contains a
   hex colour, a raw `px` value, or a stock Tailwind palette class; and that
   every foreground/background pair declared in `tokens.ts` reaches 4.5:1.

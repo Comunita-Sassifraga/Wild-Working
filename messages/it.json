@@ -1,6 +1,9 @@
 {
   "app": {
-    "nome": "Prenota — Comunità Sassifraga"
+    "nome": "Prenota — Comunità Sassifraga",
+    "nomeInstallato": "Wild Working — Comunità Sassifraga",
+    "nomeBreve": "Wild Working",
+    "descrizione": "Prenota una postazione negli spazi di coworking della Valle Soana e guarda chi c'è."
   },
   "intestazione": {
     "nome": "Comunità Sassifraga"
@@ -10,7 +13,43 @@
     "dati": "Codice fiscale 92527790015 · Sede legale: Piazza Municipio 2, Ronco Canavese",
     "email": "info@sassifraga.org",
     "informativa": "Informativa privacy",
-    "sito": "www.sassifraga.org"
+    "sito": "www.sassifraga.org",
+    "installa": "Installa sul telefono"
+  },
+  "copiaLocale": {
+    "senzaCollegamento": "Questa è la disponibilità scaricata il {quando}, e non è stato possibile aggiornarla adesso: da allora qualcuno può aver prenotato o annullato. Per prenotare serve il collegamento.",
+    "vecchia": "Questa pagina è aperta dal {quando}. Nel frattempo qualcuno può aver prenotato o annullato.",
+    "aggiorna": "Aggiorna"
+  },
+  "senzaCollegamento": {
+    "titolo": "Non c'è collegamento",
+    "testo": "Questa pagina ha bisogno di internet, e adesso il telefono non ce l'ha. Per prenotare, annullare o entrare con la tua email serve il collegamento.",
+    "residuo": "La disponibilità che avevi già guardato resta leggibile: ci trovi i posti liberi dell'ultimo aggiornamento, con la data in cui è stato fatto.",
+    "torna": "Torna alla disponibilità"
+  },
+  "installa": {
+    "titolo": "Installa sul telefono",
+    "introduzione": "Puoi tenere la prenotazione sulla schermata Home, come un'app. Si apre subito, senza passare dal browser, e la disponibilità che hai già guardato resta leggibile anche dove il telefono non prende.",
+    "iphone": {
+      "titolo": "iPhone e iPad",
+      "passi": [
+        "Apri questa pagina con Safari.",
+        "Tocca il pulsante per condividere, in basso: il quadrato con la freccia verso l'alto.",
+        "Scorri l'elenco e tocca «Aggiungi a Home».",
+        "Tocca «Aggiungi», in alto a destra."
+      ]
+    },
+    "android": {
+      "titolo": "Android",
+      "passi": [
+        "Apri questa pagina con Chrome.",
+        "Tocca i tre puntini in alto a destra.",
+        "Tocca «Installa app», oppure «Aggiungi a schermata Home».",
+        "Su molti telefoni la proposta compare da sola in fondo alla pagina: basta accettarla."
+      ]
+    },
+    "nota": "Non scarichi nessun programma: non occupa spazio, e per toglierla basta tenere premuta l'icona come per qualsiasi altra.",
+    "torna": "Torna alla disponibilità"
   },
   "home": {
     "titolo": "Coworking in Valle Soana",
