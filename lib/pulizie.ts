@@ -3,18 +3,23 @@
  *
  * The retention table of §7, in the order it has to happen. Every decision
  * is taken inside the database (see supabase/migrations/*_pulizie.sql); this
- * file calls the six statements once each and counts what they did.
+ * file calls the seven statements once each and counts what they did.
  *
  * The order is not arbitrary:
  *
- *   1. bookings are anonymised first, so a dormant account closed later in
+ *   1. the seats offered yesterday are written down first (§6.8). It is the
+ *      only step that records rather than deletes, and the only one that
+ *      cannot be caught up later: anything the others remove tonight has no
+ *      bearing on what was on offer yesterday, but a day never written is a
+ *      day lost;
+ *   2. bookings are anonymised next, so a dormant account closed later in
  *      the same run has nothing older than thirty days still attached to it;
- *   2. the warnings go out before any closing, so nobody is ever warned and
+ *   3. the warnings go out before any closing, so nobody is ever warned and
  *      deleted on the same night — the database enforces the same thing from
  *      its side, but the order says it plainly;
- *   3. the closings run next, and each writes the date the consent register
+ *   4. the closings run next, and each writes the date the consent register
  *      is measured from;
- *   4-6. the three sweeps have no bearing on the others and come last.
+ *   5-7. the three sweeps have no bearing on the others and come last.
  *
  * Nothing here stops the run: a step that fails is reported and the rest go
  * on. A cleanup that did not happen tonight happens tomorrow — but a cleanup
@@ -35,6 +40,8 @@ import type { Client } from "@/lib/db/client";
 import { avvisaDormienza, type RigaDormienza } from "@/lib/posta/dormienza";
 
 export type EsitoPulizie = {
+  /** Rows written for the days whose offer was not on record yet (§6.8). */
+  postiOffertiAnnotati: number;
   /** Bookings whose link with a person was cut tonight (§5.3). */
   prenotazioniAnonimizzate: number;
   /** Dormancy warnings the provider accepted, and those it refused (§7). */
@@ -52,9 +59,10 @@ export type EsitoPulizie = {
   falliti: string[];
 };
 
-/** Runs the six cleanups and reports what each one did. */
+/** Runs the seven nightly jobs and reports what each one did. */
 export async function eseguiPulizie(client: Client): Promise<EsitoPulizie> {
   const esito: EsitoPulizie = {
+    postiOffertiAnnotati: 0,
     prenotazioniAnonimizzate: 0,
     avvisiInviati: 0,
     avvisiFalliti: 0,
@@ -64,6 +72,12 @@ export async function eseguiPulizie(client: Client): Promise<EsitoPulizie> {
     consensiScaduti: 0,
     falliti: [],
   };
+
+  esito.postiOffertiAnnotati = conta(
+    esito,
+    "registra_posti_offerti",
+    await client.rpc("registra_posti_offerti"),
+  );
 
   esito.prenotazioniAnonimizzate = conta(
     esito,

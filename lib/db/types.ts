@@ -415,6 +415,56 @@ export type Database = {
           },
         ]
       }
+      posti_offerti: {
+        Row: {
+          data: string
+          fascia: Database["public"]["Enums"]["fascia"]
+          posti: number
+          sede_id: string
+        }
+        Insert: {
+          data: string
+          fascia: Database["public"]["Enums"]["fascia"]
+          posti: number
+          sede_id: string
+        }
+        Update: {
+          data?: string
+          fascia?: Database["public"]["Enums"]["fascia"]
+          posti?: number
+          sede_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posti_offerti_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "aperture_future"
+            referencedColumns: ["sede_id"]
+          },
+          {
+            foreignKeyName: "posti_offerti_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "disponibilita_pubblica"
+            referencedColumns: ["sede_id"]
+          },
+          {
+            foreignKeyName: "posti_offerti_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "sedi"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posti_offerti_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "sedi_pubbliche"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prenotazioni: {
         Row: {
           anonimizzata: boolean
@@ -1170,6 +1220,18 @@ export type Database = {
         }[]
       }
       registra_accesso: { Args: never; Returns: boolean }
+      registra_posti_offerti: {
+        Args: { p_da?: string; p_fino_a?: string }
+        Returns: number
+      }
+      sede_aperta: {
+        Args: {
+          p_data: string
+          p_fascia: Database["public"]["Enums"]["fascia"]
+          p_sede_id: string
+        }
+        Returns: boolean
+      }
       sede_attiva: { Args: { p_sede_id: string }; Returns: boolean }
       sede_in_stagione: {
         Args: { p_data: string; p_sede_id: string }

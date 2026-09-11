@@ -243,6 +243,22 @@ L'elenco usato dal filtro automatico di §6.5. Modificabile dal pannello, senza 
 
 Una riga per ogni azzeramento di §6.5 livello 3: chi, quando, quale nome è stato rimosso. Non contiene mai l'email. Si conserva finché esiste l'account della persona: cancellato l'account, sparisce con lui.
 
+### 5.10 posti_offerti
+
+`data`, `sede_id`, `fascia`, `posti`.
+
+Quanti posti una sede ha offerto in un certo giorno e in una certa fascia. Una riga per giorno, sede e fascia, scritta dal giro notturno la notte successiva e mai più modificata. È il denominatore del tasso di occupazione di §6.8.
+
+Esiste perché quel denominatore non ha memoria. Quanti posti c'erano da prendere il 12 marzo dipende dalla capienza, dai giorni di apertura, dai periodi di attività e dalle chiusure di quel giorno (§5.2) — quattro cose che l'amministratore modifica dal pannello senza lasciare traccia. Alzare una capienza oggi riscriverebbe in silenzio tutti i mesi passati, accorciare una stagione farebbe sparire giorni che erano aperti. Il numero va quindi annotato mentre è ancora vero, come già succede per i conteggi delle persone (§6.8) e per i campi `stat_` (§5.3).
+
+Regole della scrittura:
+
+- Avviene **una volta sola per giorno**, la notte dopo. Quello che è annotato non cambia più: una chiusura inserita in seguito non riscrive il passato.
+- Un giorno in cui la sede era chiusa — sospesa, fuori stagione, giorno non di apertura, o chiusura anche solo su quella fascia — vale **zero**. Zero e "nessuna riga" sono due cose diverse: zero vuol dire chiusa, nessuna riga vuol dire che il giro non è girato.
+- Si annota **da quando la funzione entra in servizio, mai all'indietro**. Il tasso di occupazione è quindi esatto dalla messa in esercizio in avanti, e per i giorni precedenti non è calcolabile in alcun modo.
+- Se il giro resta fermo qualche notte, alla ripartenza recupera i giorni mancanti con le impostazioni di quel momento. È l'unica approssimazione ammessa.
+- Nessuna riga corrisponde a una persona: un giorno, una sede, una fascia e un numero. La legge il solo motore delle statistiche (§6.8).
+
 ---
 
 ## 6. Funzionamento
@@ -442,7 +458,8 @@ Le ultime due voci non appartengono al passo che costruisce il pannello: le stat
 Solo **aggregate e anonime**. Nessun dato riferibile a una persona.
 
 - Prenotazioni per mese, per sede.
-- Tasso di occupazione medio, per sede e per fascia.
+- Tasso di occupazione medio, per sede e per fascia: prenotazioni attive diviso posti offerti, **sui soli giorni in cui la sede era aperta**. Un giorno di chiusura non pesa né sopra né sotto: la misura dice quanto sono usati gli spazi quando ci sono, non quanto spesso siano chiusi (decisione dell'11/09).
+  I posti offerti si leggono da `posti_offerti` (§5.10), annotati notte per notte perché il denominatore, a differenza delle prenotazioni, non sopravvive a una modifica della capienza o del calendario. Per questo il tasso è calcolabile **solo dai giorni successivi alla messa in esercizio** di quell'annotazione: per i giorni precedenti non esiste e non si ricostruisce.
 - Persone distinte che hanno usato gli spazi in un mese (conteggio, senza elenco), sia in totale sia per sede — due numeri distinti, perché chi in un mese usa due sedi conta in entrambe ma una volta sola nel totale: la somma delle sedi non è il totale.
   Questo conteggio non si può ricavare dallo storico, perché dopo l'anonimizzazione non si sa più se dieci prenotazioni di marzo fossero di dieci persone o di una venuta dieci volte. Viene quindi calcolato **nel momento stesso in cui il legame viene reciso** e conservato come semplice conteggio per mese e per sede. Come per i dati demografici qui sotto, il motore unisce due fonti: lo storico da quei conteggi, gli ultimi 30 giorni dalle prenotazioni ancora collegate. Conta come "aver usato" una prenotazione attiva e non annullata: finché non esiste il check-in di §9 il sistema non sa chi si sia davvero presentato.
 - Tasso di mancata presentazione, se e quando esisterà il check-in (§9).
@@ -649,7 +666,7 @@ Comuni: Ronco Coworking e Bar Soana → Ronco Canavese; Valprato Coworking, Valp
 8. Pannello di amministrazione
 9. Email automatiche: il promemoria della sera prima (§6.3) e i due avvisi di moderazione (§6.5). Porta con sé il programmatore di orari su cui si appoggeranno le pulizie del passo 11
 10. Diritti dell'interessato: scarica dati, cancella account
-11. Pulizie automatiche notturne
+11. Pulizie automatiche notturne, e con loro l'annotazione dei posti offerti (§5.10): non è una pulizia, ma è l'unica cosa del passo 12 che va messa in esercizio prima del rilascio, perché il suo dato non si recupera dopo
 12. Statistiche ed esportazione
 13. Installabilità sul telefono e funzionamento offline in lettura
 

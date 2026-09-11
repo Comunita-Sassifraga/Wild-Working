@@ -282,6 +282,12 @@ what to do next, not what went wrong internally.
   SQL because it must also hold where application code cannot be trusted to
   have run. Do not reimplement the five conditions of SPEC §5.2 (including
   `giorni_apertura`) in more than one place, and never in TypeScript.
+  The four conditions that describe the sede itself — everything but the
+  booking window — are `public.sede_aperta(sede_id, data, fascia)`, and
+  `sede_prenotabile` is defined as "in the window **and** `sede_aperta`".
+  Use `sede_aperta` for a day already gone, where the window is always false
+  and the question is whether the sede was open: that is what the nightly
+  `posti_offerti` record of SPEC §5.10 asks. Never a third copy of the rules.
 - Configurable values from SPEC §10 live in `config/limits.ts`, not inline.
 - Errors shown to users are in plain Italian, no technical jargon, and always
   say what to do next.
@@ -347,6 +353,13 @@ These exist and must never be deleted or weakened to make a build pass:
   optional values into `stat_*` when consent is active, copies nothing when it
   is absent or revoked, and copies nothing when the trigger is an art. 17
   erasure; `stat_*` is empty on every booking not yet anonymised.
+- `tests/posti-offerti.test.ts` — the nightly record of SPEC §5.10 writes one
+  row per giorno, sede and fascia; a day the sede was shut is `0` and not a
+  missing row; a day already written never changes, whatever the capienza or
+  the calendar does afterwards; a day outside the booking window is still
+  recorded for what it offered (`sede_aperta`, not `sede_prenotabile`); two
+  overlapping runs write once and a skipped night is caught up; the table and
+  `registra_posti_offerti()` are unreachable by anon and authenticated.
 - `tests/booking-window.test.ts` — with `FINESTRA_GIORNI = 14` and the clock
   frozen at 2026-08-15 (Europe/Rome), a booking for 2026-08-29 succeeds and one
   for 2026-08-30 is rejected. The same assertions must hold with the system
