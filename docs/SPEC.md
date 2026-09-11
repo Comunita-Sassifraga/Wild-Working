@@ -672,6 +672,8 @@ Comuni: Ronco Coworking e Bar Soana → Ronco Canavese; Valprato Coworking, Valp
 
 Ogni passo si considera concluso solo quando funziona, è salvato nel controllo di versione, e i test passano.
 
+**Nota dell'11/09.** Il passo 12 è rimandato a dopo il rilascio del prototipo, e si riprende quando serve la prima rendicontazione. Non ha vincoli che obblighino a farlo prima: tutto ciò che non si recupera più tardi — i campi `stat_` (§5.3), i conteggi delle persone distinte (§6.8) e i posti offerti (§5.10) — entra in esercizio col passo 11 e si accumula da solo, anche senza nessuna schermata che lo legga. L'ordine effettivo è quindi 11, 13, 12.
+
 ---
 
 ## 13. Identità visiva

@@ -340,7 +340,8 @@ the Auth service. Local emails land in Mailpit at http://127.0.0.1:54324.
 
 ## Required tests
 
-These exist and must never be deleted or weakened to make a build pass:
+These exist and must never be deleted or weakened to make a build pass —
+except the one marked as still to come:
 
 - `tests/concurrency.test.ts` — N simultaneous bookings on a sede with capacity
   M must produce exactly min(N, M) successes.
@@ -380,9 +381,11 @@ These exist and must never be deleted or weakened to make a build pass:
   to somebody who booked after that day's run. `promemoria_da_inviare()` is
   unreachable by anon and authenticated, and `promemoria_inviato_il` is
   readable by neither.
-- `tests/statistiche.test.ts` — no statistics view or CSV export returns an
-  `email`, a `nome_pubblico` or a `utente_id`; no returned row maps to a single
-  user; a category containing one person is still reported with its real count.
+- `tests/statistiche.test.ts` — **not written yet: it arrives with step 12,
+  postponed to after the prototype release (SPEC §12).** When it does: no
+  statistics view or CSV export returns an `email`, a `nome_pubblico` or a
+  `utente_id`; no returned row maps to a single user; a category containing
+  one person is still reported with its real count.
 - `tests/dati-facoltativi.test.ts` — the five optional fields are unreachable
   from any anonymous query, from the public page and from the referente view;
   registration completes with all of them empty; revocation clears all five and
