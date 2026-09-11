@@ -365,6 +365,56 @@ export type Database = {
           },
         ]
       }
+      persone_per_mese: {
+        Row: {
+          id: string
+          mese: string
+          persone: number
+          sede_id: string | null
+        }
+        Insert: {
+          id?: string
+          mese: string
+          persone?: number
+          sede_id?: string | null
+        }
+        Update: {
+          id?: string
+          mese?: string
+          persone?: number
+          sede_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "persone_per_mese_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "aperture_future"
+            referencedColumns: ["sede_id"]
+          },
+          {
+            foreignKeyName: "persone_per_mese_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "disponibilita_pubblica"
+            referencedColumns: ["sede_id"]
+          },
+          {
+            foreignKeyName: "persone_per_mese_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "sedi"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "persone_per_mese_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "sedi_pubbliche"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prenotazioni: {
         Row: {
           anonimizzata: boolean
@@ -1031,6 +1081,10 @@ export type Database = {
           p_max_rete: number
         }
         Returns: boolean
+      }
+      conta_persone_in_uscita: {
+        Args: { p_soglia?: string; p_utente_id?: string }
+        Returns: undefined
       }
       dentro_giorno_mese: {
         Args: { p_data: string; p_fine: string; p_inizio: string }

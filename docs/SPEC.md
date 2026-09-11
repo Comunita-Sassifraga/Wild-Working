@@ -443,7 +443,8 @@ Solo **aggregate e anonime**. Nessun dato riferibile a una persona.
 
 - Prenotazioni per mese, per sede.
 - Tasso di occupazione medio, per sede e per fascia.
-- Persone distinte che hanno usato gli spazi in un mese (conteggio, senza elenco).
+- Persone distinte che hanno usato gli spazi in un mese (conteggio, senza elenco), sia in totale sia per sede — due numeri distinti, perché chi in un mese usa due sedi conta in entrambe ma una volta sola nel totale: la somma delle sedi non è il totale.
+  Questo conteggio non si può ricavare dallo storico, perché dopo l'anonimizzazione non si sa più se dieci prenotazioni di marzo fossero di dieci persone o di una venuta dieci volte. Viene quindi calcolato **nel momento stesso in cui il legame viene reciso** e conservato come semplice conteggio per mese e per sede. Come per i dati demografici qui sotto, il motore unisce due fonti: lo storico da quei conteggi, gli ultimi 30 giorni dalle prenotazioni ancora collegate. Conta come "aver usato" una prenotazione attiva e non annullata: finché non esiste il check-in di §9 il sistema non sa chi si sia davvero presentato.
 - Tasso di mancata presentazione, se e quando esisterà il check-in (§9).
 - **Distribuzione dei dati facoltativi**: età, genere, professione, motivo della visita, residenza. Sempre come conteggi per categoria, mai come elenco di persone.
   Su tutto lo storico le statistiche demografiche si calcolano dai campi `stat_` delle prenotazioni anonimizzate (§5.3); sugli ultimi 30 giorni, dai dati dell'utente. Il motore deve unire le due fonti senza contare due volte la stessa prenotazione.
@@ -483,7 +484,7 @@ Le stesse due regole valgono per il CSV esportato, che è la via più facile per
 | Cosa | Quando | Come |
 |---|---|---|
 | Prenotazioni oltre 30 giorni | Ogni notte | Si recide il legame con l'utente. Restano il conteggio, la sede e — se il consenso è attivo — i cinque valori facoltativi copiati nei campi `stat_` (§5.3), senza sapere di chi fossero. |
-| Account senza accessi da 24 mesi | Ogni notte | Avviso via email a 23 mesi; cancellazione a 24. |
+| Account senza accessi da 24 mesi | Ogni notte | Avviso via email a 23 mesi; cancellazione a 24. **L'avviso è condizione della cancellazione:** un account che non è stato avvisato almeno un mese prima non viene chiuso, viene avvisato. Serve a un giro rimasto spento a lungo, che alla ripartenza deve avvisare e non cancellare tutti in una notte. |
 | Richieste di accesso mai completate | Ogni notte | Cancellate dopo 24 ore |
 | Link di accesso | 15 minuti | Non più utilizzabili; non ne resta traccia |
 | Impronte delle richieste di link (§6.1) | 1 ora | Cancellate. Sono hash con chiave, non indirizzi: nessuna email o indirizzo di rete viene conservato |

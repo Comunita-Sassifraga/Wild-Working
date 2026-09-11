@@ -546,6 +546,198 @@ describe("§6.1 le impronte delle richieste di link durano un'ora", () => {
 
 // ---------------------------------------------------------------------------
 
+describe("§6.8 persone distinte per mese", () => {
+  const utenti: UtenteTest[] = [];
+  const sedi: string[] = [];
+  let sedeA: string;
+  let sedeB: string;
+
+  /** Primo giorno del mese, tanti mesi fa: tutto quel mese è oltre i 30 giorni. */
+  function primoDelMeseFa(mesi: number): string {
+    const d = new Date();
+    d.setDate(1);
+    d.setMonth(d.getMonth() - mesi);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-01`;
+  }
+
+  const MESE = primoDelMeseFa(4);
+  const giorno = (n: number) => `${MESE.slice(0, 8)}${String(n).padStart(2, "0")}`;
+  const G05 = giorno(5);
+  const G12 = giorno(12);
+  const G20 = giorno(20);
+
+  /** Quanti giorni fa è una data: serve a scegliere dove cade la soglia. */
+  function giorniFa(data: string): number {
+    return Math.round((Date.parse(oggiRoma()) - Date.parse(data)) / 86_400_000);
+  }
+
+  async function personeDi(sedeId: string | null): Promise<number> {
+    const q = servizio().from("persone_per_mese").select("persone").eq("mese", MESE);
+    const { data } = await (sedeId === null ? q.is("sede_id", null) : q.eq("sede_id", sedeId))
+      .maybeSingle();
+    return data?.persone ?? 0;
+  }
+
+  // Un numero di posto diverso per ogni riga: l'indice unico di §8.1 non
+  // ammette due volte lo stesso posto sullo stesso giorno e fascia.
+  let posto = 0;
+  async function prenota(
+    u: UtenteTest,
+    data: string,
+    fascia: "MATTINA" | "POMERIGGIO",
+    sedeId: string,
+  ): Promise<string> {
+    posto += 1;
+    return inserisciPrenotazioneDiretta({
+      utente_id: u.id,
+      sede_id: sedeId,
+      data,
+      fascia,
+      posto_progressivo: posto,
+    });
+  }
+
+  /** Tre presenze nello stesso mese, di cui una giornata intera. Vale 1. */
+  let ripetuta: UtenteTest;
+  /** Una sola presenza. Vale 1. */
+  let unaVolta: UtenteTest;
+  /** Due sedi nello stesso mese: 1 su ciascuna, 1 sul totale. */
+  let dueSedi: UtenteTest;
+  /** Solo una giornata intera: due righe recise insieme, vale 1. */
+  let giornataIntera: UtenteTest;
+  /** Presenze agli estremi del mese: recise in due notti diverse. Vale 1. */
+  let spalmata: UtenteTest;
+  /** Una prenotazione annullata: non è una presenza, vale 0. */
+  let annullata: UtenteTest;
+
+  let totaleIniziale = 0;
+
+  beforeAll(async () => {
+    sedeA = await creaSede({ capienza: 50 });
+    sedeB = await creaSede({ capienza: 50 });
+    sedi.push(sedeA, sedeB);
+
+    [ripetuta, unaVolta, dueSedi, giornataIntera, spalmata, annullata] = await Promise.all([
+      creaUtente(),
+      creaUtente(),
+      creaUtente(),
+      creaUtente(),
+      creaUtente(),
+      creaUtente(),
+    ]);
+    utenti.push(ripetuta, unaVolta, dueSedi, giornataIntera, spalmata, annullata);
+
+    await prenota(ripetuta, G05, "MATTINA", sedeA);
+    await prenota(ripetuta, G05, "POMERIGGIO", sedeA);
+    await prenota(ripetuta, G12, "MATTINA", sedeA);
+
+    await prenota(unaVolta, G05, "MATTINA", sedeA);
+
+    // Due sedi lo stesso giorno: fasce diverse, perché §6.3 non ammette due
+    // prenotazioni attive della stessa persona sulla stessa fascia.
+    await prenota(dueSedi, G12, "MATTINA", sedeA);
+    await prenota(dueSedi, G12, "POMERIGGIO", sedeB);
+
+    await prenota(giornataIntera, G20, "MATTINA", sedeA);
+    await prenota(giornataIntera, G20, "POMERIGGIO", sedeA);
+
+    await prenota(spalmata, G05, "MATTINA", sedeA);
+    await prenota(spalmata, G20, "MATTINA", sedeA);
+
+    const idAnnullata = await prenota(annullata, G20, "POMERIGGIO", sedeA);
+    await servizio().from("prenotazioni").update({ stato: "ANNULLATA" }).eq("id", idAnnullata);
+
+    totaleIniziale = await personeDi(null);
+  });
+
+  afterAll(async () => {
+    await pulisci({ utenti, sedi });
+  });
+
+  it("prima di recidere qualcosa il mese non ha ancora un conteggio di sede", async () => {
+    expect(await personeDi(sedeA)).toBe(0);
+    expect(await personeDi(sedeB)).toBe(0);
+  });
+
+  it("chi ha ancora una presenza in quel mese non viene contato troppo presto", async () => {
+    // Soglia a metà mese: escono le presenze del 5, restano quelle del 12 e
+    // del 20. Solo chi non ha più niente in quel mese viene contato.
+    const { error } = await servizio().rpc("anonimizza_prenotazioni", {
+      p_giorni: giorniFa(G12),
+    });
+    expect(error).toBeNull();
+
+    // Contata: solo unaVolta. ripetuta ha ancora il 12, spalmata ha il 20.
+    expect(await personeDi(sedeA)).toBe(1);
+    expect(await personeDi(null)).toBe(totaleIniziale + 1);
+  });
+
+  it("al taglio seguente ciascuna persona è contata una volta sola", async () => {
+    const { error } = await servizio().rpc("anonimizza_prenotazioni", {
+      p_giorni: GIORNI_ANONIMIZZAZIONE,
+    });
+    expect(error).toBeNull();
+
+    // Cinque persone hanno usato la sede A in quel mese: unaVolta, ripetuta
+    // (tre presenze, una delle quali giornata intera), dueSedi, spalmata
+    // (recisa in due notti diverse) e giornataIntera (due righe insieme).
+    // La settima persona, quella annullata, non c'è stata.
+    expect(await personeDi(sedeA)).toBe(5);
+  });
+
+  it("chi ha usato due sedi conta in entrambe, ma una volta sola nel totale", async () => {
+    expect(await personeDi(sedeB)).toBe(1);
+    // Totale: le stesse cinque persone della sede A. dueSedi non conta due
+    // volte, quindi la somma delle sedi (5 + 1) è più alta del totale.
+    expect(await personeDi(null)).toBe(totaleIniziale + 5);
+  });
+
+  it("un terzo giro non conta più niente: non c'è più niente da recidere", async () => {
+    await servizio().rpc("anonimizza_prenotazioni", { p_giorni: GIORNI_ANONIMIZZAZIONE });
+    expect(await personeDi(sedeA)).toBe(5);
+    expect(await personeDi(null)).toBe(totaleIniziale + 5);
+  });
+
+  it("chiudendo un account il mese passato viene contato, quello futuro no", async () => {
+    const u = await creaUtente();
+    utenti.push(u);
+    const meseFuturo = `${oggiRoma().slice(0, 8)}01`;
+
+    await prenota(u, G12, "POMERIGGIO", sedeA);
+    await prenota(u, aggiungiGiorni(oggiRoma(), 1), "MATTINA", sedeA);
+
+    const primaFuturo = await servizio()
+      .from("persone_per_mese")
+      .select("persone")
+      .eq("mese", meseFuturo)
+      .eq("sede_id", sedeA)
+      .maybeSingle();
+
+    await cancellaMioAccount(u.client);
+
+    // La presenza passata c'è stata: il mese guadagna una persona.
+    expect(await personeDi(sedeA)).toBe(6);
+    expect(await personeDi(null)).toBe(totaleIniziale + 6);
+
+    // La prenotazione futura è stata annullata dalla cancellazione: non è
+    // una presenza, e il mese in corso non guadagna niente.
+    const dopoFuturo = await servizio()
+      .from("persone_per_mese")
+      .select("persone")
+      .eq("mese", meseFuturo)
+      .eq("sede_id", sedeA)
+      .maybeSingle();
+    expect(dopoFuturo.data?.persone ?? 0).toBe(primaFuturo.data?.persone ?? 0);
+  });
+
+  it("nessuna riga porta un'email, un nome pubblico o un identificativo", async () => {
+    const { data } = await servizio().from("persone_per_mese").select("*").limit(1).single();
+    expect(Object.keys(data ?? {}).sort()).toEqual(["id", "mese", "persone", "sede_id"]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+
 describe("§7 le pulizie sono irraggiungibili da chi non è il mestiere", () => {
   const anon = visitatore();
   const utenti: UtenteTest[] = [];
@@ -570,6 +762,7 @@ describe("§7 le pulizie sono irraggiungibili da chi non è il mestiere", () => 
     ["cancella_richieste_incomplete", { p_ore: 24 }],
     ["cancella_impronte_scadute", {}],
     ["cancella_consensi_scaduti", { p_mesi: MESI_CONSERVAZIONE_CONSENSI }],
+    ["conta_persone_in_uscita", { p_soglia: oggiRoma() }],
   ] as const;
 
   // La chiamata è uniforme apposta: i tipi generati danno a ciascuna
@@ -595,6 +788,15 @@ describe("§7 le pulizie sono irraggiungibili da chi non è il mestiere", () => 
     const daFuori = await anon.from("account_chiusi").select("utente_id");
     expect(daFuori.error).not.toBeNull();
     const daDentro = await u.client.from("account_chiusi").select("utente_id");
+    expect(daDentro.error).not.toBeNull();
+  });
+
+  // Il passo 12 aprirà questa tabella all'amministratore, insieme alle altre
+  // statistiche. Finché non lo fa, non la legge nessuno.
+  it("i conteggi delle persone per mese non sono ancora leggibili da nessuno", async () => {
+    const daFuori = await anon.from("persone_per_mese").select("persone");
+    expect(daFuori.error).not.toBeNull();
+    const daDentro = await u.client.from("persone_per_mese").select("persone");
     expect(daDentro.error).not.toBeNull();
   });
 });
