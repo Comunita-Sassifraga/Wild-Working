@@ -690,6 +690,55 @@
       "benvenuto": "Il tuo accesso è attivo: da qui vedrai le attività proposte dagli abitanti della valle.",
       "inArrivo": "Il programma non è ancora pubblicato. Torna fra qualche giorno: non devi rifare niente, l'accesso resta.",
       "torna": "Torna alla disponibilità"
+    },
+    "elenco": {
+      "introduzione": "Le attività proposte dagli abitanti della valle, fino alla fine dell'edizione. Scegli quella che ti va e prendi il tuo posto.",
+      "settimana": "Dal {da} al {a}",
+      "orario": "ore {orario}",
+      "posti": "{numero} posti liberi",
+      "unPosto": "1 posto libero",
+      "completa": "Completa",
+      "cominciata": "Già cominciata",
+      "giaIscritto": "Ci sei già iscritto",
+      "vedi": "Vedi l'attività",
+      "nonTrovata": "Quell'attività non c'è più. Qui sotto ci sono le altre."
+    },
+    "attivita": {
+      "proposta": "Proposta da {nome}",
+      "quando": "{giorno}, ore {orario}",
+      "cosaPortare": "Cosa portare",
+      "lingua": "Lingua",
+      "chiViene": "Chi viene",
+      "nessuno": "Non si è ancora iscritto nessuno.",
+      "iscriviti": "Iscriviti",
+      "iscritto": "Hai un posto in questa attività.",
+      "annulla": "Annulla l'iscrizione",
+      "avvisoDisdetta": "Mancano meno di {ore} ore: chi ti aspetta si sta già preparando. Annulla solo se non puoi proprio venire.",
+      "cominciata": "L'attività è cominciata. Puoi ancora vedere dov'era e con chi, ma non prendervi posto.",
+      "completa": {
+        "titolo": "Completa",
+        "testo": "I posti sono esauriti. Se si libera un posto lo saprai dagli altri partecipanti: per entrare al posto di chi rinuncia, scrivi a {indirizzo}."
+      },
+      "contatti": {
+        "titolo": "Come arrivare e come avvisare",
+        "nota": "Il numero serve per avvisare {nome} se hai un imprevisto il giorno stesso. Non usarlo per altro."
+      },
+      "nomePubblico": {
+        "invito": "Se vuoi che chi ti ospita sappia come ti chiami, puoi attivare il nome pubblico.",
+        "collegamento": "Vai alle impostazioni"
+      },
+      "torna": "Torna alle attività",
+      "esiti": {
+        "iscritto": "Ci sei. Qui sotto trovi come arrivare e il numero a cui avvisare.",
+        "annullata": "Hai annullato l'iscrizione. Il posto torna libero per qualcun altro.",
+        "POSTI_ESAURITI": "Nel frattempo i posti sono finiti. Se si libera un posto lo saprai dagli altri partecipanti: per entrare al posto di chi rinuncia, scrivi a {indirizzo}.",
+        "ISCRIZIONE_DUPLICATA": "Hai già un posto in questa attività.",
+        "ATTIVITA_NON_DISPONIBILE": "Questa attività non è più disponibile. Guarda le altre del programma.",
+        "NON_ABILITATO": "Il tuo accesso alle attività non è più attivo. Scrivi a {indirizzo}.",
+        "ATTIVITA_COMINCIATA": "L'attività è già cominciata: non si può più prendere posto.",
+        "TARDI": "L'attività è già cominciata: non si può più annullare. Avvisa chi ti aspetta.",
+        "ERRORE": "Non siamo riusciti a registrare la tua richiesta. Riprova tra qualche minuto."
+      }
     }
   },
   "accesso": {

@@ -2,8 +2,15 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { bottonePrimario, campo } from "@/components/controlli";
 import { EMAIL_ASSISTENZA_ABITANTI } from "@/config/limits";
+import { completa, perSettimana } from "@/lib/abitanti/elenco";
 import { utenteAttuale } from "@/lib/auth/sessione";
+import { dataBreve, dataEstesa, ora } from "@/lib/dates";
 import { edizioneAttiva, sonoAbilitato } from "@/lib/db/abitanti";
+import {
+  attivitaPubblicate,
+  mieIscrizioni,
+  type AttivitaElencata,
+} from "@/lib/db/iscrizioni";
 import { clientServer } from "@/lib/db/server";
 import { conValori, m } from "@/lib/messaggi";
 import { inserisciCodiceAzione } from "./azioni";
@@ -16,11 +23,12 @@ import { inserisciCodiceAzione } from "./azioni";
  * There is no second address, because the button of §15.5 is one button and
  * cannot know in advance who will press it.
  *
- * At this step the list does not exist yet — it arrives with step 17 — so
- * what an enabled person reads is one line saying the programme is not
- * published. §15.14 puts it exactly that way: "si può generare un
- * cartoncino, inserirne il codice, e diventare abilitati, anche se non c'è
- * ancora niente da vedere".
+ * With an abilitazione it is the programme of §15.6: the published
+ * activities of the active edition, in chronological order, grouped by week,
+ * bounded by the edizione and never by the rolling window (rule 21). Until
+ * the amministratore publishes the first card it is still the one line
+ * saying the programme is not out yet — which is what somebody who has just
+ * typed in their code will read on the day they arrive.
  *
  * Somebody signed out is sent to the sign-in page, which is the whole of the
  * QR mechanism (§15.5): they sign in normally and land on the availability
@@ -42,6 +50,8 @@ const t = m.abitanti;
  * already in the footer — rather than a gap in a sentence.
  */
 const assistenza = EMAIL_ASSISTENZA_ABITANTI ?? m.pieDiPagina.email;
+
+const uno = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
 function Codice({ esito }: { esito?: string }) {
   const esiti: Record<string, string> = t.codice.esiti;
@@ -90,10 +100,103 @@ function Codice({ esito }: { esito?: string }) {
   );
 }
 
+/**
+ * One activity as the list shows it — SPEC §15.6.
+ *
+ * Level 1 and nothing else: title, the proposer's first name, day and hour,
+ * the rough place, and how many places are left or "Completa". The
+ * description, which is level 1 too, stays for the detail: twenty-five cards
+ * of four thousand characters are not a list.
+ *
+ * "Ci sei già iscritto" is not in §15.6. It is here because without it a
+ * list of twenty-five entries does not say where one already has a place,
+ * and the only way to find out would be to open each one. It is a count of
+ * the reader's own rows, never anybody else's.
+ */
+function Voce({ attivita, iscritto }: { attivita: AttivitaElencata; iscritto: boolean }) {
+  const e = t.elenco;
+  const piena = completa(attivita);
+
+  return (
+    <li className="border-b border-linea py-6">
+      <h3 className="text-titolo-sezione font-grassetto">
+        <Link href={`/abitanti/${attivita.id}`}>{attivita.titolo}</Link>
+      </h3>
+
+      {attivita.abitanteNome && (
+        <p className="mt-2">{conValori(t.attivita.proposta, { nome: attivita.abitanteNome })}</p>
+      )}
+
+      <p className="mt-2 text-testo-secondario">
+        {attivita.data && dataEstesa(attivita.data)}
+        {attivita.oraInizio && ` · ${conValori(e.orario, { orario: ora(attivita.oraInizio) })}`}
+        {attivita.luogoGenerico && ` · ${attivita.luogoGenerico}`}
+      </p>
+
+      {/* Colour never carries this on its own (rule 14): the words say it. */}
+      <p className="mt-2">
+        {!attivita.ancoraAperta
+          ? e.cominciata
+          : piena
+            ? e.completa
+            : attivita.postiRimasti === 1
+              ? e.unPosto
+              : conValori(e.posti, { numero: attivita.postiRimasti })}
+        {iscritto && ` · ${e.giaIscritto}`}
+      </p>
+    </li>
+  );
+}
+
+/**
+ * The programme — SPEC §15.6. Chronological, grouped by week, days with
+ * nothing in them absent. Bounded by the edition and never by
+ * FINESTRA_GIORNI (rule 21): a resident arriving on the first day must be
+ * able to plan the whole stay.
+ */
+function Elenco({
+  attivita,
+  iscrizioni,
+}: {
+  attivita: AttivitaElencata[];
+  iscrizioni: Set<string>;
+}) {
+  const e = t.elenco;
+  if (attivita.length === 0) {
+    return (
+      <>
+        <p className="mt-6">{t.abilitato.benvenuto}</p>
+        <p className="mt-4">{t.abilitato.inArrivo}</p>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <p className="mt-6">{e.introduzione}</p>
+      {perSettimana(attivita).map((settimana) => (
+        <section key={settimana.lunedi} className="mt-10">
+          <h2 className="text-titolo-sezione font-grassetto">
+            {conValori(e.settimana, {
+              da: dataBreve(settimana.lunedi),
+              a: dataBreve(settimana.domenica),
+            })}
+          </h2>
+          <ul className="mt-4 border-t border-linea">
+            {settimana.attivita.map((riga) => (
+              <Voce key={riga.id} attivita={riga} iscritto={iscrizioni.has(riga.id)} />
+            ))}
+          </ul>
+        </section>
+      ))}
+    </>
+  );
+}
+
 export default async function PaginaAbitanti({
   searchParams,
 }: {
-  searchParams: Promise<{ esito?: string | string[] }>;
+  searchParams: Promise<{ esito?: string | string[]; attivita?: string | string[] }>;
 }) {
   const [utente, parametri] = await Promise.all([utenteAttuale(), searchParams]);
   if (!utente) redirect("/accedi");
@@ -101,6 +204,15 @@ export default async function PaginaAbitanti({
   const client = await clientServer();
   const [attiva, abilitato] = await Promise.all([edizioneAttiva(client), sonoAbilitato(client)]);
   const esito = Array.isArray(parametri.esito) ? parametri.esito[0] : parametri.esito;
+  const persa = uno(parametri.attivita) === "non-trovata";
+
+  // Asked for only where it can be answered. Without an abilitazione the two
+  // views return nothing anyway (rule 22); not asking is one less round trip,
+  // not the thing that keeps the programme out of sight.
+  const [attivita, iscrizioni] =
+    attiva && abilitato
+      ? await Promise.all([attivitaPubblicate(client), mieIscrizioni(client)])
+      : [[], []];
 
   return (
     <>
@@ -108,16 +220,19 @@ export default async function PaginaAbitanti({
         {t.titolo}
       </h1>
 
+      {persa && (
+        <p role="status" className="mt-6">
+          {t.elenco.nonTrovata}
+        </p>
+      )}
+
       {!attiva ? (
         <>
           <p className="mt-6">{t.chiuso.introduzione}</p>
           <p className="mt-4">{t.chiuso.testo}</p>
         </>
       ) : abilitato ? (
-        <>
-          <p className="mt-6">{t.abilitato.benvenuto}</p>
-          <p className="mt-4">{t.abilitato.inArrivo}</p>
-        </>
+        <Elenco attivita={attivita} iscrizioni={new Set(iscrizioni.map((i) => i.attivitaId))} />
       ) : (
         <Codice esito={esito} />
       )}

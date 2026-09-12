@@ -1172,7 +1172,7 @@ L'indirizzo va comunque tenuto corto e memorizzabile — `/abitanti` — perché
 
 Le attività già passate scompaiono dall'elenco il giorno successivo.
 
-**`/abitanti/[id]` — dettaglio.** La stessa intestazione dell'elenco, più la **descrizione scritta dall'abitante** per esteso, cosa portare, lingua, e l'elenco di chi si è già iscritto **con i nomi pubblici di chi ha dato il consenso**, più il conteggio degli altri. Riusa esattamente il consenso `NOME_PUBBLICO` di §5.5 e la formula di §6.6 — nessun consenso nuovo, nessun testo nuovo da inventare.
+**`/abitanti/[id]` — dettaglio.** La stessa intestazione dell'elenco, più la **descrizione scritta dall'abitante** per esteso, cosa portare, lingua, e l'elenco di chi si è già iscritto **con i nomi pubblici di chi ha dato il consenso**, più il conteggio degli altri — **a chiunque sia abilitato all'edizione, iscritto o no** (§15.11). Riusa esattamente il consenso `NOME_PUBBLICO` di §5.5 e la formula di §6.6 — nessun consenso nuovo, nessun testo nuovo da inventare.
 
 **I dati di livello 2 compaiono solo dopo l'iscrizione**, in un riquadro che prima non c'era: cognome del proponente, telefono, indirizzo esatto, con la nota *"Il numero serve per avvisare Maria se hai un imprevisto il giorno stesso. Non usarlo per altro."* Gli stessi dati arrivano anche nell'email di conferma (§15.10).
 
@@ -1351,10 +1351,10 @@ Si aggiungono alla tabella di §7.
 | Dati dell'abitante, livello 2 — cognome, telefono, indirizzo esatto | — | Permettere a chi partecipa di arrivare e di avvisare in caso di imprevisto | Art. 6.1.a — **stesso consenso**, stesso foglio o stessa email | Solo chi ha un'iscrizione `ATTIVA` su quella attività | Fino alla chiusura dell'edizione |
 | Note interne sull'abitante | — | Organizzare l'attività con il proponente | Art. 6.1.b | Solo amministratore | Fino alla chiusura dell'edizione |
 | Dichiarazione di consenso raccolto | Sì | Dimostrare che il consenso firmato esiste e sapere chi l'ha raccolto | Art. 6.1.c — obbligo di rendicontazione (art. 5.2 GDPR) | Solo amministratore | Come l'attività |
-| **Nome pubblico di chi si iscrive, comunicato al proponente** | — | Far sapere a chi ospita chi arriverà a casa sua | Art. 6.1.b, ed è **comunicazione a un terzo**: il proponente non è un incaricato dell'associazione | Gli altri iscritti alla stessa attività, e il proponente | Fino al giorno successivo all'attività |
+| **Nome pubblico di chi si iscrive, mostrato nel dettaglio dell'attività e comunicato al proponente** | — | Far sapere a chi ospita chi arriverà a casa sua, e far scegliere l'attività in base a chi ci sarà (§1) | Art. 6.1.b, ed è **comunicazione a un terzo**: il proponente non è un incaricato dell'associazione | Tutti gli abilitati all'edizione che aprono quell'attività, e il proponente | Fino al giorno successivo all'attività |
 | Tentativi di inserimento del codice | Sì | Impedire che un codice si indovini per tentativi | Art. 6.1.f — interesse legittimo alla sicurezza | Nessuno: li legge solo il sistema | Un'ora |
 
-La riga sul nome pubblico va detta anche **nell'informativa dei partecipanti**, non solo qui: comunicare a Maria che sabato viene Luca è una comunicazione di un dato personale a una persona che non fa parte dell'associazione, e chi attiva il nome pubblico deve saperlo prima, non dopo. Chi non lo attiva compare nel solo conteggio (§15.9).
+La riga sul nome pubblico va detta anche **nell'informativa dei partecipanti**, non solo qui: comunicare a Maria che sabato viene Luca è una comunicazione di un dato personale a una persona che non fa parte dell'associazione, e chi attiva il nome pubblico deve saperlo prima, non dopo. **Deve sapere anche che il nome compare nel dettaglio dell'attività a chiunque sia abilitato all'edizione, non ai soli iscritti**: è la lettura scelta il 12/09/2026 fra le due che §15.6 e questa tabella lasciavano aperte. Scegliere dove andare in base a chi ci sarà è la ragione per cui questa applicazione esiste (§1), e la platea resta comunque chiusa — i quarantacinque partecipanti dell'edizione. Chi non lo attiva compare nel solo conteggio (§15.9).
 
 **Pulizie aggiuntive**, che si agganciano al giro di `ORA_PULIZIE` già esistente:
 

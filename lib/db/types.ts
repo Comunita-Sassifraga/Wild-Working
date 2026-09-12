@@ -1374,12 +1374,14 @@ export type Database = {
       attivita_elenco: {
         Row: {
           abitante_nome: string | null
+          ancora_aperta: boolean | null
           capienza: number | null
           cosa_portare: string | null
           data: string | null
           descrizione: string | null
           edizione_id: string | null
           id: string | null
+          inizio: string | null
           iscritti: number | null
           lingua_attivita: string | null
           luogo_generico: string | null
@@ -1390,12 +1392,14 @@ export type Database = {
         }
         Insert: {
           abitante_nome?: string | null
+          ancora_aperta?: never
           capienza?: number | null
           cosa_portare?: string | null
           data?: string | null
           descrizione?: string | null
           edizione_id?: string | null
           id?: string | null
+          inizio?: never
           iscritti?: never
           lingua_attivita?: string | null
           luogo_generico?: string | null
@@ -1406,12 +1410,14 @@ export type Database = {
         }
         Update: {
           abitante_nome?: string | null
+          ancora_aperta?: never
           capienza?: number | null
           cosa_portare?: string | null
           data?: string | null
           descrizione?: string | null
           edizione_id?: string | null
           id?: string | null
+          inizio?: never
           iscritti?: never
           lingua_attivita?: string | null
           luogo_generico?: string | null
@@ -1435,12 +1441,14 @@ export type Database = {
           abitante_cognome: string | null
           abitante_nome: string | null
           abitante_telefono: string | null
+          ancora_aperta: boolean | null
           capienza: number | null
           cosa_portare: string | null
           data: string | null
           descrizione: string | null
           edizione_id: string | null
           id: string | null
+          inizio: string | null
           lingua_attivita: string | null
           luogo_esatto: string | null
           luogo_generico: string | null
@@ -1453,12 +1461,14 @@ export type Database = {
           abitante_cognome?: string | null
           abitante_nome?: string | null
           abitante_telefono?: string | null
+          ancora_aperta?: never
           capienza?: number | null
           cosa_portare?: string | null
           data?: string | null
           descrizione?: string | null
           edizione_id?: string | null
           id?: string | null
+          inizio?: never
           lingua_attivita?: string | null
           luogo_esatto?: string | null
           luogo_generico?: string | null
@@ -1471,12 +1481,14 @@ export type Database = {
           abitante_cognome?: string | null
           abitante_nome?: string | null
           abitante_telefono?: string | null
+          ancora_aperta?: never
           capienza?: number | null
           cosa_portare?: string | null
           data?: string | null
           descrizione?: string | null
           edizione_id?: string | null
           id?: string | null
+          inizio?: never
           lingua_attivita?: string | null
           luogo_esatto?: string | null
           luogo_generico?: string | null
@@ -1567,6 +1579,42 @@ export type Database = {
           sede_id: string | null
         }
         Relationships: []
+      }
+      iscritti_attivita: {
+        Row: {
+          attivita_id: string | null
+          nome_pubblico: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iscrizioni_attivita_id_fkey"
+            columns: ["attivita_id"]
+            isOneToOne: false
+            referencedRelation: "attivita"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_attivita_id_fkey"
+            columns: ["attivita_id"]
+            isOneToOne: false
+            referencedRelation: "attivita_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_attivita_id_fkey"
+            columns: ["attivita_id"]
+            isOneToOne: false
+            referencedRelation: "attivita_elenco"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_attivita_id_fkey"
+            columns: ["attivita_id"]
+            isOneToOne: false
+            referencedRelation: "attivita_iscritto"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       mie_prenotazioni: {
         Row: {

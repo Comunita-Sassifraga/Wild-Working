@@ -9,7 +9,19 @@
  */
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { ORE_DISDETTA } from "@/config/limits";
+import { completa, disdettaTardiva, perSettimana } from "@/lib/abitanti/elenco";
 import { aggiungiGiorni, oggiRoma } from "@/lib/dates";
+import {
+  annullaIscrizione,
+  attivitaConLivelli,
+  attivitaPubblicate,
+  iscrivitiAttivita,
+  mieIscrizioni,
+  nomiIscritti,
+  type AttivitaElencata,
+} from "@/lib/db/iscrizioni";
+import { rigaPersone } from "@/lib/presenze";
 import {
   abilita,
   assegnaIncarico,
@@ -22,8 +34,33 @@ import {
   pulisci,
   pulisciEdizioni,
   servizio,
+  visitatore,
   type UtenteTest,
 } from "./setup/supabase";
+
+/**
+ * One row as `attivita_elenco` hands it over, for the pure functions of
+ * lib/abitanti/elenco.ts: they decide how a card reads, never who may read
+ * it, so they can be asked without a database.
+ */
+const finta = (parti: Partial<AttivitaElencata> = {}): AttivitaElencata => ({
+  id: "finta",
+  titolo: "Attivita",
+  descrizione: null,
+  abitanteNome: "Nome",
+  luogoGenerico: "Frazione",
+  data: "2026-09-26",
+  oraInizio: "18:00",
+  oraFine: "20:00",
+  capienza: 4,
+  cosaPortare: null,
+  linguaAttivita: null,
+  iscritti: 0,
+  postiRimasti: 4,
+  ancoraAperta: true,
+  inizio: "2026-09-26T16:00:00Z",
+  ...parti,
+});
 
 describe("§15.7 iscrizioni", () => {
   const edizioni: string[] = [];
@@ -442,6 +479,385 @@ describe("una scheda pubblicata ma non finita (§15.3.2, 12/09/2026)", () => {
 
       const esito = await iscriviti(utente.client, attivita);
       expect(esito.ok).toBe(true);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Step 17 — the same rules, asked the way the pages ask them (§15.14).
+  //
+  // `/abitanti` and `/abitanti/[id]` never touch a table: they go through
+  // lib/db/iscrizioni.ts, under each person's own identity. Everything below
+  // is asked through a real client, never through the service one — what a
+  // fixture may do is not what a person may do.
+  // ---------------------------------------------------------------------------
+  describe("il percorso dalle pagine (§15.6, §15.7)", () => {
+    describe("l'elenco", () => {
+      let abilitato: UtenteTest;
+      let estraneo: UtenteTest;
+      let domani: string;
+      let fraUnaSettimana: string;
+      let bozza: string;
+      let annullata: string;
+
+      beforeAll(async () => {
+        [abilitato, estraneo] = await Promise.all([creaUtente(), creaUtente()]);
+        await abilita(abilitato.id, edizione);
+        domani = await creaAttivita({
+          edizione_id: edizione,
+          data: aggiungiGiorni(oggiRoma(), 1),
+        });
+        fraUnaSettimana = await creaAttivita({
+          edizione_id: edizione,
+          data: aggiungiGiorni(oggiRoma(), 8),
+        });
+        bozza = await creaAttivita({
+          edizione_id: edizione,
+          stato: "BOZZA",
+          consenso_raccolto: false,
+          consenso_modalita: null,
+        });
+        annullata = await creaAttivita({ edizione_id: edizione, stato: "ANNULLATA" });
+      });
+
+      afterAll(async () => {
+        await pulisci({ utenti: [abilitato, estraneo] });
+      });
+
+      it("porta le attività pubblicate dell'edizione attiva, in ordine di data", async () => {
+        const elenco = await attivitaPubblicate(abilitato.client);
+        const ids = elenco.map((a) => a.id);
+        expect(ids).toContain(domani);
+        expect(ids).toContain(fraUnaSettimana);
+        expect(ids.indexOf(domani)).toBeLessThan(ids.indexOf(fraUnaSettimana));
+
+        const date = elenco.flatMap((a) => (a.data ? [a.data] : []));
+        expect([...date].sort()).toEqual(date);
+      });
+
+      it("non porta le bozze né le annullate", async () => {
+        const ids = (await attivitaPubblicate(abilitato.client)).map((a) => a.id);
+        expect(ids).not.toContain(bozza);
+        expect(ids).not.toContain(annullata);
+      });
+
+      it("porta conteggi, mai nomi né identificativi", async () => {
+        const riga = (await attivitaPubblicate(abilitato.client)).find((a) => a.id === domani);
+        expect(riga?.capienza).toBe(4);
+        expect(riga?.iscritti).toBe(0);
+        expect(riga?.postiRimasti).toBe(4);
+
+        for (const colonna of ["utente_id", "email", "nome_pubblico"] as const) {
+          const { data, error } = await abilitato.client
+            .from("attivita_elenco")
+            // The column does not exist in the view: PostgREST refuses the select.
+            .select(colonna);
+          expect(error, colonna).not.toBeNull();
+          expect(data).toBeNull();
+        }
+      });
+
+      it("a chi non è abilitato non porta niente, nemmeno un titolo", async () => {
+        expect(await attivitaPubblicate(estraneo.client)).toEqual([]);
+      });
+
+      it("a un visitatore non porta niente", async () => {
+        expect(await attivitaPubblicate(visitatore())).toEqual([]);
+      });
+
+      it("si raggruppa per settimana, e ogni gruppo tiene una settimana sola", () => {
+        const righe = [
+          finta({ id: "a", data: "2026-09-21" }),
+          finta({ id: "b", data: "2026-09-27" }),
+          finta({ id: "c", data: "2026-09-28" }),
+        ];
+        const settimane = perSettimana(righe);
+        expect(settimane.map((s) => s.lunedi)).toEqual(["2026-09-21", "2026-09-28"]);
+        expect(settimane[0].domenica).toBe("2026-09-27");
+        expect(settimane[0].attivita.map((a) => a.id)).toEqual(["a", "b"]);
+        expect(settimane[1].attivita.map((a) => a.id)).toEqual(["c"]);
+      });
+
+      it("una settimana senza attività non compare", () => {
+        const settimane = perSettimana([
+          finta({ id: "a", data: "2026-09-21" }),
+          finta({ id: "b", data: "2026-10-05" }),
+        ]);
+        expect(settimane.map((s) => s.lunedi)).toEqual(["2026-09-21", "2026-10-05"]);
+      });
+    });
+
+    describe("il dettaglio e i due livelli (§15.8)", () => {
+      let iscritto: UtenteTest;
+      let nonIscritto: UtenteTest;
+      let estraneo: UtenteTest;
+      let attivita: string;
+
+      beforeAll(async () => {
+        [iscritto, nonIscritto, estraneo] = await Promise.all([
+          creaUtente(),
+          creaUtente(),
+          creaUtente(),
+        ]);
+        for (const u of [iscritto, nonIscritto]) await abilita(u.id, edizione);
+        attivita = await creaAttivita({ edizione_id: edizione, capienza: 4 });
+      });
+
+      afterAll(async () => {
+        await pulisci({ utenti: [iscritto, nonIscritto, estraneo] });
+      });
+
+      it("a chi è abilitato dà il livello 1 e niente altro", async () => {
+        const trovata = await attivitaConLivelli(nonIscritto.client, attivita);
+        expect(trovata).not.toBeNull();
+        expect(trovata?.attivita.abitanteNome).toBe("Nome");
+        expect(trovata?.attivita.luogoGenerico).toBe("Frazione di prova");
+        expect(trovata?.attivita.descrizione).toBe("Racconto dell'abitante, con le sue parole.");
+        expect(trovata?.livello2).toBeNull();
+      });
+
+      it("il livello 2 arriva iscrivendosi e se ne va annullando, nello stesso istante", async () => {
+        const presa = await iscrivitiAttivita(iscritto.client, attivita);
+        expect(presa.ok).toBe(true);
+        if (!presa.ok) return;
+
+        const dentro = await attivitaConLivelli(iscritto.client, attivita);
+        expect(dentro?.livello2?.abitanteCognome).toBe("Cognome");
+        expect(dentro?.livello2?.abitanteTelefono).toBe("000 0000000");
+        expect(dentro?.livello2?.luogoEsatto).toBe("Via di prova 1, Frazione di prova");
+
+        const mie = await mieIscrizioni(iscritto.client);
+        expect(mie.map((i) => i.attivitaId)).toContain(attivita);
+
+        const via = await annullaIscrizione(iscritto.client, presa.id);
+        expect(via.ok).toBe(true);
+
+        // Nothing was copied into the page: the view simply stops answering.
+        const fuori = await attivitaConLivelli(iscritto.client, attivita);
+        expect(fuori?.livello2).toBeNull();
+        expect(fuori?.attivita.abitanteNome).toBe("Nome");
+      });
+
+      it("a chi non è abilitato non dice nemmeno che l'attività esiste", async () => {
+        expect(await attivitaConLivelli(estraneo.client, attivita)).toBeNull();
+        expect(await attivitaConLivelli(visitatore(), attivita)).toBeNull();
+      });
+    });
+
+    describe("chi viene (§15.6, la formula di §6.6)", () => {
+      let conNome: UtenteTest;
+      let senzaNome: UtenteTest;
+      let nonIscritto: UtenteTest;
+      let estraneo: UtenteTest;
+      let attivita: string;
+      let passata: string;
+
+      beforeAll(async () => {
+        [conNome, senzaNome, nonIscritto, estraneo] = await Promise.all([
+          creaUtente(),
+          creaUtente(),
+          creaUtente(),
+          creaUtente(),
+        ]);
+        for (const u of [conNome, senzaNome, nonIscritto]) await abilita(u.id, edizione);
+
+        const s = servizio();
+        await s
+          .from("utenti")
+          .update({ nome_pubblico: "Pia", mostra_nome_pubblico: true })
+          .eq("id", conNome.id);
+        await s
+          .from("utenti")
+          .update({ nome_pubblico: "Nino", mostra_nome_pubblico: false })
+          .eq("id", senzaNome.id);
+
+        attivita = await creaAttivita({ edizione_id: edizione, capienza: 4 });
+        for (const u of [conNome, senzaNome]) {
+          const esito = await iscrivitiAttivita(u.client, attivita);
+          if (!esito.ok) throw new Error(`fixture iscrizione failed: ${esito.motivo}`);
+        }
+
+        // An edition that began a week ago, so an activity can be in its past
+        // without falling outside it (§15.3.2).
+        await s
+          .from("edizioni")
+          .update({ data_inizio: aggiungiGiorni(oggiRoma(), -7) })
+          .eq("id", edizione);
+        passata = await creaAttivita({
+          edizione_id: edizione,
+          data: aggiungiGiorni(oggiRoma(), -1),
+          capienza: 4,
+        });
+        await inserisciIscrizioneDiretta({ attivita_id: passata, utente_id: conNome.id });
+      });
+
+      afterAll(async () => {
+        await pulisci({ utenti: [conNome, senzaNome, nonIscritto, estraneo] });
+      });
+
+      it("porta i nomi di chi ha acceso il nome pubblico, e solo quelli", async () => {
+        const nomi = await nomiIscritti(nonIscritto.client, attivita);
+        expect(nomi).toEqual(["Pia"]);
+      });
+
+      it("gli altri stanno nel conteggio, che è la differenza", async () => {
+        const trovata = await attivitaConLivelli(nonIscritto.client, attivita);
+        const nomi = await nomiIscritti(nonIscritto.client, attivita);
+        expect(trovata?.attivita.iscritti).toBe(2);
+        expect((trovata?.attivita.iscritti ?? 0) - nomi.length).toBe(1);
+        expect(rigaPersone(nomi, 1)).toBe(
+          "Pia + 1 persona che preferisce non condividere pubblicamente il nome",
+        );
+      });
+
+      it("il nome non porta con sé nessun identificativo", async () => {
+        for (const colonna of ["utente_id", "email", "id"] as const) {
+          const { data, error } = await nonIscritto.client
+            .from("iscritti_attivita")
+            .select(colonna);
+          expect(error, colonna).not.toBeNull();
+          expect(data).toBeNull();
+        }
+      });
+
+      it("a chi non è abilitato non esce nessun nome", async () => {
+        expect(await nomiIscritti(estraneo.client, attivita)).toEqual([]);
+        expect(await nomiIscritti(visitatore(), attivita)).toEqual([]);
+      });
+
+      it("il giorno dopo l'attività i nomi non escono più a chi non c'era", async () => {
+        // §15.11: that communication lasts until the day after the activity.
+        expect(await nomiIscritti(nonIscritto.client, passata)).toEqual([]);
+      });
+
+      it("ma chi c'era continua a vedere la propria attività", async () => {
+        expect(await nomiIscritti(conNome.client, passata)).toEqual(["Pia"]);
+      });
+    });
+
+    describe("iscriversi e annullare dalle pagine (§15.7)", () => {
+      let titolare: UtenteTest;
+      let altro: UtenteTest;
+      let estraneo: UtenteTest;
+      let attivita: string;
+      let unPosto: string;
+      let cominciata: string;
+
+      beforeAll(async () => {
+        [titolare, altro, estraneo] = await Promise.all([
+          creaUtente(),
+          creaUtente(),
+          creaUtente(),
+        ]);
+        for (const u of [titolare, altro]) await abilita(u.id, edizione);
+        attivita = await creaAttivita({ edizione_id: edizione, capienza: 2 });
+        unPosto = await creaAttivita({ edizione_id: edizione, capienza: 1 });
+        cominciata = await creaAttivita({
+          edizione_id: edizione,
+          data: oggiRoma(),
+          ora_inizio: "00:01",
+          ora_fine: "00:02",
+          capienza: 4,
+        });
+      });
+
+      afterAll(async () => {
+        await pulisci({ utenti: [titolare, altro, estraneo] });
+      });
+
+      it("si prende posto, una volta sola", async () => {
+        const presa = await iscrivitiAttivita(titolare.client, attivita);
+        expect(presa.ok).toBe(true);
+
+        const seconda = await iscrivitiAttivita(titolare.client, attivita);
+        expect(seconda.ok).toBe(false);
+        if (!seconda.ok) expect(seconda.motivo).toBe("ISCRIZIONE_DUPLICATA");
+      });
+
+      it("a posti esauriti si sente dire che sono esauriti, e nient'altro", async () => {
+        // No waiting list to fall into (D22, rule 29).
+        const presa = await iscrivitiAttivita(titolare.client, unPosto);
+        expect(presa.ok).toBe(true);
+
+        const esito = await iscrivitiAttivita(altro.client, unPosto);
+        expect(esito.ok).toBe(false);
+        if (!esito.ok) expect(esito.motivo).toBe("POSTI_ESAURITI");
+      });
+
+      it("senza abilitazione non si prende posto", async () => {
+        const esito = await iscrivitiAttivita(estraneo.client, attivita);
+        expect(esito.ok).toBe(false);
+        if (!esito.ok) expect(esito.motivo).toBe("NON_ABILITATO");
+      });
+
+      it("a attività cominciata non si prende posto", async () => {
+        const esito = await iscrivitiAttivita(altro.client, cominciata);
+        expect(esito.ok).toBe(false);
+        if (!esito.ok) expect(esito.motivo).toBe("ATTIVITA_COMINCIATA");
+      });
+
+      it("nessuno annulla l'iscrizione di un altro", async () => {
+        const mia = (await mieIscrizioni(titolare.client)).find((i) => i.attivitaId === unPosto);
+        expect(mia).toBeTruthy();
+
+        const esito = await annullaIscrizione(altro.client, mia!.id);
+        expect(esito.ok).toBe(false);
+
+        const { data } = await servizio()
+          .from("iscrizioni")
+          .select("stato")
+          .eq("id", mia!.id)
+          .single();
+        expect(data?.stato).toBe("ATTIVA");
+      });
+
+      it("il titolare annulla la propria, e il posto torna libero", async () => {
+        const mia = (await mieIscrizioni(titolare.client)).find((i) => i.attivitaId === unPosto);
+        const esito = await annullaIscrizione(titolare.client, mia!.id);
+        expect(esito.ok).toBe(true);
+
+        // Not a promotion: nobody is queued. The place is simply free again,
+        // and whoever asks next gets it (§15.7).
+        const dopo = await iscrivitiAttivita(altro.client, unPosto);
+        expect(dopo.ok).toBe(true);
+      });
+
+      it("a attività cominciata non si annulla più", async () => {
+        const iscrizione = await inserisciIscrizioneDiretta({
+          attivita_id: cominciata,
+          utente_id: titolare.id,
+        });
+        const esito = await annullaIscrizione(titolare.client, iscrizione);
+        expect(esito.ok).toBe(false);
+
+        const { data } = await servizio()
+          .from("iscrizioni")
+          .select("stato")
+          .eq("id", iscrizione)
+          .single();
+        expect(data?.stato).toBe("ATTIVA");
+      });
+    });
+
+    describe("le frasi che la pagina sceglie", () => {
+      it("«Completa» copre i posti finiti e la scheda senza capienza (§15.3.2)", () => {
+        expect(completa(finta({ capienza: 4, postiRimasti: 2 }))).toBe(false);
+        expect(completa(finta({ capienza: 4, postiRimasti: 0 }))).toBe(true);
+        expect(completa(finta({ capienza: null, postiRimasti: 0 }))).toBe(true);
+      });
+
+      it("l'avviso delle ultime ore compare solo sotto ORE_DISDETTA (§15.7)", () => {
+        const adesso = new Date("2026-09-26T10:00:00Z");
+        const fra = (ore: number) =>
+          new Date(adesso.getTime() + ore * 3_600_000).toISOString();
+
+        expect(disdettaTardiva(finta({ inizio: fra(ORE_DISDETTA + 1) }), adesso)).toBe(false);
+        expect(disdettaTardiva(finta({ inizio: fra(ORE_DISDETTA - 1) }), adesso)).toBe(true);
+        // Already begun: there is no button for the sentence to accompany.
+        expect(
+          disdettaTardiva(finta({ inizio: fra(-1), ancoraAperta: false }), adesso),
+        ).toBe(false);
+        expect(disdettaTardiva(finta({ inizio: null }), adesso)).toBe(false);
+      });
     });
   });
 });
