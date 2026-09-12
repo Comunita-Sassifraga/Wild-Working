@@ -1,0 +1,21 @@
+-- The `Meno di 18` age bracket — SPEC D24, §5.1, §7 "Minori".
+--
+-- The service is open to people under 18 (D24). Until now the lowest bracket
+-- of `fascia_eta` was `18-25`, so a sixteen-year-old who wanted to answer the
+-- optional age question had no honest option and left it empty — which would
+-- have made that share of the public invisible in the §6.8 statistics, or
+-- worse, counted inside `18-25`.
+--
+-- This changes the values an existing field may take, not the closed list of
+-- fields: CLAUDE.md rule 1 is untouched. No age is ever asked as a date of
+-- birth, and nothing here gates anything: the field stays optional and
+-- non-blocking (rule 17).
+--
+-- `before '18-25'` sets the sort order inside the type as well, so a future
+-- `order by eta` comes out youngest first without a CASE.
+--
+-- This file adds the value and does nothing else, on purpose: Postgres
+-- refuses to USE an enum value in the same transaction that adds it, so a
+-- seed row or a check constraint mentioning `Meno di 18` must go in a later
+-- migration, never here.
+alter type public.fascia_eta add value 'Meno di 18' before '18-25';

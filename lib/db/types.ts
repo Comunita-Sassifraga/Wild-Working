@@ -1248,7 +1248,13 @@ export type Database = {
     }
     Enums: {
       fascia: "MATTINA" | "POMERIGGIO"
-      fascia_eta: "18-25" | "26-35" | "36-50" | "51-65" | "Oltre 65"
+      fascia_eta:
+        | "Meno di 18"
+        | "18-25"
+        | "26-35"
+        | "36-50"
+        | "51-65"
+        | "Oltre 65"
       genere: "M" | "F" | "Preferisco non rispondere"
       giorno_settimana: "LUN" | "MAR" | "MER" | "GIO" | "VEN" | "SAB" | "DOM"
       lingua: "it" | "en" | "fr"
@@ -1388,7 +1394,14 @@ export const Constants = {
   public: {
     Enums: {
       fascia: ["MATTINA", "POMERIGGIO"],
-      fascia_eta: ["18-25", "26-35", "36-50", "51-65", "Oltre 65"],
+      fascia_eta: [
+        "Meno di 18",
+        "18-25",
+        "26-35",
+        "36-50",
+        "51-65",
+        "Oltre 65",
+      ],
       genere: ["M", "F", "Preferisco non rispondere"],
       giorno_settimana: ["LUN", "MAR", "MER", "GIO", "VEN", "SAB", "DOM"],
       lingua: ["it", "en", "fr"],

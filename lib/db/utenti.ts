@@ -15,6 +15,7 @@ type RigaUtente = Database["public"]["Tables"]["utenti"]["Row"];
 
 /** The values each of the three closed optional fields may take (§5.1). */
 export const VALORI_ETA: Database["public"]["Enums"]["fascia_eta"][] = [
+  "Meno di 18",
   "18-25",
   "26-35",
   "36-50",
