@@ -14,6 +14,7 @@ import { execSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import { SignJWT } from "jose";
+import { aggiungiGiorni, oggiRoma } from "@/lib/dates";
 import { clientAnonimo, clientConSessione, clientServizio, type Client } from "@/lib/db/client";
 import type { Database } from "@/lib/db/types";
 
@@ -155,12 +156,39 @@ const ORARI_TARDI = {
   ora_fine_pomeriggio: "23:59:59",
 };
 
+/**
+ * Test sedi open every day of the week.
+ *
+ * Same reasoning as ORARI_TARDI, one axis over. The real default is LUN-SAB
+ * (§5.2), so a test that books "tomorrow" against a sede of its own passed
+ * six days out of seven and failed on a Saturday, when tomorrow is a Sunday —
+ * which is how tests/diritti.test.ts came to fail on 2026-09-12 with a
+ * refusal its assertions had nothing to do with. The weekday is irrelevant to
+ * what those tests assert, so a test sede is open on all seven; the tests
+ * about giorni_apertura itself pass their own, and the one that checks the
+ * real default (tests/amministrazione.test.ts) creates its sede through the
+ * admin action and never comes through here.
+ *
+ * A suite whose result depends on the day it is run says nothing on the day
+ * it goes red.
+ */
+const OGNI_GIORNO: Database["public"]["Enums"]["giorno_settimana"][] = [
+  "LUN",
+  "MAR",
+  "MER",
+  "GIO",
+  "VEN",
+  "SAB",
+  "DOM",
+];
+
 export async function creaSede(sede: NuovaSede): Promise<string> {
   const { data, error } = await servizio()
     .from("sedi")
     .insert({
       nome: `Sede di prova ${randomUUID().slice(0, 8)}`,
       comune: "Test",
+      giorni_apertura: OGNI_GIORNO,
       ...ORARI_TARDI,
       ...sede,
     })
@@ -226,11 +254,165 @@ export async function inserisciPrenotazioneDiretta(riga: {
   return data.id;
 }
 
+// ---------------------------------------------------------------------------
+// «Prenota un abitante» — SPEC §15.3. Fixtures for the module.
+//
+// Everything here goes through the service client: it bypasses RLS, which is
+// exactly what a fixture needs and exactly what the tests must never use to
+// assert a permission. What the module allows a person to do is always asked
+// through that person's own client.
+// ---------------------------------------------------------------------------
+
+type NuovaEdizione = Partial<Database["public"]["Tables"]["edizioni"]["Insert"]>;
+
+/** An edition. By default active and running from today for four weeks (§15.3.1). */
+export async function creaEdizione(edizione: NuovaEdizione = {}): Promise<string> {
+  const { data, error } = await servizio()
+    .from("edizioni")
+    .insert({
+      nome: `Edizione di prova ${randomUUID().slice(0, 8)}`,
+      data_inizio: oggiRoma(),
+      data_fine: aggiungiGiorni(oggiRoma(), 28),
+      attiva: true,
+      ...edizione,
+    })
+    .select("id")
+    .single();
+  if (error) throw new Error(`creaEdizione failed: ${error.code}`);
+  return data.id;
+}
+
+type NuovaAttivita = Partial<Database["public"]["Tables"]["attivita"]["Insert"]> & {
+  edizione_id: string;
+};
+
+/**
+ * An activity. Published by default, with the consent tick and its form, so a
+ * test that is not about §15.8 does not have to think about it. Tomorrow, so
+ * it has not begun: the tests about the deadline pass their own date.
+ *
+ * The abitante's data is invented and obviously so — these are a third
+ * party's personal fields (§15.8) and no fixture should look like a real one.
+ */
+export async function creaAttivita(attivita: NuovaAttivita): Promise<string> {
+  const { data, error } = await servizio()
+    .from("attivita")
+    .insert({
+      titolo: `Attivita di prova ${randomUUID().slice(0, 8)}`,
+      descrizione: "Racconto dell'abitante, con le sue parole.",
+      abitante_nome: "Nome",
+      abitante_cognome: "Cognome",
+      abitante_telefono: "000 0000000",
+      luogo_generico: "Frazione di prova",
+      luogo_esatto: "Via di prova 1, Frazione di prova",
+      data: aggiungiGiorni(oggiRoma(), 1),
+      ora_inizio: "18:00",
+      ora_fine: "20:00",
+      capienza: 4,
+      stato: "PUBBLICATA",
+      consenso_raccolto: true,
+      consenso_modalita: "MODULO_CARTACEO_FIRMATO",
+      ...attivita,
+    })
+    .select("id")
+    .single();
+  if (error) throw new Error(`creaAttivita failed: ${error.code}`);
+  return data.id;
+}
+
+/** An abilitazione for a person on an edition (§15.3.4). */
+export async function abilita(
+  utenteId: string,
+  edizioneId: string,
+  opts: { origine?: Database["public"]["Enums"]["origine_abilitazione"]; attiva?: boolean } = {},
+): Promise<string> {
+  const { data, error } = await servizio()
+    .from("abilitazioni")
+    .insert({
+      utente_id: utenteId,
+      edizione_id: edizioneId,
+      origine: opts.origine ?? "CODICE",
+      ...(opts.attiva === false ? { attiva: false, revocata_il: new Date().toISOString() } : {}),
+    })
+    .select("id")
+    .single();
+  if (error) throw new Error(`abilita failed: ${error.code}`);
+  return data.id;
+}
+
+/** Revokes an abilitazione, as the panel of step 15 will (§15.4). */
+export async function revocaAbilitazione(id: string): Promise<void> {
+  const { error } = await servizio()
+    .from("abilitazioni")
+    .update({ attiva: false, revocata_il: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw new Error(`revocaAbilitazione failed: ${error.code}`);
+}
+
+/**
+ * Inserts an iscrizione directly, bypassing iscriviti(). For fixtures the
+ * write path refuses by design — an activity that has already begun, above
+ * all. Never used to assert what a person may do.
+ */
+export async function inserisciIscrizioneDiretta(riga: {
+  attivita_id: string;
+  utente_id: string;
+  posto_progressivo?: number;
+}): Promise<string> {
+  const { data, error } = await servizio()
+    .from("iscrizioni")
+    .insert({ posto_progressivo: 1, ...riga })
+    .select("id")
+    .single();
+  if (error) throw new Error(`insert iscrizione failed: ${error.code}`);
+  return data.id;
+}
+
+/** Signs the caller up, as a page would (§15.7). Never throws on a refusal. */
+export async function iscriviti(
+  client: Client,
+  attivitaId: string,
+): Promise<{ ok: true; id: string } | { ok: false; codice: string }> {
+  const { data, error } = await client.rpc("iscriviti", { p_attivita_id: attivitaId });
+  if (error) return { ok: false, codice: error.code };
+  return { ok: true, id: data };
+}
+
+/**
+ * Removes the module's rows of one or more editions, in dependency order:
+ * iscrizioni before attivita, everything before the edizione itself.
+ */
+export async function pulisciEdizioni(edizioni: string[]): Promise<void> {
+  if (!edizioni.length) return;
+  const s = servizio();
+  const { data: attivita } = await s.from("attivita").select("id").in("edizione_id", edizioni);
+  const ids = (attivita ?? []).map((a) => a.id);
+  if (ids.length) {
+    await s.from("iscrizioni").delete().in("attivita_id", ids);
+    await s.from("attivita").delete().in("id", ids);
+  }
+  await s.from("abilitazioni").delete().in("edizione_id", edizioni);
+  await s.from("codici_invito").delete().in("edizione_id", edizioni);
+  await s.from("edizioni").delete().in("id", edizioni);
+}
+
 /** Removes everything a test created. Consent rows stay: they are append-only by design. */
-export async function pulisci(opts: { utenti?: UtenteTest[]; sedi?: string[] }): Promise<void> {
+export async function pulisci(opts: {
+  utenti?: UtenteTest[];
+  sedi?: string[];
+  /** Editions of §15.3.1, with their attivita, iscrizioni, abilitazioni and codes. */
+  edizioni?: string[];
+}): Promise<void> {
   const s = servizio();
   const ids = (opts.utenti ?? []).map((u) => u.id);
-  if (ids.length) await s.from("prenotazioni").delete().in("utente_id", ids);
+  if (ids.length) {
+    await s.from("prenotazioni").delete().in("utente_id", ids);
+    // RESTRICT on utente_id: these go before the account, as the erasure of
+    // step 20 will make them go.
+    await s.from("iscrizioni").delete().in("utente_id", ids);
+    await s.from("tentativi_codice").delete().in("utente_id", ids);
+  }
+  await pulisciEdizioni(opts.edizioni ?? []);
   if (opts.sedi?.length) {
     await s.from("prenotazioni").delete().in("sede_id", opts.sedi);
     await s.from("sedi").delete().in("id", opts.sedi);

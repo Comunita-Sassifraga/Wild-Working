@@ -34,6 +34,89 @@ export type Database = {
   }
   public: {
     Tables: {
+      abilitazioni: {
+        Row: {
+          attiva: boolean
+          attivata_il: string
+          edizione_id: string
+          id: string
+          origine: Database["public"]["Enums"]["origine_abilitazione"]
+          revocata_da: string | null
+          revocata_il: string | null
+          utente_id: string
+        }
+        Insert: {
+          attiva?: boolean
+          attivata_il?: string
+          edizione_id: string
+          id?: string
+          origine: Database["public"]["Enums"]["origine_abilitazione"]
+          revocata_da?: string | null
+          revocata_il?: string | null
+          utente_id: string
+        }
+        Update: {
+          attiva?: boolean
+          attivata_il?: string
+          edizione_id?: string
+          id?: string
+          origine?: Database["public"]["Enums"]["origine_abilitazione"]
+          revocata_da?: string | null
+          revocata_il?: string | null
+          utente_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "abilitazioni_edizione_id_fkey"
+            columns: ["edizione_id"]
+            isOneToOne: false
+            referencedRelation: "edizioni"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "abilitazioni_revocata_da_fkey"
+            columns: ["revocata_da"]
+            isOneToOne: false
+            referencedRelation: "nomi_pubblici_moderazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "abilitazioni_revocata_da_fkey"
+            columns: ["revocata_da"]
+            isOneToOne: false
+            referencedRelation: "utenti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "abilitazioni_revocata_da_fkey"
+            columns: ["revocata_da"]
+            isOneToOne: false
+            referencedRelation: "utenti_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "abilitazioni_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "nomi_pubblici_moderazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "abilitazioni_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "utenti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "abilitazioni_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "utenti_amministrazione"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       account_chiusi: {
         Row: {
           chiuso_il: string
@@ -48,6 +131,116 @@ export type Database = {
           utente_id?: string
         }
         Relationships: []
+      }
+      attivita: {
+        Row: {
+          abitante_cognome: string | null
+          abitante_nome: string | null
+          abitante_note_interne: string | null
+          abitante_telefono: string | null
+          capienza: number | null
+          consenso_modalita:
+            | Database["public"]["Enums"]["modalita_consenso"]
+            | null
+          consenso_raccolto: boolean
+          consenso_raccolto_da: string | null
+          consenso_raccolto_il: string | null
+          cosa_portare: string | null
+          creata_il: string
+          data: string | null
+          descrizione: string | null
+          edizione_id: string
+          id: string
+          lingua_attivita: string | null
+          luogo_esatto: string | null
+          luogo_generico: string | null
+          ora_fine: string | null
+          ora_inizio: string | null
+          stato: Database["public"]["Enums"]["stato_attivita"]
+          titolo: string | null
+        }
+        Insert: {
+          abitante_cognome?: string | null
+          abitante_nome?: string | null
+          abitante_note_interne?: string | null
+          abitante_telefono?: string | null
+          capienza?: number | null
+          consenso_modalita?:
+            | Database["public"]["Enums"]["modalita_consenso"]
+            | null
+          consenso_raccolto?: boolean
+          consenso_raccolto_da?: string | null
+          consenso_raccolto_il?: string | null
+          cosa_portare?: string | null
+          creata_il?: string
+          data?: string | null
+          descrizione?: string | null
+          edizione_id: string
+          id?: string
+          lingua_attivita?: string | null
+          luogo_esatto?: string | null
+          luogo_generico?: string | null
+          ora_fine?: string | null
+          ora_inizio?: string | null
+          stato?: Database["public"]["Enums"]["stato_attivita"]
+          titolo?: string | null
+        }
+        Update: {
+          abitante_cognome?: string | null
+          abitante_nome?: string | null
+          abitante_note_interne?: string | null
+          abitante_telefono?: string | null
+          capienza?: number | null
+          consenso_modalita?:
+            | Database["public"]["Enums"]["modalita_consenso"]
+            | null
+          consenso_raccolto?: boolean
+          consenso_raccolto_da?: string | null
+          consenso_raccolto_il?: string | null
+          cosa_portare?: string | null
+          creata_il?: string
+          data?: string | null
+          descrizione?: string | null
+          edizione_id?: string
+          id?: string
+          lingua_attivita?: string | null
+          luogo_esatto?: string | null
+          luogo_generico?: string | null
+          ora_fine?: string | null
+          ora_inizio?: string | null
+          stato?: Database["public"]["Enums"]["stato_attivita"]
+          titolo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attivita_consenso_raccolto_da_fkey"
+            columns: ["consenso_raccolto_da"]
+            isOneToOne: false
+            referencedRelation: "nomi_pubblici_moderazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attivita_consenso_raccolto_da_fkey"
+            columns: ["consenso_raccolto_da"]
+            isOneToOne: false
+            referencedRelation: "utenti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attivita_consenso_raccolto_da_fkey"
+            columns: ["consenso_raccolto_da"]
+            isOneToOne: false
+            referencedRelation: "utenti_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attivita_edizione_id_fkey"
+            columns: ["edizione_id"]
+            isOneToOne: false
+            referencedRelation: "edizioni"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cambi_nome: {
         Row: {
@@ -144,6 +337,68 @@ export type Database = {
           },
         ]
       }
+      codici_invito: {
+        Row: {
+          creato_il: string
+          edizione_id: string
+          id: string
+          impronta: string
+          progressivo: number
+          revocato: boolean
+          usato_il: string | null
+          utente_id: string | null
+        }
+        Insert: {
+          creato_il?: string
+          edizione_id: string
+          id?: string
+          impronta: string
+          progressivo: number
+          revocato?: boolean
+          usato_il?: string | null
+          utente_id?: string | null
+        }
+        Update: {
+          creato_il?: string
+          edizione_id?: string
+          id?: string
+          impronta?: string
+          progressivo?: number
+          revocato?: boolean
+          usato_il?: string | null
+          utente_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "codici_invito_edizione_id_fkey"
+            columns: ["edizione_id"]
+            isOneToOne: false
+            referencedRelation: "edizioni"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "codici_invito_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "nomi_pubblici_moderazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "codici_invito_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "utenti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "codici_invito_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "utenti_amministrazione"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       consensi: {
         Row: {
           data_ora: string
@@ -165,6 +420,33 @@ export type Database = {
           tipo?: Database["public"]["Enums"]["tipo_consenso"]
           utente_id?: string
           valore?: Database["public"]["Enums"]["valore_consenso"]
+        }
+        Relationships: []
+      }
+      edizioni: {
+        Row: {
+          attiva: boolean
+          creata_il: string
+          data_fine: string
+          data_inizio: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          attiva?: boolean
+          creata_il?: string
+          data_fine: string
+          data_inizio: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          attiva?: boolean
+          creata_il?: string
+          data_fine?: string
+          data_inizio?: string
+          id?: string
+          nome?: string
         }
         Relationships: []
       }
@@ -235,6 +517,152 @@ export type Database = {
           },
           {
             foreignKeyName: "incarichi_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "utenti_amministrazione"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      iscrizioni: {
+        Row: {
+          annullata_da: string | null
+          annullata_il: string | null
+          anonimizzata: boolean
+          attivita_id: string
+          creata_da: string | null
+          creata_il: string
+          id: string
+          posto_progressivo: number
+          stat_eta: Database["public"]["Enums"]["fascia_eta"] | null
+          stat_genere: Database["public"]["Enums"]["genere"] | null
+          stat_motivo_visita: string | null
+          stat_professione: string | null
+          stat_residenza: Database["public"]["Enums"]["residenza"] | null
+          stato: Database["public"]["Enums"]["stato_iscrizione"]
+          utente_id: string | null
+        }
+        Insert: {
+          annullata_da?: string | null
+          annullata_il?: string | null
+          anonimizzata?: boolean
+          attivita_id: string
+          creata_da?: string | null
+          creata_il?: string
+          id?: string
+          posto_progressivo: number
+          stat_eta?: Database["public"]["Enums"]["fascia_eta"] | null
+          stat_genere?: Database["public"]["Enums"]["genere"] | null
+          stat_motivo_visita?: string | null
+          stat_professione?: string | null
+          stat_residenza?: Database["public"]["Enums"]["residenza"] | null
+          stato?: Database["public"]["Enums"]["stato_iscrizione"]
+          utente_id?: string | null
+        }
+        Update: {
+          annullata_da?: string | null
+          annullata_il?: string | null
+          anonimizzata?: boolean
+          attivita_id?: string
+          creata_da?: string | null
+          creata_il?: string
+          id?: string
+          posto_progressivo?: number
+          stat_eta?: Database["public"]["Enums"]["fascia_eta"] | null
+          stat_genere?: Database["public"]["Enums"]["genere"] | null
+          stat_motivo_visita?: string | null
+          stat_professione?: string | null
+          stat_residenza?: Database["public"]["Enums"]["residenza"] | null
+          stato?: Database["public"]["Enums"]["stato_iscrizione"]
+          utente_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iscrizioni_annullata_da_fkey"
+            columns: ["annullata_da"]
+            isOneToOne: false
+            referencedRelation: "nomi_pubblici_moderazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_annullata_da_fkey"
+            columns: ["annullata_da"]
+            isOneToOne: false
+            referencedRelation: "utenti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_annullata_da_fkey"
+            columns: ["annullata_da"]
+            isOneToOne: false
+            referencedRelation: "utenti_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_attivita_id_fkey"
+            columns: ["attivita_id"]
+            isOneToOne: false
+            referencedRelation: "attivita"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_attivita_id_fkey"
+            columns: ["attivita_id"]
+            isOneToOne: false
+            referencedRelation: "attivita_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_attivita_id_fkey"
+            columns: ["attivita_id"]
+            isOneToOne: false
+            referencedRelation: "attivita_elenco"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_attivita_id_fkey"
+            columns: ["attivita_id"]
+            isOneToOne: false
+            referencedRelation: "attivita_iscritto"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_creata_da_fkey"
+            columns: ["creata_da"]
+            isOneToOne: false
+            referencedRelation: "nomi_pubblici_moderazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_creata_da_fkey"
+            columns: ["creata_da"]
+            isOneToOne: false
+            referencedRelation: "utenti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_creata_da_fkey"
+            columns: ["creata_da"]
+            isOneToOne: false
+            referencedRelation: "utenti_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "nomi_pubblici_moderazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "utenti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_utente_id_fkey"
             columns: ["utente_id"]
             isOneToOne: false
             referencedRelation: "utenti_amministrazione"
@@ -644,6 +1072,46 @@ export type Database = {
         }
         Relationships: []
       }
+      tentativi_codice: {
+        Row: {
+          id: string
+          tentato_il: string
+          utente_id: string
+        }
+        Insert: {
+          id?: string
+          tentato_il?: string
+          utente_id: string
+        }
+        Update: {
+          id?: string
+          tentato_il?: string
+          utente_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tentativi_codice_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "nomi_pubblici_moderazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tentativi_codice_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "utenti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tentativi_codice_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "utenti_amministrazione"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       termini_vietati: {
         Row: {
           creato_da: string | null
@@ -747,6 +1215,243 @@ export type Database = {
           sede_id: string | null
         }
         Relationships: []
+      }
+      attivita_amministrazione: {
+        Row: {
+          abitante_cognome: string | null
+          abitante_nome: string | null
+          abitante_note_interne: string | null
+          abitante_telefono: string | null
+          capienza: number | null
+          consenso_modalita:
+            | Database["public"]["Enums"]["modalita_consenso"]
+            | null
+          consenso_raccolto: boolean | null
+          consenso_raccolto_da: string | null
+          consenso_raccolto_il: string | null
+          cosa_portare: string | null
+          creata_il: string | null
+          data: string | null
+          descrizione: string | null
+          edizione_id: string | null
+          id: string | null
+          iscritti: number | null
+          lingua_attivita: string | null
+          luogo_esatto: string | null
+          luogo_generico: string | null
+          ora_fine: string | null
+          ora_inizio: string | null
+          stato: Database["public"]["Enums"]["stato_attivita"] | null
+          titolo: string | null
+        }
+        Insert: {
+          abitante_cognome?: string | null
+          abitante_nome?: string | null
+          abitante_note_interne?: string | null
+          abitante_telefono?: string | null
+          capienza?: number | null
+          consenso_modalita?:
+            | Database["public"]["Enums"]["modalita_consenso"]
+            | null
+          consenso_raccolto?: boolean | null
+          consenso_raccolto_da?: string | null
+          consenso_raccolto_il?: string | null
+          cosa_portare?: string | null
+          creata_il?: string | null
+          data?: string | null
+          descrizione?: string | null
+          edizione_id?: string | null
+          id?: string | null
+          iscritti?: never
+          lingua_attivita?: string | null
+          luogo_esatto?: string | null
+          luogo_generico?: string | null
+          ora_fine?: string | null
+          ora_inizio?: string | null
+          stato?: Database["public"]["Enums"]["stato_attivita"] | null
+          titolo?: string | null
+        }
+        Update: {
+          abitante_cognome?: string | null
+          abitante_nome?: string | null
+          abitante_note_interne?: string | null
+          abitante_telefono?: string | null
+          capienza?: number | null
+          consenso_modalita?:
+            | Database["public"]["Enums"]["modalita_consenso"]
+            | null
+          consenso_raccolto?: boolean | null
+          consenso_raccolto_da?: string | null
+          consenso_raccolto_il?: string | null
+          cosa_portare?: string | null
+          creata_il?: string | null
+          data?: string | null
+          descrizione?: string | null
+          edizione_id?: string | null
+          id?: string | null
+          iscritti?: never
+          lingua_attivita?: string | null
+          luogo_esatto?: string | null
+          luogo_generico?: string | null
+          ora_fine?: string | null
+          ora_inizio?: string | null
+          stato?: Database["public"]["Enums"]["stato_attivita"] | null
+          titolo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attivita_consenso_raccolto_da_fkey"
+            columns: ["consenso_raccolto_da"]
+            isOneToOne: false
+            referencedRelation: "nomi_pubblici_moderazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attivita_consenso_raccolto_da_fkey"
+            columns: ["consenso_raccolto_da"]
+            isOneToOne: false
+            referencedRelation: "utenti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attivita_consenso_raccolto_da_fkey"
+            columns: ["consenso_raccolto_da"]
+            isOneToOne: false
+            referencedRelation: "utenti_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attivita_edizione_id_fkey"
+            columns: ["edizione_id"]
+            isOneToOne: false
+            referencedRelation: "edizioni"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      attivita_elenco: {
+        Row: {
+          abitante_nome: string | null
+          capienza: number | null
+          cosa_portare: string | null
+          data: string | null
+          descrizione: string | null
+          edizione_id: string | null
+          id: string | null
+          iscritti: number | null
+          lingua_attivita: string | null
+          luogo_generico: string | null
+          ora_fine: string | null
+          ora_inizio: string | null
+          posti_rimasti: number | null
+          titolo: string | null
+        }
+        Insert: {
+          abitante_nome?: string | null
+          capienza?: number | null
+          cosa_portare?: string | null
+          data?: string | null
+          descrizione?: string | null
+          edizione_id?: string | null
+          id?: string | null
+          iscritti?: never
+          lingua_attivita?: string | null
+          luogo_generico?: string | null
+          ora_fine?: string | null
+          ora_inizio?: string | null
+          posti_rimasti?: never
+          titolo?: string | null
+        }
+        Update: {
+          abitante_nome?: string | null
+          capienza?: number | null
+          cosa_portare?: string | null
+          data?: string | null
+          descrizione?: string | null
+          edizione_id?: string | null
+          id?: string | null
+          iscritti?: never
+          lingua_attivita?: string | null
+          luogo_generico?: string | null
+          ora_fine?: string | null
+          ora_inizio?: string | null
+          posti_rimasti?: never
+          titolo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attivita_edizione_id_fkey"
+            columns: ["edizione_id"]
+            isOneToOne: false
+            referencedRelation: "edizioni"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      attivita_iscritto: {
+        Row: {
+          abitante_cognome: string | null
+          abitante_nome: string | null
+          abitante_telefono: string | null
+          capienza: number | null
+          cosa_portare: string | null
+          data: string | null
+          descrizione: string | null
+          edizione_id: string | null
+          id: string | null
+          lingua_attivita: string | null
+          luogo_esatto: string | null
+          luogo_generico: string | null
+          ora_fine: string | null
+          ora_inizio: string | null
+          stato: Database["public"]["Enums"]["stato_attivita"] | null
+          titolo: string | null
+        }
+        Insert: {
+          abitante_cognome?: string | null
+          abitante_nome?: string | null
+          abitante_telefono?: string | null
+          capienza?: number | null
+          cosa_portare?: string | null
+          data?: string | null
+          descrizione?: string | null
+          edizione_id?: string | null
+          id?: string | null
+          lingua_attivita?: string | null
+          luogo_esatto?: string | null
+          luogo_generico?: string | null
+          ora_fine?: string | null
+          ora_inizio?: string | null
+          stato?: Database["public"]["Enums"]["stato_attivita"] | null
+          titolo?: string | null
+        }
+        Update: {
+          abitante_cognome?: string | null
+          abitante_nome?: string | null
+          abitante_telefono?: string | null
+          capienza?: number | null
+          cosa_portare?: string | null
+          data?: string | null
+          descrizione?: string | null
+          edizione_id?: string | null
+          id?: string | null
+          lingua_attivita?: string | null
+          luogo_esatto?: string | null
+          luogo_generico?: string | null
+          ora_fine?: string | null
+          ora_inizio?: string | null
+          stato?: Database["public"]["Enums"]["stato_attivita"] | null
+          titolo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attivita_edizione_id_fkey"
+            columns: ["edizione_id"]
+            isOneToOne: false
+            referencedRelation: "edizioni"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       disponibilita_pubblica: {
         Row: {
@@ -1098,6 +1803,10 @@ export type Database = {
         Returns: boolean
       }
       anonimizza_prenotazioni: { Args: { p_giorni: number }; Returns: number }
+      attivita_non_cominciata: {
+        Args: { p_attivita_id: string }
+        Returns: boolean
+      }
       avvisi_dormienza_da_inviare: {
         Args: { p_mesi: number }
         Returns: {
@@ -1140,6 +1849,7 @@ export type Database = {
         Args: { p_data: string; p_fine: string; p_inizio: string }
         Returns: boolean
       }
+      edizione_attiva: { Args: never; Returns: string }
       esegui_cancellazione: {
         Args: { p_copia_stat?: boolean; p_utente_id: string }
         Returns: undefined
@@ -1151,6 +1861,7 @@ export type Database = {
         Returns: Database["public"]["Enums"]["giorno_settimana"]
       }
       giorno_mese: { Args: { p_data: string }; Returns: number }
+      ha_abilitazione: { Args: never; Returns: boolean }
       imposta_nome_pubblico: {
         Args: { p_max_cambi: number; p_mostra: boolean; p_nome: string }
         Returns: {
@@ -1173,6 +1884,8 @@ export type Database = {
       }
       is_amministratore: { Args: never; Returns: boolean }
       is_referente_di: { Args: { p_sede_id: string }; Returns: boolean }
+      iscritto_a: { Args: { p_attivita_id: string }; Returns: boolean }
+      iscriviti: { Args: { p_attivita_id: string }; Returns: string }
       normalizza_confronto: { Args: { p_testo: string }; Returns: string }
       oggi_roma: { Args: never; Returns: string }
       ora_inizio: {
@@ -1252,8 +1965,12 @@ export type Database = {
       genere: "M" | "F" | "Preferisco non rispondere"
       giorno_settimana: "LUN" | "MAR" | "MER" | "GIO" | "VEN" | "SAB" | "DOM"
       lingua: "it" | "en" | "fr"
+      modalita_consenso: "MODULO_CARTACEO_FIRMATO" | "EMAIL_DI_CONSENSO"
+      origine_abilitazione: "CODICE" | "MANUALE"
       residenza: "Valle Soana" | "Canavese" | "Piemonte" | "Italia" | "Altro"
       ruolo_incarico: "REFERENTE" | "AMMINISTRATORE"
+      stato_attivita: "BOZZA" | "PUBBLICATA" | "ANNULLATA"
+      stato_iscrizione: "ATTIVA" | "ANNULLATA"
       stato_prenotazione: "ATTIVA" | "ANNULLATA"
       tipo_consenso: "NOME_PUBBLICO" | "DATI_FACOLTATIVI"
       valore_consenso: "DATO" | "REVOCATO"
@@ -1392,8 +2109,12 @@ export const Constants = {
       genere: ["M", "F", "Preferisco non rispondere"],
       giorno_settimana: ["LUN", "MAR", "MER", "GIO", "VEN", "SAB", "DOM"],
       lingua: ["it", "en", "fr"],
+      modalita_consenso: ["MODULO_CARTACEO_FIRMATO", "EMAIL_DI_CONSENSO"],
+      origine_abilitazione: ["CODICE", "MANUALE"],
       residenza: ["Valle Soana", "Canavese", "Piemonte", "Italia", "Altro"],
       ruolo_incarico: ["REFERENTE", "AMMINISTRATORE"],
+      stato_attivita: ["BOZZA", "PUBBLICATA", "ANNULLATA"],
+      stato_iscrizione: ["ATTIVA", "ANNULLATA"],
       stato_prenotazione: ["ATTIVA", "ANNULLATA"],
       tipo_consenso: ["NOME_PUBBLICO", "DATI_FACOLTATIVI"],
       valore_consenso: ["DATO", "REVOCATO"],

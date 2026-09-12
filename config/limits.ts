@@ -149,3 +149,40 @@ export const URL_APP = process.env.URL_APP ?? "https://wildworking.sassifraga.or
 
 /** IANA timezone in which "today" is always computed (§8.4). */
 export const FUSO_ORARIO = "Europe/Rome";
+
+// ---------------------------------------------------------------------------
+// «Prenota un abitante» — SPEC §15.13. Added to the same file as the rest,
+// as §15.13 asks. None of these changes any behaviour on its own: they are
+// here so the steps that use them find them in one place.
+//
+// FINESTRA_GIORNI is absent from this block on purpose. An edition runs 29
+// days and a resident must see the whole programme on arrival, so activities
+// are bounded by the edizione and never by the rolling window (rule 21).
+// ---------------------------------------------------------------------------
+
+/**
+ * Hours before an activity beyond which cancelling still works but says what
+ * it costs (§15.7). No penalty, no score, no block: they are neighbours.
+ */
+export const ORE_DISDETTA = 24;
+
+/** Invite-code attempts allowed per user per hour (§15.4, §15.3.6). */
+export const MAX_TENTATIVI_CODICE_ORA = 5;
+
+/** Active iscrizioni per person. `null` = no limit (§15.7, D7). */
+export const MAX_ISCRIZIONI_ATTIVE: number | null = null;
+
+/** First part of an invite code: `SOANA-XXXX-XXX` (§15.4). */
+export const PREFISSO_CODICE = "SOANA";
+
+/**
+ * Address shown to somebody whose code will not work (§15.4, §15.13). A board
+ * mailbox, still to be decided: read from the environment, undefined until set.
+ */
+export const EMAIL_ASSISTENZA_ABITANTI: string | undefined = process.env.EMAIL_ASSISTENZA_ABITANTI;
+
+/**
+ * Days after an edition ends before abilitazioni and code fingerprints are
+ * deleted (§15.11, §15.13). The nightly cleanup of step 20 uses it.
+ */
+export const GIORNI_CHIUSURA_EDIZIONE = 30;

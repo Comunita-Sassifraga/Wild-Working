@@ -1004,6 +1004,8 @@ Il modulo è visibile se, e solo se, esiste un'edizione con `attiva` a sì **e**
 Regole:
 
 - Un'attività in `BOZZA` non è visibile a nessun residente. L'amministratore le carica a mano, un po' per volta, e pubblica quando è pronto.
+- **Nessun campo è obbligatorio in scrittura** (deciso il 12/09/2026). Le 25 schede si caricano a mano, spesso in una sera, copiando da email e fogli sparsi: chi le inserisce deve poter salvare quello che ha in mano e tornarci sopra il giorno dopo. I "Facoltativo" della tabella qui sopra restano lì per dire quali campi possono mancare anche in una scheda *finita*; gli altri servono tutti prima di pubblicare, ma a ricordarlo è il pannello (§15.9), non un rifiuto della banca dati. Le lunghezze massime valgono comunque: facoltativo non vuol dire non controllato.
+- Ne segue una cosa da sapere, perché non è un errore nascosto ma una scheda non finita: un'attività pubblicata **senza data non compare nell'elenco** (§15.6 mostra le attività da oggi in avanti, e una senza giorno non è "da oggi in avanti"), e una **senza capienza non accetta iscrizioni** — risponde come qualsiasi altra attività non disponibile. Il pannello lo segnala prima di pubblicare (§15.9).
 - **Non si può passare a `PUBBLICATA` se la spunta del consenso non è stata messa** (§15.8). Il sistema lo rifiuta con un messaggio esplicito. È il solo vincolo di questo tipo nel modulo, e c'è perché l'omissione è invisibile finché non diventa un problema.
 - **La descrizione va riletta prima di pubblicare.** È testo scritto da un'altra persona: può contenere un numero di telefono, l'indirizzo di casa, il nome di un familiare. Nessun filtro automatico può accorgersene. Il pannello lo ricorda al momento della pubblicazione (§15.9).
 - La data deve cadere dentro l'edizione. Fuori, il sistema rifiuta.
@@ -1035,6 +1037,8 @@ I due campi `creata_da` e `annullata_da` esistono perché l'amministratore può 
 `id`, `utente_id`, `edizione_id`, `attivata_il`, `origine` (`CODICE` / `MANUALE`), `attiva`, `revocata_il`, `revocata_da`.
 
 È la vera autorizzazione. Il codice serve solo a crearla.
+
+**Una sola abilitazione per persona e per edizione**, imposta dal database. Riabilitare chi era stato revocato riaccende la riga che c'è, non ne crea una seconda: due righe vorrebbero dire due risposte alla domanda *"questa persona può entrare?"*, e prima o poi non sarebbero la stessa. Vale anche quando le origini sono diverse — chi ha usato il cartoncino e poi viene abilitato a mano dal pannello non ne ottiene una seconda. Chiarito il 12/09/2026.
 
 #### 15.3.5 codici_invito
 
@@ -1143,6 +1147,8 @@ Questa versione della pagina **esiste anche per chi non è abilitato**: non risp
 
 **Iscrizione** immediata e automatica, come per le postazioni (D3). Nessuna approvazione. Serve un'abilitazione attiva.
 
+**Iscrizione possibile fino all'inizio dell'attività**, come l'annullamento. Dopo, l'attività resta nell'elenco fino al giorno successivo (§15.6) ma senza pulsante: si può ancora vedere dov'era e con chi, non prendervi posto. Chiarito il 12/09/2026, perché la prima stesura diceva quando non si può più annullare e taceva sull'iscriversi.
+
 **Annullamento** sempre possibile fino all'inizio dell'attività. Oltre `ORE_DISDETTA` ore dall'inizio il pulsante resta, ma accompagnato da una frase che dice le cose come stanno: *"Mancano meno di 24 ore: chi ti aspetta si sta già preparando. Annulla solo se non puoi proprio venire."* Nessuna penale, nessun punteggio, nessun blocco: sono vicini di casa, non clienti.
 
 **Nessuna lista d'attesa** (D22). Ad attività completa il pulsante non c'è: al suo posto la parola **"Completa"**, e una riga che dice cosa fare:
@@ -1234,7 +1240,7 @@ Una sezione "Attività", visibile all'amministratore soltanto.
 
 - **Edizioni**: creare, attivare, disattivare. Una sola attiva per volta.
 - **Attività**: creare, modificare, pubblicare, annullare. Il modulo di inserimento va disegnato per la velocità: 25 attività si caricano a mano, spesso in una sera sola, copiando da email e fogli. I campi sono raggruppati per **livello di visibilità** (§15.8), con l'etichetta di chi vedrà cosa scritta accanto a ciascun gruppo: chi inserisce i dati di una persona deve sapere, mentre li scrive, dove finiranno.
-- **Pubblicazione**: la schermata che porta un'attività da `BOZZA` a `PUBBLICATA` mostra un'anteprima di come la vedranno i residenti — prima il livello 1, poi il livello 2 — e sopra all'anteprima due cose: la **spunta del consenso** di §15.8, e il promemoria di rileggere la descrizione scritta dall'abitante, che può contenere dati che lui non si rendeva conto di dare. Senza la spunta il pulsante non si attiva.
+- **Pubblicazione**: la schermata che porta un'attività da `BOZZA` a `PUBBLICATA` mostra un'anteprima di come la vedranno i residenti — prima il livello 1, poi il livello 2 — e sopra all'anteprima due cose: la **spunta del consenso** di §15.8, e il promemoria di rileggere la descrizione scritta dall'abitante, che può contenere dati che lui non si rendeva conto di dare. Senza la spunta il pulsante non si attiva. E siccome dal 12/09/2026 una scheda si può salvare a metà (§15.3.2), la stessa schermata **elenca i campi ancora vuoti** prima di pubblicare: la banca dati non li rifiuta, e senza un avviso qui una scheda incompleta finirebbe pubblicata e invisibile — senza data non compare nell'elenco, senza capienza non accetta nessuno.
 - **Codici**: generarne un blocco per l'edizione, con una schermata di stampa adatta ai cartoncini, ciascuno con il proprio numero (§15.3.5). I codici si vedono **solo qui e solo una volta**. Generarne uno singolo, e rigenerare quello di un numero perso.
 - **Abilitazioni**: elenco, abilitazione diretta di un utente già registrato, revoca puntuale (§15.4).
 - **Iscritti per attività**: chi viene, con l'indirizzo email a cui scrivere per avvisare.
@@ -1323,7 +1329,7 @@ L'informativa privacy va aggiornata di conseguenza: è una versione datata, non 
 | Edizione disattivata con iscrizioni future | Le iscrizioni restano valide e visibili al loro titolare. Il modulo sparisce dall'ingresso, non dalle iscrizioni già fatte |
 | Partecipante non abilitato che apre un link diretto a un'attività | Viene portato a `/abitanti`, che gli chiede il codice (§15.6). Non vede titolo, abitante né luogo |
 | Abilitazione revocata con iscrizioni attive | Le iscrizioni restano ma non sono più modificabili dall'interessato. Le annulla l'amministratore, avvisando (§15.9) |
-| Utente che cancella l'account | Iscrizioni future annullate e posti liberati; iscrizioni passate anonimizzate **senza copiare** i campi `stat_`, come §5.3; abilitazione, codice e tentativi cancellati |
+| Utente che cancella l'account | Iscrizioni future annullate e posti liberati; iscrizioni passate anonimizzate **senza copiare** i campi `stat_`, come §5.3; abilitazione e tentativi cancellati. Del codice d'invito si cancella il collegamento alla persona (`utente_id`), non la riga: il `progressivo` resta consumato, perché §15.3.5 vieta di riemetterlo. Della riga che resta non si ricava nulla di nessuno — un numero, un'impronta irreversibile e una data d'uso (chiarito il 12/09/2026) |
 | Attività completa | Nessuna lista d'attesa (D22). L'attività dice "Completa" e la riga di §15.7 indirizza a chi scrivere. Lo scambio lo chiude l'amministratore (§15.9) |
 | Amministratore che annulla l'iscrizione di un altro | Permesso, solo sulle iscrizioni e mai sulle prenotazioni. Tracciato in `annullata_da`, e l'interessato riceve un'email (§15.9) |
 | Amministratore che iscrive un altro a un'attività completa | Rifiutato: il vincolo di capienza vale anche per lui. Prima si annulla l'iscrizione di chi rinuncia, poi si crea quella di chi subentra |
