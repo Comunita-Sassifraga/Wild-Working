@@ -268,7 +268,17 @@
       "moderazione": "Nomi pubblici",
       "moderazioneNota": "Rimuovi un nome pubblico che non rispetta le regole. Qui c'è anche l'elenco di quelli già rimossi.",
       "termini": "Termini vietati",
-      "terminiNota": "L'elenco che il sistema controlla ogni volta che qualcuno salva un nome pubblico."
+      "terminiNota": "L'elenco che il sistema controlla ogni volta che qualcuno salva un nome pubblico.",
+      "edizioni": "Edizioni",
+      "edizioniNota": "Il periodo in cui «Prenota un abitante» è aperto. Una sola edizione attiva per volta.",
+      "codici": "Cartoncini",
+      "codiciNota": "Genera e stampa i codici da consegnare all'arrivo, insieme alle chiavi. Ogni cartoncino ha il suo numero.",
+      "abilitazioni": "Abilitazioni",
+      "abilitazioniNota": "Chi può entrare nel modulo. Qui si abilita una persona a mano e si revoca l'accesso a chi serve."
+    },
+    "abitanti": {
+      "titolo": "Prenota un abitante",
+      "introduzione": "Il secondo servizio: le attività proposte dagli abitanti della valle ai partecipanti di VIHTA. Vive solo mentre un'edizione è attiva."
     },
     "piuAvanti": {
       "titolo": "Non ci sono ancora",
@@ -433,6 +443,79 @@
       "aggiunto": "Termine aggiunto.",
       "rimosso": "Termine rimosso."
     },
+    "edizioni": {
+      "titolo": "Edizioni",
+      "introduzione": "Un'edizione è il periodo in cui «Prenota un abitante» è aperto. Il modulo si vede solo se c'è un'edizione attiva e oggi cade fra le sue date: alla data di fine sparisce da sé, senza che nessuno debba ricordarsene.",
+      "elenco": "Edizioni",
+      "vuoto": "Non c'è ancora nessuna edizione.",
+      "periodo": "Dal {inizio} al {fine}",
+      "attiva": "Attiva",
+      "nonAttiva": "Non attiva",
+      "fuoriDate": "Attiva, ma oggi è fuori dalle sue date: il modulo resta chiuso.",
+      "attivaPulsante": "Attiva",
+      "disattivaPulsante": "Disattiva",
+      "avvisoCambio": "C'è già un'edizione attiva: attivando questa, «{nome}» si spegne. Chi era abilitato su quella non entra più, finché non la riattivi.",
+      "attivata": "Edizione attivata.",
+      "disattivata": "Edizione disattivata. Le iscrizioni già fatte restano valide e visibili a chi le ha fatte.",
+      "crea": {
+        "titolo": "Nuova edizione",
+        "nome": "Nome",
+        "nomeNota": "Come la chiamate fra voi. Per esempio «VIHTA 2026».",
+        "inizio": "Primo giorno",
+        "fine": "Ultimo giorno",
+        "fineNota": "Compreso: l'ultimo giorno il modulo è ancora aperto.",
+        "pulsante": "Crea",
+        "creata": "Edizione creata. Non è ancora attiva: attivala quando è il momento."
+      }
+    },
+    "codici": {
+      "titolo": "Cartoncini",
+      "introduzione": "Ogni partecipante riceve all'arrivo, insieme alle chiavi, un cartoncino con il proprio codice. Il codice si usa una volta sola e poi non serve più.",
+      "senzaEdizione": "Non c'è nessuna edizione attiva. Creane una e attivala prima di generare i cartoncini.",
+      "edizione": "Edizione «{nome}»",
+      "elenco": "Cartoncini emessi",
+      "vuoto": "Non è ancora stato emesso nessun cartoncino.",
+      "riga": "Cartoncino {numero}",
+      "nonUsato": "Non ancora usato",
+      "usato": "Usato il {data}",
+      "revocato": "Revocato",
+      "revoca": "Revoca",
+      "revocato_esito": "Cartoncino revocato. Il numero non verrà riusato: genera un cartoncino nuovo, che prenderà il numero successivo.",
+      "genera": {
+        "titolo": "Genera cartoncini",
+        "quanti": "Quanti",
+        "quantiNota": "Uno solo per chi arriva in ritardo, o un blocco per tutti i partecipanti. I numeri continuano da dove erano rimasti.",
+        "pulsante": "Genera"
+      },
+      "stampa": {
+        "titolo": "Da stampare adesso",
+        "avviso": "Questi codici si vedono solo ora. Se chiudi o ricarichi la pagina non tornano più: né noi né nessun altro può rileggerli. Stampali o copiali prima di andare avanti.",
+        "pulsante": "Stampa",
+        "annota": "Mentre li consegni, segna su carta quale numero è andato a chi: è l'unico modo per ritrovare il cartoncino giusto se qualcuno lo perde."
+      }
+    },
+    "abilitazioni": {
+      "titolo": "Abilitazioni",
+      "introduzione": "L'abilitazione è ciò che permette di entrare nel modulo. Di solito nasce da un cartoncino; qui la si può dare a mano, e togliere.",
+      "senzaEdizione": "Non c'è nessuna edizione attiva. Le abilitazioni valgono per una sola edizione, quindi prima va attivata.",
+      "elenco": "Chi è abilitato",
+      "vuoto": "Non è ancora abilitato nessuno.",
+      "origini": {
+        "CODICE": "Con il cartoncino",
+        "MANUALE": "Abilitata a mano"
+      },
+      "dal": "dal {data}",
+      "revocata": "Revocata il {data}",
+      "revoca": "Revoca",
+      "revocataEsito": "Abilitazione revocata. Le iscrizioni già fatte restano: se vanno annullate, avvisa la persona e fallo tu.",
+      "abilita": {
+        "titolo": "Abilita una persona",
+        "nota": "Serve l'indirizzo email esatto con cui è già entrata almeno una volta. Se non è mai entrata, non c'è ancora niente da abilitare: passale un cartoncino.",
+        "email": "Email della persona",
+        "pulsante": "Abilita",
+        "abilitata": "Persona abilitata."
+      }
+    },
     "errori": {
       "HA_PRENOTAZIONI": "Questa sede ha delle prenotazioni collegate, quindi non si può eliminare. Se non va più usata, sospendila con l'interruttore.",
       "GIA_PRESENTE": "C'è già: non serve aggiungerlo un'altra volta.",
@@ -441,7 +524,38 @@
       "NON_AUTORIZZATO": "Non puoi fare questa operazione.",
       "ERRORE": "Non siamo riusciti a salvare. Riprova tra qualche minuto.",
       "datiIncompleti": "Compila i campi che mancano e riprova.",
-      "dateInvertite": "La data di fine viene prima di quella di inizio."
+      "dateInvertite": "La data di fine viene prima di quella di inizio.",
+      "NESSUNA_EDIZIONE": "Non c'è nessuna edizione attiva in questo momento.",
+      "CODICE_GIA_USATO": "Questo cartoncino è già stato usato, quindi revocarlo non toglierebbe l'accesso a nessuno. Per chiudere fuori una persona già entrata, revoca la sua abilitazione.",
+      "NON_TROVATO": "Non l'abbiamo trovato: forse qualcun altro l'ha già cambiato. Ricarica la pagina e guarda com'è adesso.",
+      "EDIZIONE_IN_USO": "Questa edizione ha già delle attività o delle abilitazioni collegate, quindi non si può eliminare. Se è finita, basta disattivarla.",
+      "quantiNonValido": "Scrivi quanti cartoncini servono: un numero da 1 a {massimo}."
+    }
+  },
+  "abitanti": {
+    "titolo": "Prenota un abitante",
+    "chiuso": {
+      "introduzione": "Durante VIHTA gli abitanti della Valle Soana propongono attività da fare insieme: una passeggiata, una cena, un pomeriggio a imparare qualcosa.",
+      "testo": "In questo momento non c'è nessuna edizione aperta. Il servizio torna alla prossima."
+    },
+    "codice": {
+      "introduzione": "Durante VIHTA gli abitanti della Valle Soana propongono attività da fare insieme: una passeggiata, una cena, un pomeriggio a imparare qualcosa.",
+      "riservato": "Il servizio è riservato a chi partecipa a VIHTA. All'arrivo, insieme alle chiavi, hai ricevuto un cartoncino con un codice: inseriscilo qui sotto una volta sola, e poi non ti servirà più.",
+      "etichetta": "Il codice del cartoncino",
+      "nota": "Si scrive come vuoi: maiuscole, minuscole, con o senza trattino.",
+      "invia": "Entra",
+      "assistenza": "Se non hai un cartoncino, o se il codice non funziona, scrivi a {indirizzo}.",
+      "esiti": {
+        "RIFIUTATO": "Questo codice non funziona. Controlla di averlo scritto giusto; se pensi sia un errore, scrivi a {indirizzo}.",
+        "TROPPI_TENTATIVI": "Hai provato troppe volte di seguito. Riprova fra un'ora, oppure scrivi a {indirizzo}.",
+        "MODULO_CHIUSO": "In questo momento non c'è nessuna edizione aperta.",
+        "ERRORE": "Non siamo riusciti a controllare il codice. Riprova tra qualche minuto."
+      }
+    },
+    "abilitato": {
+      "benvenuto": "Il tuo accesso è attivo: da qui vedrai le attività proposte dagli abitanti della valle.",
+      "inArrivo": "Il programma non è ancora pubblicato. Torna fra qualche giorno: non devi rifare niente, l'accesso resta.",
+      "torna": "Torna alla disponibilità"
     }
   },
   "accesso": {

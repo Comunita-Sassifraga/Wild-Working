@@ -1208,6 +1208,48 @@ export type Database = {
       }
     }
     Views: {
+      abilitazioni_amministrazione: {
+        Row: {
+          attiva: boolean | null
+          attivata_il: string | null
+          edizione_id: string | null
+          email: string | null
+          id: string | null
+          origine: Database["public"]["Enums"]["origine_abilitazione"] | null
+          revocata_il: string | null
+          utente_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "abilitazioni_edizione_id_fkey"
+            columns: ["edizione_id"]
+            isOneToOne: false
+            referencedRelation: "edizioni"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "abilitazioni_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "nomi_pubblici_moderazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "abilitazioni_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "utenti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "abilitazioni_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "utenti_amministrazione"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       aperture_future: {
         Row: {
           data_apertura: string | null
@@ -1449,6 +1491,65 @@ export type Database = {
             columns: ["edizione_id"]
             isOneToOne: false
             referencedRelation: "edizioni"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      codici_amministrazione: {
+        Row: {
+          creato_il: string | null
+          edizione_id: string | null
+          id: string | null
+          progressivo: number | null
+          revocato: boolean | null
+          usato_il: string | null
+          utente_id: string | null
+        }
+        Insert: {
+          creato_il?: string | null
+          edizione_id?: string | null
+          id?: string | null
+          progressivo?: number | null
+          revocato?: boolean | null
+          usato_il?: string | null
+          utente_id?: string | null
+        }
+        Update: {
+          creato_il?: string | null
+          edizione_id?: string | null
+          id?: string | null
+          progressivo?: number | null
+          revocato?: boolean | null
+          usato_il?: string | null
+          utente_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "codici_invito_edizione_id_fkey"
+            columns: ["edizione_id"]
+            isOneToOne: false
+            referencedRelation: "edizioni"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "codici_invito_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "nomi_pubblici_moderazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "codici_invito_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "utenti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "codici_invito_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "utenti_amministrazione"
             referencedColumns: ["id"]
           },
         ]
@@ -1794,6 +1895,7 @@ export type Database = {
       }
     }
     Functions: {
+      abilita_utente: { Args: { p_utente_id: string }; Returns: string }
       annullabile: {
         Args: {
           p_data: string
@@ -1841,6 +1943,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      consuma_codice: {
+        Args: { p_impronta: string; p_max_tentativi: number }
+        Returns: string
+      }
       conta_persone_in_uscita: {
         Args: { p_soglia?: string; p_utente_id?: string }
         Returns: undefined
@@ -1856,6 +1962,13 @@ export type Database = {
       }
       fine_finestra: { Args: never; Returns: string }
       finestra_giorni: { Args: never; Returns: number }
+      genera_codici: {
+        Args: { p_edizione_id: string; p_impronte: string[] }
+        Returns: {
+          impronta: string
+          progressivo: number
+        }[]
+      }
       giorno_di: {
         Args: { p_data: string }
         Returns: Database["public"]["Enums"]["giorno_settimana"]
@@ -1937,6 +2050,11 @@ export type Database = {
         Args: { p_da?: string; p_fino_a?: string }
         Returns: number
       }
+      revoca_abilitazione: {
+        Args: { p_abilitazione_id: string }
+        Returns: undefined
+      }
+      revoca_codice: { Args: { p_codice_id: string }; Returns: undefined }
       sede_aperta: {
         Args: {
           p_data: string

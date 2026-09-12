@@ -379,6 +379,13 @@ export async function iscriviti(
 }
 
 /**
+ * The fingerprint key the code tests hash with. Any long string: what
+ * matters is that the same one is used to generate and to consume, exactly
+ * as CHIAVE_IMPRONTE_ACCESSO is in the running app (rule 23).
+ */
+export const CHIAVE_CODICI = "chiave-di-prova-per-i-cartoncini";
+
+/**
  * Removes the module's rows of one or more editions, in dependency order:
  * iscrizioni before attivita, everything before the edizione itself.
  */

@@ -11,7 +11,13 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { aggiungiGiorni, oggiRoma } from "@/lib/dates";
 import {
+  accendiEdizione,
+  creaEdizione as creaEdizioneDaPannello,
+  edizioneAttiva,
+} from "@/lib/db/abitanti";
+import {
   abilita,
+  assegnaIncarico,
   creaAttivita,
   creaEdizione,
   creaUtente,
@@ -164,5 +170,72 @@ describe("§15.3.1 edizioni", () => {
       .update({ edizione_id: corta })
       .eq("id", attivita);
     expect(error).not.toBeNull();
+  });
+
+  // ---------------------------------------------------------------------------
+  // Dal pannello — §15.9 primo punto, passo 15.
+  //
+  // Fin qui le edizioni le scriveva il cliente di servizio, che scavalca le
+  // regole di accesso. Da qui in avanti esiste la schermata, e la domanda
+  // diventa un'altra: chi può davvero creare e accendere un'edizione.
+  // ---------------------------------------------------------------------------
+
+  describe("dal pannello", () => {
+    it("un amministratore ne crea una spenta, e accendendola spegne l'altra", async () => {
+      const admin = await creaUtente();
+      await assegnaIncarico(admin.id, "AMMINISTRATORE");
+      const inCorso = await creaEdizione({ nome: "In corso" });
+      edizioni.push(inCorso);
+
+      const esito = await creaEdizioneDaPannello(admin.client, {
+        nome: "Nuova dal pannello",
+        data_inizio: oggiRoma(),
+        data_fine: aggiungiGiorni(oggiRoma(), 28),
+      });
+      expect(esito.ok).toBe(true);
+      if (!esito.ok) return;
+      edizioni.push(esito.valore);
+
+      // Nasce spenta: si attiva quando è il momento, non appena si salva.
+      expect(await edizioneAttiva(admin.client)).toBe(inCorso);
+
+      expect(await accendiEdizione(admin.client, esito.valore, true)).toEqual({
+        ok: true,
+        valore: undefined,
+      });
+      expect(await edizioneAttiva(admin.client)).toBe(esito.valore);
+
+      const { data } = await servizio().from("edizioni").select("id").eq("attiva", true);
+      expect(data).toHaveLength(1);
+
+      // E l'interruttore è un interruttore: si spegne anche.
+      expect(await accendiEdizione(admin.client, esito.valore, false)).toEqual({
+        ok: true,
+        valore: undefined,
+      });
+      expect(await edizioneAttiva(admin.client)).toBeNull();
+
+      await pulisci({ utenti: [admin] });
+    });
+
+    it("chi non è amministratore non ne crea e non ne accende nessuna", async () => {
+      const edizione = await creaEdizione({ nome: "Non tua", attiva: false });
+      edizioni.push(edizione);
+
+      const creata = await creaEdizioneDaPannello(utente.client, {
+        nome: "Edizione abusiva",
+        data_inizio: oggiRoma(),
+        data_fine: aggiungiGiorni(oggiRoma(), 1),
+      });
+      expect(creata.ok).toBe(false);
+
+      expect(await accendiEdizione(utente.client, edizione, true)).toEqual({
+        ok: false,
+        motivo: "NON_AUTORIZZATO",
+      });
+
+      const { data } = await servizio().from("edizioni").select("attiva").eq("id", edizione).single();
+      expect(data?.attiva).toBe(false);
+    });
   });
 });

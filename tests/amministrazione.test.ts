@@ -15,6 +15,12 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { giornoSettimana, oggiRoma } from "@/lib/dates";
 import {
+  abilitaUtente,
+  generaCodici,
+  revocaAbilitazione,
+  revocaCodice,
+} from "@/lib/db/abitanti";
+import {
   aggiornaSede,
   aggiungiTermine,
   assegnaReferente,
@@ -44,6 +50,7 @@ import { impostaNomePubblico, mioProfilo, segnaAvvisoModerazioneLetto } from "@/
 import {
   assegnaIncarico,
   CODICE_PERMESSO_NEGATO,
+  creaEdizione,
   creaSede as creaSedeDiProva,
   creaUtente,
   inserisciPrenotazioneDiretta,
@@ -59,13 +66,24 @@ const SEMPRE_APERTA = [...GIORNI_SETTIMANA];
 
 /** Tutto ciò che il pannello legge, diviso come lo divide il client tipizzato. */
 const TABELLE = ["moderazioni", "termini_vietati"] as const;
-const VISTE = ["nomi_pubblici_moderazione", "prenotazioni_da_verificare"] as const;
+/**
+ * Le viste del pannello. Le ultime due sono la sezione «Prenota un abitante»
+ * aggiunta dal passo 15 (§15.9): sta accanto alle altre e passa dalla stessa
+ * porta, quindi vale la stessa asserzione senza toglierne nessuna.
+ */
+const VISTE = [
+  "nomi_pubblici_moderazione",
+  "prenotazioni_da_verificare",
+  "codici_amministrazione",
+  "abilitazioni_amministrazione",
+] as const;
 
 describe("§6.7 pannello di amministrazione", () => {
   const anon = visitatore();
   let admin: UtenteTest;
   let utente: UtenteTest;
   const sediDaPulire: string[] = [];
+  const edizioniDaPulire: string[] = [];
 
   async function sedeDiProva(capienza = 1): Promise<string> {
     const id = await creaSedeDiProva({ capienza, giorni_apertura: SEMPRE_APERTA });
@@ -79,7 +97,7 @@ describe("§6.7 pannello di amministrazione", () => {
   });
 
   afterAll(async () => {
-    await pulisci({ utenti: [admin, utente], sedi: sediDaPulire });
+    await pulisci({ utenti: [admin, utente], sedi: sediDaPulire, edizioni: edizioniDaPulire });
   });
 
   // -------------------------------------------------------------------------
@@ -135,6 +153,31 @@ describe("§6.7 pannello di amministrazione", () => {
         }),
       ).toMatchObject({ ok: false });
       expect(await assegnaReferente(utente.client, utente.id, sedeId)).toMatchObject({ ok: false });
+    });
+
+    it("un utente registrato non tocca niente della sezione «Prenota un abitante»", async () => {
+      // §15.9, passo 15. La sezione nuova è irraggiungibile come tutto il
+      // resto del pannello: le tre funzioni rifiutano, e le due viste sono
+      // già nell'elenco qui sopra.
+      const edizione = await creaEdizione({ nome: "Non tua", attiva: false });
+      edizioniDaPulire.push(edizione);
+
+      expect(await generaCodici(utente.client, edizione, 1, "chiave-di-prova")).toMatchObject({
+        ok: false,
+      });
+      expect(await abilitaUtente(utente.client, utente.id)).toMatchObject({ ok: false });
+      expect(
+        await revocaAbilitazione(utente.client, "00000000-0000-0000-0000-000000000000"),
+      ).toMatchObject({ ok: false });
+      expect(
+        await revocaCodice(utente.client, "00000000-0000-0000-0000-000000000000"),
+      ).toMatchObject({ ok: false });
+
+      const { count } = await servizio()
+        .from("codici_invito")
+        .select("id", { count: "exact", head: true })
+        .eq("edizione_id", edizione);
+      expect(count).toBe(0);
     });
 
     it("un utente registrato non azzera il nome pubblico di nessuno", async () => {

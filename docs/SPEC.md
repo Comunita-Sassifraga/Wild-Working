@@ -1068,7 +1068,9 @@ La tabella è piccola e volatile: le righe più vecchie di un'ora le cancella il
 
 Un codice condiviso fa il giro dei messaggi in dieci minuti e non è revocabile senza chiudere fuori tutti. Un codice personale, una volta consumato, non serve più a nessuno: chi lo ricevesse per sbaglio si sente rispondere che è già stato utilizzato.
 
-**Formato**: `SOANA-XXXX-XXX`, dove le X vengono da un alfabeto senza caratteri ambigui — niente `O` e zero, niente `I`, `1` e `L` insieme. Lo digiterà una persona su un telefono, al freddo, con poca luce. La verifica ignora maiuscole, minuscole e spazi.
+**Formato**: `SOANA-XXXX`, dove le X vengono da un alfabeto senza caratteri ambigui — niente `O` e zero, niente `I`, `1` e `L` insieme. Lo digiterà una persona su un telefono, al freddo, con poca luce. La verifica ignora maiuscole, minuscole, spazi e trattino.
+
+Quattro caratteri su un alfabeto di trentuno fanno poco meno di un milione di combinazioni. Con quarantacinque cartoncini in giro e il limite di `MAX_TENTATIVI_CODICE_ORA` tentativi all'ora **per utente già registrato**, indovinarne uno richiederebbe migliaia di ore di tentativi da account veri: la lunghezza è stata accorciata il 12/09/2026 perché un codice che si detta al telefono e si digita al freddo vale più di un margine che nessuno userà. Chi un giorno volesse allungarlo cambia `LUNGHEZZA` in `lib/abitanti/codici.ts` e i cartoncini già stampati continuano a funzionare.
 
 **Il codice si inserisce dopo l'accesso normale, non al posto di esso, e una volta sola nella vita.** Il partecipante entra con il link email come chiunque altro (§6.1, invariato); poi, sulla pagina della disponibilità, trova il pulsante di §15.5; la prima volta che lo preme, `/abitanti` gli chiede il codice. Da quel momento è abilitato per tutta l'edizione e il codice non gli serve più: le volte successive lo stesso pulsante lo porta direttamente all'elenco delle attività.
 
@@ -1078,14 +1080,15 @@ Regole:
 
 - All'uso, il codice è consumato: `usato_il` e `utente_id` vengono scritti, e nasce l'abilitazione. Un secondo tentativo con lo stesso codice viene rifiutato con *"Questo codice è già stato utilizzato. Se pensi sia un errore, scrivi a [indirizzo]."*
 - Massimo `MAX_TENTATIVI_CODICE_ORA` tentativi per utente all'ora, contati nella tabella di §15.3.6.
-- Il messaggio di rifiuto è **identico** per codice inesistente, già usato o revocato, tranne nel caso di codice già usato **dallo stesso utente** che sta tentando, dove si dice semplicemente che è già abilitato.
+- Il messaggio di rifiuto è **identico** per codice inesistente, già usato o revocato, tranne nel caso di chi **è già abilitato** e ridigita il proprio codice, a cui si dice semplicemente che è già dentro.
+  Attenzione al caso che sembra lo stesso e non lo è: chi ha usato il proprio cartoncino e **poi è stato revocato** riceve il messaggio di rifiuto normale, come chiunque altro. Rientrare ridigitando la carta vanificherebbe la revoca, e il messaggio ordinario è anche quello giusto da leggere, perché dice a chi scrivere — che è esattamente quello che quella persona deve fare. Chiarito il 12/09/2026, provando la schermata: la prima stesura diceva «già usato dallo stesso utente» e quel caso, senza l'abilitazione viva dietro, riportava al modulo vuoto senza una parola.
 - Un codice appartiene a un'edizione: quelli dell'edizione precedente non funzionano.
 
 **Tre vie d'uscita nel pannello**, che con 45 persone serviranno di sicuro:
 
-- **Rigenerare** un codice per chi l'ha perso: si revoca il cartoncino con quel `progressivo` (§15.3.5) e se ne emette uno nuovo, con un numero nuovo.
+- **Rigenerare** un codice per chi l'ha perso: si revoca il cartoncino con quel `progressivo` (§15.3.5) e se ne emette uno nuovo, con un numero nuovo. Si revoca soltanto un cartoncino **non ancora usato**: uno già consumato non dà più accesso a nessuno, perché l'accesso sta nell'abilitazione e non nella carta. Chiudere fuori una persona già entrata si fa con la revoca puntuale dell'abilitazione, qui sotto.
 - **Generare un codice singolo** per chi arriva in ritardo o per il quarto membro di una famiglia che ne ha ricevuto uno solo. L'amministratore lo legge a schermo e glielo passa come preferisce.
-- **Abilitare direttamente un utente già registrato** (`origine` = `MANUALE`), scegliendolo fra gli utenti nel pannello. Serve a chi si è registrato con un indirizzo diverso da quello dato a VIHTA, o a chi ha perso il cartoncino ed è già entrato nell'app.
+- **Abilitare direttamente un utente già registrato** (`origine` = `MANUALE`), **cercandolo per indirizzo email esatto**, come si fa per i referenti (§6.7): il pannello non ha e non deve avere un elenco di tutte le persone registrate. Serve a chi si è registrato con un indirizzo diverso da quello dato a VIHTA, o a chi ha perso il cartoncino ed è già entrato nell'app.
 
 Si noti che non esiste, e non deve esistere, un *"abilita questo indirizzo email"* per una persona che non è ancora mai entrata. La riga di un utente nasce solo al primo accesso, per scelta e con un test che lo garantisce (§6.1): abilitare un indirizzo richiederebbe una seconda tabella dove conservare email di persone che utenti non sono — un secondo posto da proteggere, da cancellare e da dichiarare nell'informativa, per un caso che si risolve generando un codice in tre secondi.
 
@@ -1242,7 +1245,7 @@ Una sezione "Attività", visibile all'amministratore soltanto.
 - **Attività**: creare, modificare, pubblicare, annullare. Il modulo di inserimento va disegnato per la velocità: 25 attività si caricano a mano, spesso in una sera sola, copiando da email e fogli. I campi sono raggruppati per **livello di visibilità** (§15.8), con l'etichetta di chi vedrà cosa scritta accanto a ciascun gruppo: chi inserisce i dati di una persona deve sapere, mentre li scrive, dove finiranno.
 - **Pubblicazione**: la schermata che porta un'attività da `BOZZA` a `PUBBLICATA` mostra un'anteprima di come la vedranno i residenti — prima il livello 1, poi il livello 2 — e sopra all'anteprima due cose: la **spunta del consenso** di §15.8, e il promemoria di rileggere la descrizione scritta dall'abitante, che può contenere dati che lui non si rendeva conto di dare. Senza la spunta il pulsante non si attiva. E siccome dal 12/09/2026 una scheda si può salvare a metà (§15.3.2), la stessa schermata **elenca i campi ancora vuoti** prima di pubblicare: la banca dati non li rifiuta, e senza un avviso qui una scheda incompleta finirebbe pubblicata e invisibile — senza data non compare nell'elenco, senza capienza non accetta nessuno.
 - **Codici**: generarne un blocco per l'edizione, con una schermata di stampa adatta ai cartoncini, ciascuno con il proprio numero (§15.3.5). I codici si vedono **solo qui e solo una volta**. Generarne uno singolo, e rigenerare quello di un numero perso.
-- **Abilitazioni**: elenco, abilitazione diretta di un utente già registrato, revoca puntuale (§15.4).
+- **Abilitazioni**: elenco con l'indirizzo email di ciascuno — è il solo modo che l'applicazione ha di far riconoscere una persona, come per gli incarichi (§6.7) e per gli iscritti qui sotto — abilitazione diretta di un utente già registrato, revoca puntuale (§15.4). L'elenco riguarda le sole persone già abilitate: non è un elenco di chi si è registrato, e non porta nessuno dei campi facoltativi di §5.1.
 - **Iscritti per attività**: chi viene, con l'indirizzo email a cui scrivere per avvisare.
 - **Iscrivere e annullare per conto di un partecipante**: le due azioni che sostituiscono la lista d'attesa (§15.7).
 

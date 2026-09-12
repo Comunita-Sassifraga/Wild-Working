@@ -60,6 +60,29 @@ export default async function PaginaAmministrazione() {
         <Voce href="/amministrazione/termini" titolo={t.voci.termini} nota={t.voci.terminiNota} />
       </Elenco>
 
+      {/*
+        «Prenota un abitante» is a second service inside the same application
+        (§15.1), so its screens sit in a section of their own rather than
+        among the coworking ones: somebody looking after sedi and referenti
+        should not have to read past them.
+      */}
+      <Sezione titolo={t.abitanti.titolo}>
+        <p className={introduzione}>{t.abitanti.introduzione}</p>
+        <Elenco>
+          <Voce
+            href="/amministrazione/edizioni"
+            titolo={t.voci.edizioni}
+            nota={t.voci.edizioniNota}
+          />
+          <Voce href="/amministrazione/codici" titolo={t.voci.codici} nota={t.voci.codiciNota} />
+          <Voce
+            href="/amministrazione/abilitazioni"
+            titolo={t.voci.abilitazioni}
+            nota={t.voci.abilitazioniNota}
+          />
+        </Elenco>
+      </Sezione>
+
       <Sezione titolo={t.daVerificare.titolo}>
         {daVerificare.length === 0 ? (
           <Vuoto testo={t.daVerificare.nessuna} />
