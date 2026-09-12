@@ -1,6 +1,12 @@
 # CLAUDE.md
 
-Booking system for the coworking spaces in Valle Soana (Piedmont, Italy).
+Booking platform for Valle Soana (Piedmont, Italy), hosting **two services**:
+
+- **Wild Working** — coworking desk booking. SPEC §1–§14.
+- **«Prenota un abitante»** — activities offered by valley residents to VIHTA
+  temporary residents, access-restricted and time-boxed. SPEC §15.
+
+They share one codebase, one database, one login and one visual identity.
 Built and operated by **Comunità Sassifraga APS**, which is the sole data
 controller. Spaces are municipally managed (Ingria, Ronco Canavese, Valprato
 Soana), and **no personal data is ever transmitted to a municipality** — only
@@ -43,6 +49,18 @@ second sender there can send the association's own mail to spam. See SPEC §14.2
    validation, on your own initiative. If a feature seems to require one,
    stop and ask.
 
+   *Scope note, so this is not misread:* the closed list is about **the data
+   of platform users** — people who sign in. The **abitanti** who offer an
+   activity are not users and never will be (SPEC §15.8): their name, surname,
+   phone and exact address live on `attivita`, are entered by an admin against
+   a consent signed on paper or received by email, and are fixed by the table
+   of SPEC §15.3.2. That table is closed too — nothing gets added there on
+   your own initiative either. What the rule forbids is giving a *user* a
+   name field, and that stays forbidden even when a screen would read better
+   with one: SPEC §15.9 is explicit that an activity's host gets public names
+   plus a count, and that the association matches emails to real names in its
+   own VIHTA register, outside this software.
+
 2. **Every table has Row Level Security enabled**, with explicit policies.
    A migration that creates a table without RLS is incomplete. RLS is the
    enforcement layer; application-level checks are a convenience on top, never
@@ -80,11 +98,15 @@ second sender there can send the association's own mail to spam. See SPEC §14.2
    `FINESTRA_GIORNI` days only — the same constant as everywhere else, never a
    hardcoded number. See SPEC §6.6.
 
-   It is also the **only** page that shows `nome_pubblico`. The availability
-   grid of SPEC §6.2 shows counts — free seats out of total, and how many
-   people made their presence public — never the names themselves. The two
-   pages split the work: the grid answers *how many*, "Chi c'è" answers *who*.
-   Each links to the other, above its own content, with the note SPEC §6.2 and
+   `nome_pubblico` appears on **exactly two pages**, and nowhere else:
+   "Chi c'è in Valle" (§6.6), public; and the detail of an activity (§15.6),
+   reachable only with an active `abilitazione`. Both show it only for users
+   who switched it on, through the same consent of §5.5.
+
+   The availability grid of SPEC §6.2 shows counts — free seats out of total,
+   and how many people made their presence public — never the names
+   themselves. The grid answers *how many*, "Chi c'è" answers *who*. Each
+   links to the other, above its own content, with the note SPEC §6.2 and
    §6.6 spell out. Do not "improve" the grid by adding names to it.
 
 9. **No payments, no membership management, no messaging.** These are out of
@@ -161,6 +183,138 @@ second sender there can send the association's own mail to spam. See SPEC §14.2
     must be skipped entirely. Do not copy at booking time: before anonymisation
     the data must live in exactly one place. Do not re-copy or back-fill.
 
+20. **The activities module is additive. Never alter an existing table for it.**
+    SPEC §15 adds five tables — `edizioni`, `attivita`, `iscrizioni`,
+    `abilitazioni`, `codici_invito` — plus the service table `tentativi_codice`,
+    and changes none of the nine that already exist. Access rights live in
+    `abilitazioni`, not as a column on `utenti`; consent reuses the two existing
+    `consenso` types; admins are already global. If a task seems to require a
+    column on an existing table, stop and ask: it almost certainly does not,
+    and the migration would run against live data.
+
+    Additive does not mean nothing else moves. **Seven things already in
+    service are touched**, each with its own tests to extend — never to weaken
+    (SPEC §15.1): the availability page (§6.2), `/le-mie-prenotazioni` (§15.6),
+    the panel's "Prenotazioni da controllare" list (§15.12), the nightly
+    reminder run (§15.10), the nightly cleanup run (§15.11), account erasure
+    (§15.12), and the privacy notice. Anyone who reads "additive" and plans one
+    session for the module is out by a factor of five.
+
+21. **Activities never use `FINESTRA_GIORNI`.** An edition runs 29 days and a
+    resident must see the whole programme on arrival. The activity list is
+    bounded by the active `edizione`, not by the rolling window. Never apply
+    the window to `attivita` or `iscrizioni`, and never widen the window for
+    the coworking side to accommodate them.
+
+22. **Access to the module is enforced in the database.** Every read of
+    `attivita` and `iscrizioni` requires an active `abilitazione` for the active
+    `edizione`, imposed by RLS. A user without one must not be able to retrieve
+    a title, an `abitante_nome`, or a `luogo_generico` — not through a direct
+    link, not through an id guessed by hand, not through the offline cache.
+
+23. **Invite codes exist only as hashes, and carry a number.** Store `impronta`
+    with the same keyed hash already used for `richieste_link`
+    (`CHIAVE_IMPRONTE_ACCESSO`). Never store, log, email or return a code in
+    clear text after the generation screen. The rejection message is identical
+    for a code that is unknown, already used, or revoked.
+
+    Each row also carries `progressivo`, unique within the edition and printed
+    small on the card. It is the only handle the panel has: without it, "I lost
+    my code" faces forty-five indistinguishable rows. **Numbers are never
+    reused**, not even after a revocation — the pairing between number and
+    person lives on the paper list of whoever hands out the keys, and a reissued
+    number would make that list lie. No name and no email ever go on the card or
+    into `codici_invito`.
+
+    The hourly attempt limit of §15.4 uses `tentativi_codice`, keyed by
+    `utente_id` — **not** a fingerprint. Fingerprints exist in §6.1 because
+    there the person has no identity yet and only an email address is known.
+    Here the caller has already signed in and their id is already in the
+    database; hashing it would protect nothing and make the count unreadable.
+
+24. **The abitante's data has three visibility levels, enforced by three views.**
+    SPEC §15.8 is exact. Level 1, every abilitated user: `abitante_nome` (first
+    name only), `titolo`, `luogo_generico`, `descrizione`. Level 2, **only users
+    holding an `ATTIVA` `iscrizione` on that activity**: `abitante_cognome`,
+    `abitante_telefono`, `luogo_esatto`. Level 3, admin only and in no export:
+    `abitante_note_interne`.
+
+    **Do not try to express level 2 as a column grant.** The requirement is
+    "these columns, only for the rows you are enrolled in" — row-dependent
+    column visibility, which Postgres cannot state in one rule: `GRANT` is per
+    role, RLS is per row, and neither combines with the other. The table
+    `attivita` is therefore revoked from everyone, and three views stand over
+    it: `attivita_elenco` (level 1, abilitated users, published rows of the
+    active edition), `attivita_iscritto` (levels 1+2, only rows where the caller
+    holds an `ATTIVA` iscrizione), `attivita_amministrazione` (everything,
+    admin only). Writes go through functions. A `SELECT *` by an abilitated
+    non-enrolled user must not return a level 2 column — and cancelling an
+    iscrizione takes level 2 away in the same instant.
+
+25. **An activity cannot be published without the consent checkbox.**
+    `consenso_raccolto` is an admin attestation that a signed consent is held by
+    the Direttivo — the abitante has no account and signs nothing digitally.
+    Enforce the constraint in the database, not only in the form.
+    `consenso_raccolto_il` and `consenso_raccolto_da` are written by the system,
+    never by the user. Clearing the checkbox returns the activity to `BOZZA`.
+    Never invent a digital consent flow for abitanti: they are not users and
+    will not become ones.
+
+    `consenso_modalita` is a **closed list of two**, mandatory whenever the box
+    is ticked: `MODULO_CARTACEO_FIRMATO` or `EMAIL_DI_CONSENSO`. Never widen it
+    — a verbal agreement minuted in a meeting proves the association said
+    something, not that the abitante consented, and SPEC §15.8 rests entirely on
+    the paper being real. An abitante who can give neither a signature nor an
+    email simply does not get published: that activity is organised outside the
+    app.
+
+26. **`descrizione` is a third party's own words.** It is written by the
+    abitante and transcribed by the admin, up to 4000 characters, and published
+    to every abilitated user. No automatic filter can vet it — it may contain a
+    phone number, a home address, a relative's name. Do not add one; do surface
+    the re-read reminder on the publish screen (SPEC §15.9). Never rewrite,
+    summarise or truncate it on display.
+
+27. **One entry point, no navigation item.** The module is reached from the
+    **top** of the availability page: a Stile 1 button labelled "Prenota un
+    abitante", shown only to signed-in users and only while an `edizione` is
+    active (SPEC §15.5). Do not add a header nav item, do not add a link on the
+    "Chi c'è in Valle" page, and do not promote the module anywhere else.
+
+    **The button stands alone** — no note above it, no helper line below, and
+    the same for everyone whether or not they hold an `abilitazione`. A first
+    draft paired it with "Sei un partecipante di VIHTA?"; that was removed on
+    2026-09-12. Do not reinstate it, and do not add a variant of it: the
+    explaining is done on `/abitanti`, behind the button, where it costs
+    nothing to the people who came to book a desk.
+
+    `/abitanti` is **one address that shows two things**: the code form to
+    someone without an abilitazione, the activity list to someone with one.
+    There is no `/abitanti/accesso` — it was in an earlier draft and was merged
+    away on 2026-09-12, because the button cannot know in advance who will
+    press it.
+
+28. **Nothing travels in the sign-in link, and the module must not need it.**
+    The card's QR points at `/abitanti`; a signed-out visitor who scans it signs
+    in normally and lands on the availability page, where the button of rule 27
+    is at the top where they cannot miss it. That is the whole mechanism, and it
+    is why `richiediLink`, the two email templates and `/auth/conferma` are not
+    touched by this module. Carrying a destination through the link was
+    considered and rejected on 2026-09-12 (SPEC §15.4): do not reintroduce it,
+    and never add a `next` parameter to the authentication path to make some
+    later screen more convenient.
+
+29. **The module has no waiting list, and adding one is not a small change.**
+    `iscrizioni.stato` has two values, `ATTIVA` and `ANNULLATA` (D22, SPEC
+    §15.7). A full activity says "Completa" and offers nothing else. When a
+    place frees up the swap is closed by a human: the admin cancels one
+    iscrizione and creates another from the panel (SPEC §15.9). Those two admin
+    actions are **the only place in this codebase where somebody may act on
+    another person's row**, they exist only for `iscrizioni` and never for
+    `prenotazioni`, they are recorded in `creata_da` / `annullata_da`, and both
+    send the affected person an email. Rule 6 is intact: it forbids *automatic*
+    cancellation, not a decision a person takes and signs.
+
 ---
 
 ## Domain vocabulary
@@ -188,7 +342,14 @@ translate them, do not mix languages within an identifier.
 | `stat_*`               | Snapshot of the five fields copied onto a `prenotazione` at anonymisation time (SPEC §5.3). No longer personal data — nothing links them back to a person. |
 | `consenso`             | Append-only log. Two independent types: `NOME_PUBBLICO` and `DATI_FACOLTATIVI`. Either can be given or revoked without touching the other.      |
 | `moderazione`          | After-the-fact clearing of an offensive `nome_pubblico` by an admin, plus the blocklist and notification around it. See SPEC §6.5.              |
-| `impronta`             | Keyed hash of an email or network address, used only by the link request limit (`richieste_link`, SPEC §6.1). Never reversible, expires after one hour. No address of either kind is ever stored. |
+| `edizione`             | The period during which the activities module is visible. At most one active at a time. Time switch for the module, same idea as `periodo_attivita` (SPEC §15.3.1). |
+| `attivita`             | A one-off event proposed by a valley resident: own date, time, place, capacity. Not a `prenotazione` — never repeats, never fits the grid.      |
+| `abitante`             | The person offering an activity. **Not a platform user**: no account, no digital consent, data entered by the admin against a hand-signed paper form (SPEC §15.8). Their fields sit at three visibility levels — see rule 24. |
+| `iscrizione`           | A VIHTA participant's place on an `attivita`. Two states only: `ATTIVA`, `ANNULLATA` — there is no waiting list (rule 29). Same `posto_progressivo` and `stat_*` pattern as `prenotazione`. |
+| `abilitazione`         | A user's permission to use the module for one `edizione`. The real authorisation — the code only creates it (SPEC §15.3.4).                    |
+| `codice_invito`        | One-time card handed to a VIHTA participant on arrival, carrying a `progressivo` unique within the edition. Consumed on first use. Only its `impronta` is stored, never the code (SPEC §15.3.5). |
+| `VIHTA`                | The temporary residency in Valle Soana. Its participants are the only people who reach «Prenota un abitante»; outside the module they are ordinary users. Never a role, never a column: what grants access is the `abilitazione`. |
+| `impronta`             | Keyed hash, never reversible, of a value the app must recognise without storing. Two independent uses, with two different lifetimes: the link request limit of SPEC §6.1 (`richieste_link`, hashes of an email or a network address, **expiring after one hour**) and the invite codes of SPEC §15.3.5 (`codici_invito`, **living as long as the edition plus `GIORNI_CHIUSURA_EDIZIONE`**). Neither an address nor a code is ever stored in clear. The hourly limit on code attempts is *not* an impronta: see rule 23. |
 
 Code comments and commit messages: English.
 Anything a user reads: Italian, in `messages/it.json` — never hardcoded in JSX,
@@ -454,6 +615,77 @@ except the one marked as still to come:
   is unreadable by anon and authenticated; `otp_expiry` in `config.toml` and
   the templates agree with `VALIDITA_LINK_MINUTI`.
 
+### Activities module (SPEC §15)
+
+- `tests/abilitazioni.test.ts` — a user without an active `abilitazione` for the
+  active `edizione` cannot read any row of `attivita` or `iscrizioni`, by any
+  route: list, direct id, joined query, or cached response. A revoked
+  `abilitazione` blocks new and changed `iscrizioni` but leaves existing ones
+  readable by their owner.
+- `tests/codici.test.ts` — a code is accepted once and creates exactly one
+  `abilitazione`; the second attempt is refused; the rejection message is
+  byte-identical for unknown, used and revoked codes; no clear-text code is
+  ever persisted or returned after generation; the
+  `MAX_TENTATIVI_CODICE_ORA + 1`-th attempt in an hour is refused and the
+  attempts are counted in `tentativi_codice`, which is unreadable by anon and
+  authenticated; `progressivo` is unique within an edition and is never reused
+  after a revocation; a code from a closed edition does not work.
+- `tests/iscrizioni.test.ts` — N simultaneous sign-ups on an activity with
+  capacity M produce exactly min(N, M) `ATTIVA` rows and **nothing else** —
+  there is no waiting list, so the rest simply fail — enforced by the unique
+  constraint and not by application code; a user cannot hold two non-cancelled
+  `iscrizioni` on the same activity; nobody can cancel another person's
+  iscrizione except an amministratore, and an iscrizione whose activity has
+  already begun can no longer be cancelled.
+- `tests/iscrizioni-amministratore.test.ts` — an amministratore can cancel
+  another person's `iscrizione` and create one on their behalf; both write
+  `annullata_da` / `creata_da` and send exactly one email to the person
+  concerned; neither action can touch a `prenotazione`, whatever it is asked
+  to do; an admin sign-up on a full activity is refused by the same capacity
+  constraint as everyone else; no non-admin can call either.
+- `tests/attivita-consenso.test.ts` — an `attivita` with `consenso_raccolto`
+  false cannot be set to `PUBBLICATA`, rejected at database level; a
+  `consenso_raccolto` true without a `consenso_modalita` from the closed list
+  of two is rejected too; clearing the flag on a published activity returns it
+  to `BOZZA`; `consenso_raccolto_il` and `consenso_raccolto_da` are written by
+  the system and cannot be set from a request.
+- `tests/livelli-abitante.test.ts` — an abilitated user who is **not** enrolled
+  cannot retrieve `abitante_cognome`, `abitante_telefono` or `luogo_esatto` by
+  any route, including `SELECT *` on every view and on the table itself;
+  enrolling grants them and cancelling removes them again in the same instant;
+  `abitante_note_interne` is unreachable for every non-admin and absent from
+  every export; `descrizione` is returned whole, never truncated.
+- `tests/edizione.test.ts` — activating an edition deactivates any other;
+  outside an active edition the module is unreachable and the availability-page
+  entry of §15.5 is absent; that entry is also absent for a visitor who has not
+  signed in; an activity dated outside its edition is refused.
+
+**Existing tests the module extends** — extends, never relaxes. Step 20 of
+SPEC §15.14 is the one that touches them, and every assertion already in them
+must still hold afterwards:
+
+- `tests/diritti.test.ts` — erasure now also cancels the person's future
+  `iscrizioni` and frees their seats, anonymises the past ones with `stat_*`
+  left empty, and removes their `abilitazione`, `codice_invito` and
+  `tentativi_codice`. The export still carries no `posto_progressivo` and no
+  `stat_` column, for iscrizioni as for prenotazioni.
+- `tests/retention.test.ts` — the nightly run now also anonymises iscrizioni
+  30 days past the **activity's** date, deletes abilitazioni and code
+  fingerprints of an edition closed for `GIORNI_CHIUSURA_EDIZIONE`, clears the
+  abitante's data of a closed edition **including `titolo` and `descrizione`**,
+  and drops code attempts older than an hour.
+- `tests/installabilita.test.ts` — `sw.js` must refuse to keep **any** page of
+  the module offline: not the list, not a detail, not the code form. Same
+  reason as `chi-ce-in-valle`, and one more: a cached activity page would
+  outlive the `abilitazione` that entitled someone to read it.
+- `tests/promemoria.test.ts` — one nightly run, now two lists. Everything the
+  file already asserts about bookings must still pass unchanged.
+- `tests/disponibilita.test.ts` — the entry of §15.5 appears only for a
+  signed-in user with an active edition, and the view still carries counts
+  only.
+- `tests/amministrazione.test.ts` — the new panel section is unreachable by
+  anyone who is not an amministratore, like every other part of it.
+
 If a change breaks one of these, the change is wrong. Do not adjust the test.
 
 ---
@@ -463,7 +695,11 @@ If a change breaks one of these, the change is wrong. Do not adjust the test.
 - **Plan first.** Propose the plan and wait for approval before writing code.
   The maintainer is non-technical: explain the plan in plain language, and
   state explicitly what will change and what could break.
-- **One feature per session**, one commit per feature, small diffs.
+- **One feature per session**, one commit per feature, small diffs. For the
+  activities module this is not a figure of speech: SPEC §15.14 divides it into
+  seven steps, 14 to 20, one per session, in that order. Do not start a step
+  before the previous one's tests pass, and do not merge two of them because
+  they look small.
 - **Ask instead of assuming**, especially about: personal data fields, who can
   see what, and anything touching the consent flow. A wrong guess in those
   areas is expensive to undo.
