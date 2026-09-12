@@ -13,9 +13,12 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { aggiungiGiorni, oggiRoma } from "@/lib/dates";
 import {
   assegnaIncarico,
+  CODICE_PERMESSO_NEGATO,
   creaAttivita,
   creaEdizione,
   creaUtente,
+  creaUtenti,
+  inserisciIscrizioneDiretta,
   pulisci,
   pulisciEdizioni,
   servizio,
@@ -268,5 +271,305 @@ describe("la scheda si compila anche a metà (§15.3.2, 12/09/2026)", () => {
         .insert({ edizione_id: edizione, titolo: "Ancora senza giorno" });
       expect(senzaData).toBeNull();
     });
+  });
+});
+
+/**
+ * The panel's path to the same rules — SPEC §15.9, §15.14 step 16.
+ *
+ * Everything above asserts what the database refuses when a row is written
+ * straight into the table. This asserts the same refusals through the five
+ * functions the panel actually calls, plus the two things the functions add:
+ * the tick is written from the session of the amministratore who pressed the
+ * button, and nobody else can press it.
+ */
+describe("§15.9 il percorso dal pannello", () => {
+  const edizioni: string[] = [];
+  let edizione: string;
+  let admin: UtenteTest;
+  let estraneo: UtenteTest;
+
+  beforeAll(async () => {
+    edizione = await creaEdizione();
+    edizioni.push(edizione);
+    [admin, estraneo] = await creaUtenti(2);
+    await assegnaIncarico(admin.id, "AMMINISTRATORE");
+  });
+
+  afterAll(async () => {
+    await pulisciEdizioni(edizioni);
+    await pulisci({ utenti: [admin, estraneo] });
+  });
+
+  /** A card created the way the panel creates one: empty, in BOZZA. */
+  async function nuovaScheda(titolo = "Scheda dal pannello"): Promise<string> {
+    const { data, error } = await admin.client.rpc("crea_attivita", {
+      p_edizione_id: edizione,
+      p_titolo: titolo,
+    });
+    expect(error).toBeNull();
+    return data as string;
+  }
+
+  const schedaPiena = (id: string) => ({
+    p_id: id,
+    p_titolo: "Pane nel forno a legna",
+    p_descrizione: "Le parole dell'abitante, trascritte così come sono.",
+    p_abitante_nome: "Nome",
+    p_abitante_cognome: "Cognome",
+    p_abitante_telefono: "000 0000000",
+    p_abitante_note_interne: "Chiamare dopo le 18.",
+    p_luogo_generico: "Frazione di prova",
+    p_luogo_esatto: "Via di prova 1",
+    p_data: aggiungiGiorni(oggiRoma(), 2),
+    p_ora_inizio: "18:00",
+    p_ora_fine: "20:00",
+    p_capienza: 6,
+    p_cosa_portare: "Grembiule",
+    p_lingua_attivita: "Italiano",
+  });
+
+  it("si crea una scheda vuota e si finisce dopo", async () => {
+    const id = await nuovaScheda();
+    const { data: appena } = await servizio()
+      .from("attivita")
+      .select("stato, titolo, data, capienza")
+      .eq("id", id)
+      .single();
+    expect(appena?.stato).toBe("BOZZA");
+    expect(appena?.titolo).toBe("Scheda dal pannello");
+    expect(appena?.data).toBeNull();
+    expect(appena?.capienza).toBeNull();
+
+    const { error } = await admin.client.rpc("aggiorna_attivita", schedaPiena(id));
+    expect(error).toBeNull();
+
+    const { data: finita } = await servizio()
+      .from("attivita")
+      .select("titolo, abitante_telefono, luogo_esatto, capienza, stato")
+      .eq("id", id)
+      .single();
+    expect(finita?.titolo).toBe("Pane nel forno a legna");
+    expect(finita?.abitante_telefono).toBe("000 0000000");
+    expect(finita?.capienza).toBe(6);
+    // Saving the card never publishes it: that is its own act (§15.8).
+    expect(finita?.stato).toBe("BOZZA");
+  });
+
+  it("pubblicare scrive la spunta, la forma, e chi l'ha messa", async () => {
+    const id = await nuovaScheda();
+    await admin.client.rpc("aggiorna_attivita", schedaPiena(id));
+
+    const { error } = await admin.client.rpc("pubblica_attivita", {
+      p_id: id,
+      p_modalita: "MODULO_CARTACEO_FIRMATO",
+    });
+    expect(error).toBeNull();
+
+    const { data } = await servizio()
+      .from("attivita")
+      .select(
+        "stato, consenso_raccolto, consenso_modalita, consenso_raccolto_il, consenso_raccolto_da",
+      )
+      .eq("id", id)
+      .single();
+    expect(data?.stato).toBe("PUBBLICATA");
+    expect(data?.consenso_raccolto).toBe(true);
+    expect(data?.consenso_modalita).toBe("MODULO_CARTACEO_FIRMATO");
+    expect(data?.consenso_raccolto_il).not.toBeNull();
+    // The point of §15.8: in a year somebody must be able to say who declared it.
+    expect(data?.consenso_raccolto_da).toBe(admin.id);
+  });
+
+  it("pubblicare senza indicare la forma è rifiutato", async () => {
+    const id = await nuovaScheda();
+    const { error } = await admin.client.rpc("pubblica_attivita", {
+      p_id: id,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      p_modalita: null as any,
+    });
+    expect(error?.code).toBe("AT004");
+
+    const { data } = await servizio().from("attivita").select("stato").eq("id", id).single();
+    expect(data?.stato).toBe("BOZZA");
+  });
+
+  it("salvare una scheda pubblicata non ridata la spunta né la sposta", async () => {
+    const id = await nuovaScheda();
+    await admin.client.rpc("aggiorna_attivita", schedaPiena(id));
+    await admin.client.rpc("pubblica_attivita", {
+      p_id: id,
+      p_modalita: "EMAIL_DI_CONSENSO",
+    });
+    const { data: prima } = await servizio()
+      .from("attivita")
+      .select("consenso_raccolto_il, consenso_raccolto_da")
+      .eq("id", id)
+      .single();
+
+    await new Promise((r) => setTimeout(r, 50));
+    const { error } = await admin.client.rpc("aggiorna_attivita", {
+      ...schedaPiena(id),
+      p_titolo: "Titolo corretto",
+    });
+    expect(error).toBeNull();
+
+    const { data: dopo } = await servizio()
+      .from("attivita")
+      .select("titolo, stato, consenso_raccolto_il, consenso_raccolto_da, consenso_modalita")
+      .eq("id", id)
+      .single();
+    expect(dopo?.titolo).toBe("Titolo corretto");
+    expect(dopo?.stato).toBe("PUBBLICATA");
+    expect(dopo?.consenso_modalita).toBe("EMAIL_DI_CONSENSO");
+    expect(dopo?.consenso_raccolto_il).toBe(prima?.consenso_raccolto_il);
+    expect(dopo?.consenso_raccolto_da).toBe(prima?.consenso_raccolto_da);
+  });
+
+  it("ritirare riporta in BOZZA e lascia gli iscritti dov'erano", async () => {
+    const id = await creaAttivita({ edizione_id: edizione });
+    const iscrizione = await inserisciIscrizioneDiretta({
+      attivita_id: id,
+      utente_id: estraneo.id,
+    });
+
+    const { error } = await admin.client.rpc("ritira_attivita", { p_id: id });
+    expect(error).toBeNull();
+
+    const { data: scheda } = await servizio()
+      .from("attivita")
+      .select("stato, consenso_raccolto, consenso_modalita, consenso_raccolto_il")
+      .eq("id", id)
+      .single();
+    expect(scheda?.stato).toBe("BOZZA");
+    expect(scheda?.consenso_raccolto).toBe(false);
+    expect(scheda?.consenso_modalita).toBeNull();
+    expect(scheda?.consenso_raccolto_il).toBeNull();
+
+    // §15.12: il sistema lo segnala, non decide al posto di nessuno (rule 6).
+    const { data: ancora } = await servizio()
+      .from("iscrizioni")
+      .select("stato, annullata_il")
+      .eq("id", iscrizione)
+      .single();
+    expect(ancora?.stato).toBe("ATTIVA");
+    expect(ancora?.annullata_il).toBeNull();
+  });
+
+  it("annullare spegne l'attività e le sue iscrizioni, e dice quante persone avvisare", async () => {
+    const id = await creaAttivita({ edizione_id: edizione });
+    const iscrizione = await inserisciIscrizioneDiretta({
+      attivita_id: id,
+      utente_id: estraneo.id,
+    });
+
+    const { data: quante, error } = await admin.client.rpc("annulla_attivita", { p_id: id });
+    expect(error).toBeNull();
+    expect(quante).toBe(1);
+
+    const { data: scheda } = await servizio().from("attivita").select("stato").eq("id", id).single();
+    expect(scheda?.stato).toBe("ANNULLATA");
+
+    const { data: spenta } = await servizio()
+      .from("iscrizioni")
+      .select("stato, annullata_il, annullata_da")
+      .eq("id", iscrizione)
+      .single();
+    expect(spenta?.stato).toBe("ANNULLATA");
+    expect(spenta?.annullata_il).not.toBeNull();
+    // §15.9: chi ha agito resta scritto per sempre.
+    expect(spenta?.annullata_da).toBe(admin.id);
+  });
+
+  it("annullare un'attività non tocca nessuna prenotazione", async () => {
+    // Rule 6 in its narrowest reading: these powers exist for iscrizioni and
+    // never for prenotazioni (§15.9). Step 18 asserts the same of its two
+    // actions; this asserts it of the one that arrives first.
+    const { count: prima } = await servizio()
+      .from("prenotazioni")
+      .select("id", { count: "exact", head: true })
+      .eq("stato", "ATTIVA");
+
+    const id = await creaAttivita({ edizione_id: edizione });
+    await admin.client.rpc("annulla_attivita", { p_id: id });
+
+    const { count: dopo } = await servizio()
+      .from("prenotazioni")
+      .select("id", { count: "exact", head: true })
+      .eq("stato", "ATTIVA");
+    expect(dopo).toBe(prima);
+  });
+
+  it("una data fuori dall'edizione è rifiutata anche dal pannello", async () => {
+    const id = await nuovaScheda();
+    const { error } = await admin.client.rpc("aggiorna_attivita", {
+      ...schedaPiena(id),
+      p_data: aggiungiGiorni(oggiRoma(), 400),
+    });
+    expect(error?.code).toBe("AT002");
+  });
+
+  it("le lunghezze massime valgono anche passando dalle funzioni", async () => {
+    const id = await nuovaScheda();
+    const { error } = await admin.client.rpc("aggiorna_attivita", {
+      ...schedaPiena(id),
+      p_descrizione: "x".repeat(4001),
+    });
+    expect(error?.code).toBe(VIOLAZIONE_VINCOLO);
+  });
+
+  it("una scheda che non c'è si dice, non si inventa", async () => {
+    const { error } = await admin.client.rpc(
+      "aggiorna_attivita",
+      schedaPiena("00000000-0000-0000-0000-000000000000"),
+    );
+    expect(error?.code).toBe("AT003");
+  });
+
+  it("chi non è amministratore non può chiamare nessuna delle cinque funzioni", async () => {
+    const id = await creaAttivita({ edizione_id: edizione });
+
+    const crea = await estraneo.client.rpc("crea_attivita", { p_edizione_id: edizione });
+    expect(crea.error?.code).toBe(CODICE_PERMESSO_NEGATO);
+
+    const aggiorna = await estraneo.client.rpc("aggiorna_attivita", schedaPiena(id));
+    expect(aggiorna.error?.code).toBe(CODICE_PERMESSO_NEGATO);
+
+    const pubblica = await estraneo.client.rpc("pubblica_attivita", {
+      p_id: id,
+      p_modalita: "EMAIL_DI_CONSENSO",
+    });
+    expect(pubblica.error?.code).toBe(CODICE_PERMESSO_NEGATO);
+
+    const ritira = await estraneo.client.rpc("ritira_attivita", { p_id: id });
+    expect(ritira.error?.code).toBe(CODICE_PERMESSO_NEGATO);
+
+    const annulla = await estraneo.client.rpc("annulla_attivita", { p_id: id });
+    expect(annulla.error?.code).toBe(CODICE_PERMESSO_NEGATO);
+
+    // And nothing moved.
+    const { data } = await servizio().from("attivita").select("stato").eq("id", id).single();
+    expect(data?.stato).toBe("PUBBLICATA");
+  });
+
+  it("nemmeno un amministratore scrive sulla tabella: si passa dalle funzioni", async () => {
+    // Rule 24: `attivita` is reachable by nobody, admin included. The panel
+    // has five verbs and no sixth way in.
+    const id = await creaAttivita({ edizione_id: edizione });
+
+    const inserimento = await admin.client.from("attivita").insert({ edizione_id: edizione });
+    expect(inserimento.error).not.toBeNull();
+
+    const modifica = await admin.client
+      .from("attivita")
+      .update({ titolo: "Scritto di lato" })
+      .eq("id", id);
+    expect(modifica.error).not.toBeNull();
+
+    const cancellazione = await admin.client.from("attivita").delete().eq("id", id);
+    expect(cancellazione.error).not.toBeNull();
+
+    const { data } = await servizio().from("attivita").select("titolo").eq("id", id).single();
+    expect(data?.titolo).not.toBe("Scritto di lato");
   });
 });

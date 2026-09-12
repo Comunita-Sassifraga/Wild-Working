@@ -1896,6 +1896,27 @@ export type Database = {
     }
     Functions: {
       abilita_utente: { Args: { p_utente_id: string }; Returns: string }
+      aggiorna_attivita: {
+        Args: {
+          p_abitante_cognome?: string
+          p_abitante_nome?: string
+          p_abitante_note_interne?: string
+          p_abitante_telefono?: string
+          p_capienza?: number
+          p_cosa_portare?: string
+          p_data?: string
+          p_descrizione?: string
+          p_id: string
+          p_lingua_attivita?: string
+          p_luogo_esatto?: string
+          p_luogo_generico?: string
+          p_ora_fine?: string
+          p_ora_inizio?: string
+          p_titolo?: string
+        }
+        Returns: undefined
+      }
+      annulla_attivita: { Args: { p_id: string }; Returns: number }
       annullabile: {
         Args: {
           p_data: string
@@ -1950,6 +1971,10 @@ export type Database = {
       conta_persone_in_uscita: {
         Args: { p_soglia?: string; p_utente_id?: string }
         Returns: undefined
+      }
+      crea_attivita: {
+        Args: { p_edizione_id: string; p_titolo?: string }
+        Returns: string
       }
       dentro_giorno_mese: {
         Args: { p_data: string; p_fine: string; p_inizio: string }
@@ -2045,6 +2070,13 @@ export type Database = {
           utente_id: string
         }[]
       }
+      pubblica_attivita: {
+        Args: {
+          p_id: string
+          p_modalita: Database["public"]["Enums"]["modalita_consenso"]
+        }
+        Returns: undefined
+      }
       registra_accesso: { Args: never; Returns: boolean }
       registra_posti_offerti: {
         Args: { p_da?: string; p_fino_a?: string }
@@ -2055,6 +2087,7 @@ export type Database = {
         Returns: undefined
       }
       revoca_codice: { Args: { p_codice_id: string }; Returns: undefined }
+      ritira_attivita: { Args: { p_id: string }; Returns: undefined }
       sede_aperta: {
         Args: {
           p_data: string

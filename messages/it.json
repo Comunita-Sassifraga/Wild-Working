@@ -274,7 +274,9 @@
       "codici": "Cartoncini",
       "codiciNota": "Genera e stampa i codici da consegnare all'arrivo, insieme alle chiavi. Ogni cartoncino ha il suo numero.",
       "abilitazioni": "Abilitazioni",
-      "abilitazioniNota": "Chi può entrare nel modulo. Qui si abilita una persona a mano e si revoca l'accesso a chi serve."
+      "abilitazioniNota": "Chi può entrare nel modulo. Qui si abilita una persona a mano e si revoca l'accesso a chi serve.",
+      "attivita": "Attività",
+      "attivitaNota": "Le schede delle attività proposte dagli abitanti: si caricano, si rileggono e si pubblicano quando il consenso della persona è in mano vostra."
     },
     "abitanti": {
       "titolo": "Prenota un abitante",
@@ -516,6 +518,135 @@
         "abilitata": "Persona abilitata."
       }
     },
+    "attivita": {
+      "titolo": "Attività",
+      "introduzione": "Una scheda per ogni attività proposta da un abitante della valle. Si salva anche a metà e si finisce quando si ha il resto sottomano: quello che conta è che prima di pubblicarla ci sia il consenso della persona.",
+      "senzaEdizione": "Non c'è ancora nessuna edizione. Creane una: le attività stanno sempre dentro un'edizione.",
+      "scegliEdizione": "Edizione su cui stai lavorando",
+      "mostra": "Mostra",
+      "nonCominciata": "Questa edizione non è ancora cominciata. Va benissimo caricare adesso le schede: compariranno ai partecipanti quando si apre.",
+      "gruppi": {
+        "BOZZA": "Bozze",
+        "PUBBLICATA": "Pubblicate",
+        "ANNULLATA": "Annullate"
+      },
+      "vuoto": "Non c'è ancora nessuna attività in questa edizione.",
+      "nessunaIn": "Nessuna.",
+      "senzaTitolo": "Scheda senza titolo",
+      "quando": "{giorno}, dalle {inizio} alle {fine}",
+      "senzaGiorno": "Giorno ancora da mettere",
+      "posti": "{iscritti} iscritti su {capienza} posti",
+      "senzaPosti": "Posti ancora da mettere",
+      "daFinire": "Manca ancora: {campi}",
+      "apri": "Apri",
+      "crea": {
+        "titolo": "Nuova attività",
+        "campo": "Titolo",
+        "nota": "Anche solo due parole per ritrovarla: il resto si mette dopo.",
+        "pulsante": "Crea",
+        "creata": "Attività creata. Ora riempi la scheda."
+      },
+      "scheda": {
+        "torna": "Torna alle attività",
+        "salva": "Salva",
+        "salvata": "Scheda salvata.",
+        "vaiAPubblica": "Vai alla pubblicazione",
+        "statoBozza": "Bozza: non la vede nessun partecipante.",
+        "statoPubblicata": "Pubblicata: la vedono tutti i partecipanti abilitati.",
+        "statoAnnullata": "Annullata: non la vede più nessuno e le iscrizioni sono state annullate.",
+        "iscritti": "{quanti} iscritti",
+        "livello1": {
+          "titolo": "L'attività",
+          "chiLoVede": "Lo vedono tutti i partecipanti abilitati, anche prima di iscriversi."
+        },
+        "livello2": {
+          "titolo": "Come trovare la persona",
+          "chiLoVede": "Lo vede solo chi si è iscritto a questa attività, e lo riceve nell'email di conferma. Chi annulla l'iscrizione smette di vederlo nello stesso momento."
+        },
+        "livello3": {
+          "titolo": "Appunti vostri",
+          "chiLoVede": "Non lo vede nessun partecipante e non esce in nessun elenco da consegnare."
+        }
+      },
+      "campi": {
+        "titolo": "Titolo",
+        "descrizione": "Descrizione",
+        "abitante_nome": "Nome",
+        "abitante_cognome": "Cognome",
+        "abitante_telefono": "Telefono",
+        "abitante_note_interne": "Note interne",
+        "luogo_generico": "Comune o frazione",
+        "luogo_esatto": "Indirizzo esatto",
+        "data": "Giorno",
+        "ora_inizio": "Dalle",
+        "ora_fine": "Alle",
+        "capienza": "Posti",
+        "cosa_portare": "Cosa portare",
+        "lingua_attivita": "Lingua"
+      },
+      "note": {
+        "descrizione": "Le parole dell'abitante, come le ha dette lui: chi è, cosa propone, perché. Trascrivile o incollale così come sono, senza riscriverle.",
+        "abitante_nome": "Solo il nome di battesimo.",
+        "abitante_telefono": "Serve ai partecipanti per avvisarlo se hanno un imprevisto il giorno stesso.",
+        "abitante_note_interne": "Email, a che ora chiamarlo, accordi presi. Roba vostra.",
+        "luogo_generico": "Il comune o la frazione, senza l'indirizzo.",
+        "luogo_esatto": "L'indirizzo di casa, o il punto d'incontro preciso.",
+        "data": "Dev'essere un giorno dentro l'edizione.",
+        "capienza": "Quante persone può ospitare.",
+        "cosa_portare": "Scarponi, grembiule, contanti. Se non serve niente, lascia vuoto.",
+        "lingua_attivita": "Utile ai partecipanti stranieri. Se non serve, lascia vuoto."
+      },
+      "pubblica": {
+        "titolo": "Pubblicare l'attività",
+        "introduzione": "Da qui l'attività diventa visibile ai partecipanti abilitati. Due cose prima di premere: rileggi la descrizione e conferma di avere il consenso della persona.",
+        "torna": "Torna alla scheda",
+        "mancanti": {
+          "titolo": "Campi ancora vuoti",
+          "elenco": "Manca ancora: {campi}. Si può pubblicare lo stesso, ma conviene saperlo.",
+          "senzaData": "Senza il giorno l'attività non comparirà nell'elenco dei partecipanti: nessuno la vedrà.",
+          "senzaCapienza": "Senza i posti l'attività non accetterà nessuna iscrizione.",
+          "completa": "La scheda è completa."
+        },
+        "rileggi": {
+          "titolo": "Rileggi la descrizione",
+          "avviso": "L'ha scritta l'abitante, non voi, e la leggeranno tutti i partecipanti. Può contenere un numero di telefono, l'indirizzo di casa, il nome di un nipote, senza che lui ci abbia fatto caso. Nessun controllo automatico se ne accorge: l'unica rilettura è la tua.",
+          "vuota": "Questa scheda non ha ancora una descrizione."
+        },
+        "consenso": {
+          "titolo": "Il consenso",
+          "spunta": "Ho raccolto e conservo il consenso di questa persona, firmato su carta o ricevuto per email da un suo indirizzo. È stata informata di quali suoi dati verranno mostrati e a chi.",
+          "forma": "In che forma l'avete raccolto",
+          "MODULO_CARTACEO_FIRMATO": "Modulo cartaceo firmato",
+          "EMAIL_DI_CONSENSO": "Email di consenso",
+          "nota": "La spunta non è il consenso: il consenso è il foglio firmato, che resta in mano al Direttivo. Qui resta scritto solo chi l'ha dichiarato e quando. L'accordo a voce non basta, nemmeno se è a verbale: se non c'è né firma né email, questa attività si organizza fuori dall'applicazione.",
+          "messa": "Consenso dichiarato il {data}, forma: {forma}."
+        },
+        "anteprima": {
+          "titolo": "Come la vedranno",
+          "livello1": "Nell'elenco, tutti i partecipanti abilitati",
+          "livello2": "Dopo l'iscrizione, solo chi si iscrive a questa attività",
+          "vuoto": "— non messo —"
+        },
+        "pulsante": "Pubblica",
+        "pubblicata": "Attività pubblicata. Da adesso la vedono i partecipanti abilitati.",
+        "ripubblica": "Aggiorna la pubblicazione"
+      },
+      "ritira": {
+        "titolo": "L'abitante ha cambiato idea",
+        "avviso": "Togliendo la spunta del consenso l'attività torna in bozza e sparisce dall'elenco.",
+        "conIscritti": "Ci sono {quanti} persone iscritte: restano iscritte, e vanno avvisate a mano. Il sistema non annulla l'iscrizione di nessuno al posto tuo.",
+        "pulsante": "Togli la spunta e riporta in bozza",
+        "ritirata": "Attività riportata in bozza. Gli iscritti restano: avvisali tu."
+      },
+      "annulla": {
+        "titolo": "Annullare l'attività",
+        "avviso": "L'attività non si farà. Sparisce dall'elenco e non si può più riaprire: se è solo da correggere, usa la bozza.",
+        "conIscritti": "Ci sono {quanti} persone iscritte: le loro iscrizioni verranno annullate. Scrivi tu a ciascuna per dirglielo.",
+        "pulsante": "Annulla l'attività",
+        "annullata": "Attività annullata.",
+        "annullataConIscritti": "Attività annullata. {quanti} iscrizioni sono state annullate: avvisa le persone."
+      }
+    },
     "errori": {
       "HA_PRENOTAZIONI": "Questa sede ha delle prenotazioni collegate, quindi non si può eliminare. Se non va più usata, sospendila con l'interruttore.",
       "GIA_PRESENTE": "C'è già: non serve aggiungerlo un'altra volta.",
@@ -529,7 +660,10 @@
       "CODICE_GIA_USATO": "Questo cartoncino è già stato usato, quindi revocarlo non toglierebbe l'accesso a nessuno. Per chiudere fuori una persona già entrata, revoca la sua abilitazione.",
       "NON_TROVATO": "Non l'abbiamo trovato: forse qualcun altro l'ha già cambiato. Ricarica la pagina e guarda com'è adesso.",
       "EDIZIONE_IN_USO": "Questa edizione ha già delle attività o delle abilitazioni collegate, quindi non si può eliminare. Se è finita, basta disattivarla.",
-      "quantiNonValido": "Scrivi quanti cartoncini servono: un numero da 1 a {massimo}."
+      "quantiNonValido": "Scrivi quanti cartoncini servono: un numero da 1 a {massimo}.",
+      "DATA_FUORI_EDIZIONE": "Questo giorno è fuori dalle date dell'edizione. Mettine uno dentro, oppure sposta le date dell'edizione.",
+      "MODALITA_MANCANTE": "Indica come avete raccolto il consenso: modulo firmato oppure email.",
+      "TROPPO_LUNGO": "Uno dei campi è troppo lungo. Accorcialo un po' e riprova."
     }
   },
   "abitanti": {

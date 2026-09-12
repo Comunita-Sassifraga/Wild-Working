@@ -74,6 +74,11 @@ export default async function PaginaAmministrazione() {
             titolo={t.voci.edizioni}
             nota={t.voci.edizioniNota}
           />
+          <Voce
+            href="/amministrazione/attivita"
+            titolo={t.voci.attivita}
+            nota={t.voci.attivitaNota}
+          />
           <Voce href="/amministrazione/codici" titolo={t.voci.codici} nota={t.voci.codiciNota} />
           <Voce
             href="/amministrazione/abilitazioni"
