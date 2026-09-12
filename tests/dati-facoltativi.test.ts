@@ -9,7 +9,13 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { oggiRoma } from "@/lib/dates";
 import { prenotaPosto } from "@/lib/db/prenotazioni";
-import { aggiornaDatiFacoltativi, CAMPI_FACOLTATIVI, mioProfilo, rimuoviDatiFacoltativi } from "@/lib/db/utenti";
+import {
+  aggiornaDatiFacoltativi,
+  CAMPI_FACOLTATIVI,
+  mioProfilo,
+  rimuoviDatiFacoltativi,
+  VALORI_ETA,
+} from "@/lib/db/utenti";
 import {
   assegnaIncarico,
   CODICE_PERMESSO_NEGATO,
@@ -134,6 +140,29 @@ describe("§6.5 dati facoltativi", () => {
         expect(error?.code, colonna).toBe(CODICE_PERMESSO_NEGATO);
       }
     }
+  });
+
+  /**
+   * D24 — the service is open to people under 18, so the age question needs
+   * an honest answer for them. It is the youngest bracket, and it is as
+   * invisible as every other optional value.
+   */
+  it("la fascia «Meno di 18» è la prima, si salva e resta invisibile agli altri (D24)", async () => {
+    expect(VALORI_ETA[0]).toBe("Meno di 18");
+    expect(VALORI_ETA).toHaveLength(6);
+
+    const { data, error } = await aggiornaDatiFacoltativi(u.client, u.id, { eta: "Meno di 18" });
+    expect(error).toBeNull();
+    expect(data?.eta).toBe("Meno di 18");
+
+    const { error: erroreAnon } = await anon.from("utenti").select("eta");
+    expect(erroreAnon?.code).toBe(CODICE_PERMESSO_NEGATO);
+    for (const chi of [referente, admin]) {
+      const { data: righe } = await chi.client.from("utenti").select("id, eta").eq("id", u.id);
+      expect(righe).toEqual([]);
+    }
+
+    await aggiornaDatiFacoltativi(u.client, u.id, { eta: null });
   });
 
   it("i campi stat_* sono vuoti su ogni prenotazione non ancora anonimizzata, per vincolo", async () => {

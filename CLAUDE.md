@@ -168,6 +168,18 @@ second sender there can send the association's own mail to spam. See SPEC §14.2
     carries the same visual weight as the save control. Consent obtained as a
     condition of service is not freely given (art. 7.4 GDPR).
 
+    *Minors, so this is not guessed at later:* **the service is open to people
+    under 18** (SPEC D24, §7). Never add an age gate, an age declaration
+    checkbox, or a date of birth — verifying an age means collecting one more
+    personal field from everybody, which rule 1 forbids and which is the
+    opposite of minimisation. The 14-year threshold that art. 8 GDPR sets on
+    the two optional **consents** (art. 2-quinquies of the Italian Codice
+    Privacy lowered it from 16) lives **in the privacy notice, not in the
+    code**: registration and booking rest on art. 6.1.b and have no age
+    threshold at all. `eta` therefore has six values, the first being
+    `Meno di 18`. «Prenota un abitante» is outside this: its participants are
+    adults (SPEC §15.4).
+
 18. **Public-name moderation is after the fact, not before.** A new or changed
     `nome_pubblico` goes live immediately; the admin is notified and can clear
     it. Do not build an approval queue. Do build all three layers of SPEC §6.5:
@@ -338,7 +350,7 @@ translate them, do not mix languages within an identifier.
 | `giorni_apertura`      | Weekdays a sede is open, default LUN–SAB, admin-editable per sede. Fifth bookability condition of SPEC §5.2.                            |
 | `sedi.note`            | Practical info (Wi-Fi, keys). Authenticated users only — never in a public view, never contains passwords.                              |
 | `posto_progressivo`    | Internal seat number 1..capienza. **Never shown to users.**                                                                             |
-| `dati_facoltativi`     | The five consent-based statistical fields: `eta`, `genere`, `professione`, `motivo_visita`, `residenza`. Never public, never per-user in admin. |
+| `dati_facoltativi`     | The five consent-based statistical fields: `eta`, `genere`, `professione`, `motivo_visita`, `residenza`. Never public, never per-user in admin. `eta` is a bracket, never a date of birth, and its first value is `Meno di 18` (rule 17). |
 | `stat_*`               | Snapshot of the five fields copied onto a `prenotazione` at anonymisation time (SPEC §5.3). No longer personal data — nothing links them back to a person. |
 | `consenso`             | Append-only log. Two independent types: `NOME_PUBBLICO` and `DATI_FACOLTATIVI`. Either can be given or revoked without touching the other.      |
 | `moderazione`          | After-the-fact clearing of an offensive `nome_pubblico` by an admin, plus the blocklist and notification around it. See SPEC §6.5.              |

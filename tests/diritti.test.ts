@@ -35,6 +35,15 @@ import {
 const IERI = aggiungiGiorni(oggiRoma(), -1);
 const DOMANI = aggiungiGiorni(oggiRoma(), 1);
 
+/**
+ * These fixtures book "yesterday" and "tomorrow" whatever day the suite runs
+ * on, and a sede created with the default giorni_apertura (LUN–SAB) is shut
+ * on Sundays: the file failed every Saturday. What it asserts is art. 15 and
+ * art. 17, never the opening days, so its sedi open all week — the same
+ * choice tests/chi-ce.test.ts and tests/booking-window.test.ts already make.
+ */
+const OGNI_GIORNO = ["LUN", "MAR", "MER", "GIO", "VEN", "SAB", "DOM"] as const;
+
 async function consensiDi(utenteId: string) {
   const { data } = await servizio()
     .from("consensi")
@@ -58,7 +67,7 @@ describe("§7 scarica i miei dati", () => {
   let altro: UtenteTest;
 
   beforeAll(async () => {
-    sedeId = await creaSede({ capienza: 4 });
+    sedeId = await creaSede({ capienza: 4, giorni_apertura: [...OGNI_GIORNO] });
     [u, altro] = await Promise.all([creaUtente(), creaUtente()]);
 
     await aggiornaDatiFacoltativi(u.client, u.id, {
@@ -144,7 +153,7 @@ describe("§7 art. 17 cancella il mio account", () => {
 
   beforeAll(async () => {
     // Capacity of one, so the freed seat can be claimed by somebody else.
-    sedeId = await creaSede({ capienza: 1 });
+    sedeId = await creaSede({ capienza: 1, giorni_apertura: [...OGNI_GIORNO] });
     [u, vicino] = await Promise.all([creaUtente(), creaUtente()]);
     await assegnaIncarico(u.id, "REFERENTE", sedeId);
 

@@ -241,11 +241,11 @@ otp_expiry = 900
 # first-time address, `magic_link` to a known one; same wording, different
 # link type. `supabase config push` sends these to the linked project.
 [auth.email.template.confirmation]
-subject = "Il tuo link per entrare in Prenota"
+subject = "Il tuo link per entrare in Wild Working"
 content_path = "./supabase/templates/confirmation.html"
 
 [auth.email.template.magic_link]
-subject = "Il tuo link per entrare in Prenota"
+subject = "Il tuo link per entrare in Wild Working"
 content_path = "./supabase/templates/magic_link.html"
 
 # Use a production-ready SMTP server
