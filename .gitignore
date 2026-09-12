@@ -33,3 +33,6 @@ next-env.d.ts
 
 # Test coverage
 /coverage
+
+# Local editor/agent configuration, not part of the app
+.claude/
