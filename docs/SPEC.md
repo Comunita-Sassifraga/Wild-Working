@@ -55,6 +55,7 @@ Lo strumento è realizzato e messo a disposizione da Comunità Sassifraga APS. G
 | D23 | Visibilità dei dati degli abitanti        | Tre livelli. **1**, a tutti gli abilitati: nome di battesimo, titolo, comune o frazione, descrizione scritta dall'abitante. **2**, solo a chi si iscrive: cognome, telefono, indirizzo esatto. **3**, solo all'amministratore: note interne. Vedi §15.8. |
 | D22 | Lista d'attesa per le attività            | **No.** Era stata proposta, ed è stata scartata il 12/09 per tenere il modulo costruibile nei tempi dell'edizione 2026. A posti esauriti l'attività dice "completa" e non si può fare altro dall'app. Chi disdice lo annuncia fra i partecipanti, che si coordinano fuori dall'applicazione; l'amministratore annulla l'iscrizione di chi rinuncia e iscrive chi subentra, dal pannello (§15.7, §15.9). Vedi anche §15.15. |
 | D16 | Nome del servizio                         | **Wild Working**. Per esteso, dove serve dire chi lo fa: *Wild Working — Comunità Sassifraga*. Il nome vive nel titolo della pagina, sotto l'icona sul telefono, nel titolo della schermata di disponibilità e nelle email di accesso; non compare nell'intestazione, che resta logo più "Comunità Sassifraga" (§13.8). Non tocca il verbo *prenotare*: il pulsante che prenota continua a dire "Prenota", e i nomi di dati e tabelle restano quelli del glossario (§3). Un nome inglese non dice da solo di cosa si tratta, quindi dove compare per la prima volta — le email, la descrizione dell'app — lo accompagna sempre la frase che lo spiega: *"il servizio di prenotazione degli spazi di coworking della Valle Soana"*. Decisione dell'11/09, che sostituisce il precedente "Prenota". |
+| D24 | Minorenni                                 | **Il servizio è aperto anche ai minorenni.** Non si chiede l'età, non si verifica, non si aggiunge nessuna barriera d'ingresso. Registrazione e prenotazione si fondano sull'art. 6.1.b e non hanno soglie d'età. I **due consensi facoltativi** (nome pubblico e dati facoltativi) si fondano invece sull'art. 6.1.a, e per i servizi online il consenso di chi ha meno di **14 anni** vale solo se lo presta chi esercita la responsabilità genitoriale (art. 8 GDPR, art. 2‑quinquies del Codice Privacy). La soglia si dichiara nell'informativa e **non si costruisce nel software**: un controllo dell'età richiederebbe la data di nascita, cioè esattamente il dato che la regola 1 vieta. Aggiunge la fascia `Meno di 18` a §5.1. Fuori da questa decisione resta «Prenota un abitante», i cui partecipanti sono maggiorenni (§15.4). Decisione del 12/09/2026. |
 
 ---
 
@@ -121,7 +122,7 @@ Nove entità per il coworking, descritte qui. Il modulo «Prenota un abitante» 
 | `id`                   | identificativo interno                                  | sì           | Generato dal sistema                               |
 | `email`                | testo                                                   | **sì**       | Unico dato personale obbligatorio                  |
 | `nome_pubblico`        | testo, max 40 caratteri                                 | no           | Vuoto = non compare mai in pagine pubbliche        |
-| `eta`                  | `18-25`, `26-35`, `36-50`, `51-65`, `Oltre 65`          | no           |                                                    |
+| `eta`                  | `Meno di 18`, `18-25`, `26-35`, `36-50`, `51-65`, `Oltre 65` | no      | La prima fascia nasce con D24. È un intervallo, mai una data di nascita |
 | `genere`               | `M` / `F` / `Preferisco non rispondere`                 | no           |                                                    |
 | `professione`          | testo, max 100 caratteri                                | no           |                                                    |
 | `motivo_visita`        | testo, max 200 caratteri                                | no           |                                                    |
@@ -132,6 +133,14 @@ Nove entità per il coworking, descritte qui. Il modulo «Prenota un abitante» 
 | `ultimo_accesso`       | data e ora                                              | sì           | Serve per la cancellazione degli account dormienti |
 
 Non esiste un campo password: l'accesso avviene via link inviato per email (§6.1).
+
+La fascia `Meno di 18` è una **modifica di un elenco di valori già esistente**,
+non un campo nuovo: la regola 1 di `CLAUDE.md` resta intatta. Richiede però una
+migrazione sull'elenco `fascia_eta`, che è un tipo del database e non un elenco
+scritto nel codice. **Alla data di D24 la migrazione non è ancora stata fatta**:
+finché non lo è, chi ha meno di 18 anni non ha una risposta onesta da dare e
+lascia il campo vuoto. L'informativa privacy è già scritta con la fascia dentro,
+quindi la migrazione va fatta **prima** di pubblicarla.
 
 ### 5.2 sedi
 
@@ -523,6 +532,37 @@ Le stesse due regole valgono per il CSV esportato, che è la via più facile per
 | Data ultimo accesso   | Sì           | Cancellare gli account dormienti                                                    | Art. 6.1.f — legittimo interesse alla minimizzazione    | Solo il sistema                                                                         | Finché l'account esiste                       |
 
 Il modulo «Prenota un abitante» aggiunge nove righe a questa tabella e quattro pulizie: stanno in §15.11, insieme al trattamento dei dati degli abitanti che propongono le attività — che sono persone non registrate, e il cui consenso si raccoglie fuori dall'app (§15.8). Fra quelle righe ce n'è una che riguarda i **partecipanti** e non gli abitanti, e va ripresa anche nell'informativa che leggono loro: il nome pubblico di chi si iscrive viene comunicato a chi ospita.
+
+### Minori (D24)
+
+Il servizio è **aperto anche ai minorenni**, e questo non aggiunge niente al
+software: nessuna barriera d'ingresso, nessuna dichiarazione d'età da spuntare,
+nessun campo nuovo. La ragione è la stessa regola 1 di `CLAUDE.md`: verificare
+l'età vorrebbe dire chiedere la data di nascita, cioè raccogliere per tutti un
+dato personale in più per proteggere una minoranza — il contrario della
+minimizzazione.
+
+Le due basi giuridiche si comportano in modo diverso, ed è la distinzione che
+regge tutto il capitolo:
+
+- **Registrarsi, prenotare, annullare** stanno sull'art. 6.1.b. Non c'è nessuna
+  soglia d'età: il servizio è stato chiesto, e i dati in gioco sono un indirizzo
+  email e una prenotazione.
+- **I due consensi facoltativi** stanno sull'art. 6.1.a. Per i servizi della
+  società dell'informazione il consenso di chi ha meno di **14 anni** è valido
+  solo se prestato da chi esercita la responsabilità genitoriale (art. 8 GDPR;
+  la soglia italiana è fissata dall'art. 2‑quinquies del Codice Privacy, che
+  l'ha abbassata dai 16 del Regolamento).
+
+La soglia dei 14 anni vive quindi **nell'informativa, non nel codice**. È una
+scelta consapevole e va detta per intero: significa che il sistema non può
+impedire a un dodicenne di accendere il nome pubblico. Quello che può fare, e
+che fa, è che l'interruttore nasce spento (§6.5), che l'informativa spiega la
+regola e consiglia un soprannome al posto del nome vero, e che un genitore può
+scrivere e ottenere la rimozione senza dover dimostrare nulla.
+
+Il modulo «Prenota un abitante» **resta fuori da tutto questo**: vi accede solo
+chi partecipa alla residenza VIHTA, e i partecipanti sono maggiorenni (§15.4).
 
 ### Conservazione e cancellazione automatica
 
@@ -1076,6 +1116,12 @@ Regole:
 - Massimo `MAX_TENTATIVI_CODICE_ORA` tentativi per utente all'ora, contati nella tabella di §15.3.6.
 - Il messaggio di rifiuto è **identico** per codice inesistente, già usato o revocato, tranne nel caso di codice già usato **dallo stesso utente** che sta tentando, dove si dice semplicemente che è già abilitato.
 - Un codice appartiene a un'edizione: quelli dell'edizione precedente non funzionano.
+- **I partecipanti alla residenza sono maggiorenni.** Non è una condizione che il
+  software verifica — non conosce l'età di nessuno (D24) — ma una caratteristica
+  di chi riceve un cartoncino: i codici li consegna l'associazione, a mano,
+  all'arrivo. Vale la pena scriverlo perché §15.8 fa arrivare una persona a casa
+  di un'altra con nome, telefono e indirizzo, e l'informativa dei partecipanti
+  lo dice.
 
 **Tre vie d'uscita nel pannello**, che con 45 persone serviranno di sicuro:
 
