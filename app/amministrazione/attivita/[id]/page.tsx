@@ -222,6 +222,15 @@ export default async function PaginaAttivitaSingola({
         </Link>
       </p>
 
+      {/* Who is coming, and the two actions that close a swap of places
+          (§15.9). Its own screen too: this one is about the abitante, that
+          one is about the participants. */}
+      <p className="mt-10">
+        <Link href={`/amministrazione/attivita/${attivita.id}/iscritti`}>
+          {t.iscritti.apri}
+        </Link>
+      </p>
+
       <p className="mt-10">
         <Link href="/amministrazione/attivita">{t.scheda.torna}</Link>
       </p>

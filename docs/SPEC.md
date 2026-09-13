@@ -1321,6 +1321,8 @@ Restano dentro la regola 6, che vieta gli annullamenti **automatici**, non quell
 - **Sono tracciate.** `creata_da` e `annullata_da` (§15.3.3) dicono per sempre chi ha agito, e quando.
 - **La persona lo viene a sapere.** Entrambe le azioni mandano un'email all'interessato, che dice cos'è successo e chi contattare. Un posto che sparisce senza spiegazione è peggio di un posto perso.
 
+**Si iscrive solo chi è già abilitato.** L'amministratore non può iscrivere una persona che non ha un'abilitazione attiva sull'edizione: la iscriverebbe a un'attività di cui quella persona non può leggere né l'indirizzo esatto né il numero di telefono di chi la ospita (§15.8), e le manderebbe un'email su un evento che poi non trova. Prima si abilita — è un campo nella stessa sezione del pannello (§15.9) — e poi si iscrive. Il rifiuto è della banca dati, non del modulo. Chiarito il 13/09/2026.
+
 ### 15.10 Email del modulo
 
 Tutte dal mittente di D12, tutte in italiano, tutte con la stessa voce di §13.9.
@@ -1455,6 +1457,8 @@ Alla fine: **il servizio funziona.** Se i giorni dovessero finire qui, si può a
 
 Le due azioni del pannello che sostituiscono la lista d'attesa, con la tracciatura in `creata_da` e `annullata_da`, e l'elenco degli iscritti per attività con la sua esportazione.
 
+Con loro nascono le due email che §15.9 pone come condizione delle azioni stesse — «Iscrizione fatta dall'amministratore» e «Annullamento fatto dall'amministratore» di §15.10. Un posto che sparisce senza spiegazione è peggio di un posto perso: l'azione senza l'avviso non è l'azione, e non si rimanda al passo dopo.
+
 Riferimenti: §15.9 («L'elenco degli iscritti» e «Iscrivere e annullare per conto di qualcuno»), §15.7, D22.
 Test nuovi: `iscrizioni-amministratore`.
 Cosa può rompersi: la regola 6. Il test deve dimostrare che queste due azioni non toccano **nessuna** `prenotazione`.
@@ -1462,7 +1466,7 @@ Alla fine: l'amministratore chiude uno scambio di posto in mezzo minuto.
 
 **Passo 19 — Le email del modulo**
 
-Le cinque email di §15.10, e il promemoria della sera prima agganciato al giro notturno che già esiste — un elenco in più, non una seconda esecuzione.
+Le tre email di §15.10 che il passo 18 non ha già portato con sé — iscrizione confermata, annullamento, attività annullata — e il promemoria della sera prima agganciato al giro notturno che già esiste: un elenco in più, non una seconda esecuzione.
 
 Riferimenti: §15.10.
 Test: si estende `promemoria`, che deve continuare a passare per le prenotazioni **e** coprire le attività.

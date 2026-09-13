@@ -1580,6 +1580,113 @@ export type Database = {
         }
         Relationships: []
       }
+      iscritti_amministrazione: {
+        Row: {
+          annullata_da: string | null
+          annullata_il: string | null
+          attivita_id: string | null
+          creata_da: string | null
+          creata_il: string | null
+          email: string | null
+          id: string | null
+          nome_pubblico: string | null
+          stato: Database["public"]["Enums"]["stato_iscrizione"] | null
+          utente_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iscrizioni_annullata_da_fkey"
+            columns: ["annullata_da"]
+            isOneToOne: false
+            referencedRelation: "nomi_pubblici_moderazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_annullata_da_fkey"
+            columns: ["annullata_da"]
+            isOneToOne: false
+            referencedRelation: "utenti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_annullata_da_fkey"
+            columns: ["annullata_da"]
+            isOneToOne: false
+            referencedRelation: "utenti_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_attivita_id_fkey"
+            columns: ["attivita_id"]
+            isOneToOne: false
+            referencedRelation: "attivita"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_attivita_id_fkey"
+            columns: ["attivita_id"]
+            isOneToOne: false
+            referencedRelation: "attivita_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_attivita_id_fkey"
+            columns: ["attivita_id"]
+            isOneToOne: false
+            referencedRelation: "attivita_elenco"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_attivita_id_fkey"
+            columns: ["attivita_id"]
+            isOneToOne: false
+            referencedRelation: "attivita_iscritto"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_creata_da_fkey"
+            columns: ["creata_da"]
+            isOneToOne: false
+            referencedRelation: "nomi_pubblici_moderazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_creata_da_fkey"
+            columns: ["creata_da"]
+            isOneToOne: false
+            referencedRelation: "utenti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_creata_da_fkey"
+            columns: ["creata_da"]
+            isOneToOne: false
+            referencedRelation: "utenti_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "nomi_pubblici_moderazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "utenti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iscrizioni_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "utenti_amministrazione"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       iscritti_attivita: {
         Row: {
           attivita_id: string | null
@@ -1944,6 +2051,7 @@ export type Database = {
     }
     Functions: {
       abilita_utente: { Args: { p_utente_id: string }; Returns: string }
+      abilitato: { Args: { p_utente_id: string }; Returns: boolean }
       aggiorna_attivita: {
         Args: {
           p_abitante_cognome?: string
@@ -1965,6 +2073,7 @@ export type Database = {
         Returns: undefined
       }
       annulla_attivita: { Args: { p_id: string }; Returns: number }
+      annulla_per_conto: { Args: { p_iscrizione_id: string }; Returns: string }
       annullabile: {
         Args: {
           p_data: string
@@ -1974,6 +2083,10 @@ export type Database = {
         Returns: boolean
       }
       anonimizza_prenotazioni: { Args: { p_giorni: number }; Returns: number }
+      assegna_posto: {
+        Args: { p_agente: string; p_attivita_id: string; p_utente_id: string }
+        Returns: string
+      }
       attivita_non_cominciata: {
         Args: { p_attivita_id: string }
         Returns: boolean
@@ -2071,6 +2184,10 @@ export type Database = {
       is_amministratore: { Args: never; Returns: boolean }
       is_referente_di: { Args: { p_sede_id: string }; Returns: boolean }
       iscritto_a: { Args: { p_attivita_id: string }; Returns: boolean }
+      iscrivi_per_conto: {
+        Args: { p_attivita_id: string; p_utente_id: string }
+        Returns: string
+      }
       iscriviti: { Args: { p_attivita_id: string }; Returns: string }
       normalizza_confronto: { Args: { p_testo: string }; Returns: string }
       oggi_roma: { Args: never; Returns: string }

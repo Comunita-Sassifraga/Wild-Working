@@ -645,6 +645,40 @@
         "pulsante": "Annulla l'attività",
         "annullata": "Attività annullata.",
         "annullataConIscritti": "Attività annullata. {quanti} iscrizioni sono state annullate: avvisa le persone."
+      },
+      "iscritti": {
+        "titolo": "Chi viene",
+        "apri": "Chi viene",
+        "torna": "Torna alla scheda",
+        "introduzione": "Le persone iscritte a questa attività, con l’indirizzo a cui scrivere se qualcosa cambia. L’elenco resta qui fino al giorno dopo l’attività, poi sparisce.",
+        "vuoto": "Non si è ancora iscritto nessuno.",
+        "annullate": "Iscrizioni annullate",
+        "perConto": "Iscritta da voi",
+        "annullataDaVoi": "Annullata da voi",
+        "proponente": {
+          "titolo": "Da passare al proponente",
+          "nota": "Questo è tutto quello che l’applicazione sa dire: quante persone vengono, e il nome di chi ha scelto di lasciarlo. Gli indirizzi email non ci sono e non ci vanno. Se servono i nomi veri di tutti, l’abbinamento si fa sull’elenco VIHTA dell’associazione, fuori da qui.",
+          "riga": "{giorno} vengono in {quanti}.",
+          "unaSola": "{giorno} viene una persona.",
+          "nessuno": "{giorno} non viene ancora nessuno.",
+          "senzaGiorno": "A questa attività",
+          "nomi": "{quanti} hanno lasciato il nome: {nomi}.",
+          "unNome": "Una persona ha lasciato il nome: {nomi}.",
+          "scarica": "Scarica l’elenco da passare"
+        },
+        "iscrivi": {
+          "titolo": "Iscrivi una persona",
+          "nota": "Serve l’indirizzo email esatto con cui è già entrata, e la persona deve essere già abilitata. Serve a chiudere uno scambio di posto: prima annulli chi rinuncia, poi iscrivi chi subentra. La persona riceve un’email che dice che sei stato tu.",
+          "email": "Email della persona",
+          "pulsante": "Iscrivi",
+          "fatta": "Persona iscritta. Le abbiamo mandato un’email."
+        },
+        "annulla": {
+          "pulsante": "Annulla l’iscrizione",
+          "motivo": "Motivo, se vuoi dirlo",
+          "motivoNota": "Finisce nell’email che riceve la persona. Non lo salviamo da nessuna parte.",
+          "fatta": "Iscrizione annullata. Abbiamo avvisato la persona."
+        }
       }
     },
     "errori": {
@@ -663,7 +697,13 @@
       "quantiNonValido": "Scrivi quanti cartoncini servono: un numero da 1 a {massimo}.",
       "DATA_FUORI_EDIZIONE": "Questo giorno è fuori dalle date dell'edizione. Mettine uno dentro, oppure sposta le date dell'edizione.",
       "MODALITA_MANCANTE": "Indica come avete raccolto il consenso: modulo firmato oppure email.",
-      "TROPPO_LUNGO": "Uno dei campi è troppo lungo. Accorcialo un po' e riprova."
+      "TROPPO_LUNGO": "Uno dei campi è troppo lungo. Accorcialo un po' e riprova.",
+      "ISCRIZIONE_NON_TROVATA": "Questa iscrizione non c’è più, o era già stata annullata. Ricarica la pagina e guarda com’è adesso.",
+      "POSTI_ESAURITI": "L’attività è al completo, e il limite di posti vale anche per te. Annulla prima l’iscrizione di chi rinuncia, poi iscrivi chi subentra.",
+      "ISCRIZIONE_DUPLICATA": "Questa persona ha già un posto in questa attività.",
+      "ATTIVITA_NON_DISPONIBILE": "Questa attività non accetta iscrizioni: o non è pubblicata, o non ha ancora un numero di posti.",
+      "NON_ABILITATO": "Questa persona non è abilitata, quindi non vedrebbe l’attività a cui la stai iscrivendo. Abilitala prima, dalla pagina delle abilitazioni.",
+      "ATTIVITA_COMINCIATA": "L’attività è già cominciata: non si può più iscrivere nessuno."
     }
   },
   "abitanti": {
@@ -775,6 +815,33 @@
     "dormienza": {
       "oggetto": "Il tuo account verrà chiuso fra un mese",
       "testo": "Non entri nel servizio di prenotazione degli spazi di coworking della Valle Soana dal {data}.\n\nTeniamo i dati soltanto finché servono: gli account fermi da due anni vengono chiusi in automatico. Fra un mese il tuo verrà chiuso, e con lui spariranno il tuo indirizzo, il nome pubblico e quello che avevi scelto di raccontarci.\n\nSe vuoi tenerlo, ti basta entrare una volta: da qui chiedi un nuovo link di accesso e il conto riparte da zero.\n{url}\n\nSe invece non ti serve più, non devi fare niente."
+    },
+    "abitanti": {
+      "senzaTitolo": "un’attività",
+      "corpo": {
+        "attivita": "Attività: {valore}",
+        "quando": "Quando: {valore}",
+        "luogo": "Dove: {valore}",
+        "chiTiAspetta": "Ti aspetta: {valore}",
+        "telefono": "Telefono: {valore}",
+        "cosaPortare": "Cosa portare: {valore}",
+        "lingua": "Lingua: {valore}",
+        "collegamento": "Per annullare, o per rileggere tutto:\n{url}"
+      },
+      "iscritta": {
+        "oggetto": "Sei iscritto a {attivita}",
+        "apertura": "Ti abbiamo preso un posto in un’attività di «Prenota un abitante».",
+        "perConto": "L’iscrizione l’ha fatta chi si occupa del servizio, non tu: di solito perché si era liberato un posto che aspettavi. Se non è quello che volevi, puoi annullare dal collegamento qui sotto, oppure scrivere a {indirizzo}.",
+        "chiusura": "Ti aspettano."
+      },
+      "annullata": {
+        "oggetto": "La tua iscrizione a {attivita} è stata annullata",
+        "apertura": "La tua iscrizione a {attivita} è stata annullata da chi si occupa del servizio.",
+        "aperturaConData": "La tua iscrizione a {attivita}, di {data}, è stata annullata da chi si occupa del servizio.",
+        "motivo": "Il motivo: {motivo}",
+        "contatto": "Se pensi che sia un errore, scrivi a {indirizzo}.",
+        "chiusura": "Le altre attività sono sempre lì: puoi prendere posto in un’altra quando vuoi."
+      }
     }
   },
   "campionario": {
