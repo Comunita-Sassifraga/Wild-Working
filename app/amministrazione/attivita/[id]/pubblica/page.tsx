@@ -228,7 +228,13 @@ export default async function PaginaPubblicazione({
             <Sezione titolo={t.ritira.titolo}>
               <p className="mt-4">{t.ritira.avviso}</p>
               {iscritti > 0 && (
-                <Avvertenza testo={conValori(t.ritira.conIscritti, { quanti: iscritti })} />
+                <Avvertenza
+                  testo={
+                    iscritti === 1
+                      ? t.ritira.conUnIscritto
+                      : conValori(t.ritira.conIscritti, { quanti: iscritti })
+                  }
+                />
               )}
               <form action={ritiraAttivitaAzione} className="mt-4">
                 <input type="hidden" name="attivita" value={attivita.id ?? ""} />
@@ -242,7 +248,13 @@ export default async function PaginaPubblicazione({
           <Sezione titolo={t.annulla.titolo}>
             <p className="mt-4">{t.annulla.avviso}</p>
             {iscritti > 0 && (
-              <Avvertenza testo={conValori(t.annulla.conIscritti, { quanti: iscritti })} />
+              <Avvertenza
+                testo={
+                  iscritti === 1
+                    ? t.annulla.conUnIscritto
+                    : conValori(t.annulla.conIscritti, { quanti: iscritti })
+                }
+              />
             )}
             <form action={annullaAttivitaAzione} className="mt-4">
               <input type="hidden" name="attivita" value={attivita.id ?? ""} />

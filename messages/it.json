@@ -635,6 +635,7 @@
         "titolo": "L'abitante ha cambiato idea",
         "avviso": "Togliendo la spunta del consenso l'attività torna in bozza e sparisce dall'elenco.",
         "conIscritti": "Ci sono {quanti} persone iscritte: restano iscritte, e vanno avvisate a mano. Il sistema non annulla l'iscrizione di nessuno al posto tuo.",
+        "conUnIscritto": "C'è una persona iscritta: resta iscritta, e va avvisata a mano. Il sistema non annulla l'iscrizione di nessuno al posto tuo.",
         "pulsante": "Togli la spunta e riporta in bozza",
         "ritirata": "Attività riportata in bozza. Gli iscritti restano: avvisali tu."
       },
@@ -642,11 +643,13 @@
         "titolo": "Annullare l'attività",
         "avviso": "L'attività non si farà. Sparisce dall'elenco e non si può più riaprire: se è solo da correggere, usa la bozza.",
         "conIscritti": "Ci sono {quanti} persone iscritte: le loro iscrizioni verranno annullate, e ognuna riceverà un'email che lo dice.",
+        "conUnIscritto": "C'è una persona iscritta: la sua iscrizione verrà annullata, e riceverà un'email che lo dice.",
         "motivo": "Motivo, se vuoi dirlo",
         "motivoNota": "Finisce nell'email che ricevono gli iscritti. Non lo salviamo da nessuna parte.",
         "pulsante": "Annulla l'attività",
         "annullata": "Attività annullata.",
-        "annullataConIscritti": "Attività annullata. {quanti} iscrizioni sono state annullate: abbiamo avvisato le persone."
+        "annullataConIscritti": "Attività annullata. {quanti} iscrizioni sono state annullate: abbiamo avvisato le persone.",
+        "annullataConUnIscritto": "Attività annullata. Un'iscrizione è stata annullata: abbiamo avvisato la persona."
       },
       "iscritti": {
         "titolo": "Chi viene",

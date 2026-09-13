@@ -106,13 +106,16 @@ export default async function PaginaAttivita({
   const errore = uno(parametri.errore);
   const salvato = uno(parametri.salvato);
 
-  // Cancelling says how many people have just lost a place, because until the
-  // emails of step 19 exist nothing writes to them by itself (§15.12).
+  // Cancelling says how many people have just lost a place. Since step 19 they
+  // have been told by the email of §15.10; the count is here because whoever
+  // pressed the button is entitled to know what their press did (§15.12).
   const persone = Number(uno(parametri.iscritti) ?? 0);
   const annullata =
-    persone > 0
-      ? conValori(t.annulla.annullataConIscritti, { quanti: persone })
-      : t.annulla.annullata;
+    persone === 0
+      ? t.annulla.annullata
+      : persone === 1
+        ? t.annulla.annullataConUnIscritto
+        : conValori(t.annulla.annullataConIscritti, { quanti: persone });
 
   const conferme: Record<string, string> = {
     salvata: t.scheda.salvata,
