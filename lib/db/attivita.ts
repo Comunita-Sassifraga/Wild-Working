@@ -173,16 +173,21 @@ export async function ritiraAttivita(client: Client, id: string): Promise<EsitoA
 
 /**
  * §15.12: the activity is off. Its ATTIVA iscrizioni go with it, traced in
- * `annullata_da`, and the count of people to warn comes back — until step 19
- * the panel is what says they must be told by hand.
+ * `annullata_da`, and the people who have just lost a place come back — the
+ * set the database cancelled, in the same statement that cancelled it.
+ *
+ * Ids, never addresses. Whoever pressed the button never sees who was
+ * written to (rule 4): the notice of §15.10 is sent against these ids by
+ * lib/posta/abitanti.ts, with the backend client. Their number is also what
+ * the panel says it did.
  */
 export async function annullaAttivita(
   client: Client,
   id: string,
-): Promise<EsitoAttivita<number>> {
+): Promise<EsitoAttivita<string[]>> {
   const { data, error } = await client.rpc("annulla_attivita", { p_id: id });
   if (error) return fallito(error.code);
-  return { ok: true, valore: data ?? 0 };
+  return { ok: true, valore: (data ?? []).flatMap((r) => (r.utente_id ? [r.utente_id] : [])) };
 }
 
 // ---------------------------------------------------------------------------

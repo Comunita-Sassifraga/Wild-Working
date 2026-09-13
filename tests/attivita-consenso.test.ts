@@ -456,16 +456,22 @@ describe("§15.9 il percorso dal pannello", () => {
     expect(ancora?.annullata_il).toBeNull();
   });
 
-  it("annullare spegne l'attività e le sue iscrizioni, e dice quante persone avvisare", async () => {
+  it("annullare spegne l'attività e le sue iscrizioni, e dice quante persone avvisare e chi", async () => {
     const id = await creaAttivita({ edizione_id: edizione });
     const iscrizione = await inserisciIscrizioneDiretta({
       attivita_id: id,
       utente_id: estraneo.id,
     });
 
-    const { data: quante, error } = await admin.client.rpc("annulla_attivita", { p_id: id });
+    // Dal passo 19 tornano le persone e non il loro numero (§15.10): il
+    // conteggio c'è ancora — sono le righe che tornano — e in più si sa chi
+    // avvisare, dalla stessa istruzione che gli ha tolto il posto. Leggere
+    // gli iscritti prima e annullare dopo lascerebbe in mezzo chi prende
+    // l'ultimo posto e non viene avvisato mai.
+    const { data: avvisare, error } = await admin.client.rpc("annulla_attivita", { p_id: id });
     expect(error).toBeNull();
-    expect(quante).toBe(1);
+    expect(avvisare?.length).toBe(1);
+    expect(avvisare?.[0].utente_id).toBe(estraneo.id);
 
     const { data: scheda } = await servizio().from("attivita").select("stato").eq("id", id).single();
     expect(scheda?.stato).toBe("ANNULLATA");

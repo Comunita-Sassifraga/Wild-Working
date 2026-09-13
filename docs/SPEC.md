@@ -1065,6 +1065,7 @@ Regole:
 | `annullata_da` | riferimento a utente | Chi l'ha annullata: l'interessato, o l'amministratore (§15.9) |
 | `anonimizzata` | sì/no | Come §5.3: diventa sì quando la **data dell'attività** è più vecchia di `GIORNI_ANONIMIZZAZIONE` |
 | `stat_eta`, `stat_genere`, `stat_professione`, `stat_motivo_visita`, `stat_residenza` | come §5.3 | Stessa identica regola di copia di §5.3, comprese le eccezioni |
+| `promemoria_inviato_il` | data e ora | Scritto dal giro notturno quando prende in carico il promemoria, con la stessa regola di §6.3. Memoria del sistema: non è leggibile da nessuno, né dal titolare né dall'amministratore |
 
 **Il doppio posto si impedisce come per le prenotazioni** (§8.1): unicità su `(attivita_id, posto_progressivo)` per le sole iscrizioni attive, imposta dal database e non dal codice. Stessa regola, stesso test, nessuna invenzione nuova.
 
@@ -1294,6 +1295,7 @@ Una sezione "Attività", visibile all'amministratore soltanto.
 - **Pubblicazione**: la schermata che porta un'attività da `BOZZA` a `PUBBLICATA` mostra un'anteprima di come la vedranno i residenti — prima il livello 1, poi il livello 2 — e sopra all'anteprima due cose: la **spunta del consenso** di §15.8, e il promemoria di rileggere la descrizione scritta dall'abitante, che può contenere dati che lui non si rendeva conto di dare. Senza la spunta il pulsante non si attiva. E siccome dal 12/09/2026 una scheda si può salvare a metà (§15.3.2), la stessa schermata **elenca i campi ancora vuoti** prima di pubblicare: la banca dati non li rifiuta, e senza un avviso qui una scheda incompleta finirebbe pubblicata e invisibile — senza data non compare nell'elenco, senza capienza non accetta nessuno.
 - **Codici**: generarne un blocco per l'edizione, con una schermata di stampa adatta ai cartoncini, ciascuno con il proprio numero (§15.3.5). I codici si vedono **solo qui e solo una volta**. Generarne uno singolo, e rigenerare quello di un numero perso.
 - **Abilitazioni**: elenco con l'indirizzo email di ciascuno — è il solo modo che l'applicazione ha di far riconoscere una persona, come per gli incarichi (§6.7) e per gli iscritti qui sotto — abilitazione diretta di un utente già registrato, revoca puntuale (§15.4). L'elenco riguarda le sole persone già abilitate: non è un elenco di chi si è registrato, e non porta nessuno dei campi facoltativi di §5.1.
+- **Annullare un'attività**: la schermata chiede anche un **motivo facoltativo**, che finisce nell'email agli iscritti (§15.10) e non viene conservato: non c'è una colonna per tenerlo, e non serve tenerlo. Aggiunto il 13/09/2026.
 - **Iscritti per attività**: chi viene, con l'indirizzo email a cui scrivere per avvisare.
 - **Iscrivere e annullare per conto di un partecipante**: le due azioni che sostituiscono la lista d'attesa (§15.7).
 
@@ -1337,6 +1339,8 @@ Tutte dal mittente di D12, tutte in italiano, tutte con la stessa voce di §13.9
 | Attività annullata | Motivo se c'è, e l'invito a guardare le altre |
 
 Il promemoria delle attività **non è un secondo giro notturno**: si aggiunge a quello che parte già alle `ORA_PROMEMORIA`. Una sola esecuzione, due elenchi.
+
+Due elenchi vuol dire anche **due messaggi**: chi domani ha una postazione prenotata e un'attività riceve il promemoria delle postazioni e quello delle attività separati. Unirli avrebbe voluto dire riscrivere la composizione del promemoria di §6.3, che è già in esercizio, e il guadagno — un invio in meno per le poche persone che hanno entrambe — non lo giustifica. Deciso il 13/09/2026.
 
 Attenzione al tetto giornaliero del fornitore di posta: 45 partecipanti e 25 attività possono generare, nei primi giorni dell'edizione, più email di quante ne generi il coworking in una settimana. Da verificare prima dell'apertura delle iscrizioni. Senza lista d'attesa il rischio è più basso di quanto fosse nella prima stesura, ma non è nullo: il giorno in cui il programma viene annunciato, 45 persone si iscrivono a tre attività ciascuna.
 

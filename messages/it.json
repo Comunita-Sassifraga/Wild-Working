@@ -641,10 +641,12 @@
       "annulla": {
         "titolo": "Annullare l'attività",
         "avviso": "L'attività non si farà. Sparisce dall'elenco e non si può più riaprire: se è solo da correggere, usa la bozza.",
-        "conIscritti": "Ci sono {quanti} persone iscritte: le loro iscrizioni verranno annullate. Scrivi tu a ciascuna per dirglielo.",
+        "conIscritti": "Ci sono {quanti} persone iscritte: le loro iscrizioni verranno annullate, e ognuna riceverà un'email che lo dice.",
+        "motivo": "Motivo, se vuoi dirlo",
+        "motivoNota": "Finisce nell'email che ricevono gli iscritti. Non lo salviamo da nessuna parte.",
         "pulsante": "Annulla l'attività",
         "annullata": "Attività annullata.",
-        "annullataConIscritti": "Attività annullata. {quanti} iscrizioni sono state annullate: avvisa le persone."
+        "annullataConIscritti": "Attività annullata. {quanti} iscrizioni sono state annullate: abbiamo avvisato le persone."
       },
       "iscritti": {
         "titolo": "Chi viene",
@@ -805,6 +807,15 @@
       "collegamento": "Vai a Le mie prenotazioni per annullare:\n{url}",
       "chiusura": "Ti aspettiamo."
     },
+    "promemoriaAttivita": {
+      "oggettoUno": "Domani: {attivita}",
+      "oggettoPiu": "Le tue attività di domani",
+      "apertura": "Domani, {data}, hai un posto in queste attività di «Prenota un abitante»:",
+      "aperturaUna": "Domani, {data}, hai un posto in un’attività di «Prenota un abitante»:",
+      "invito": "Se sai già che non riuscirai ad andarci, ti chiediamo di annullare: chi ti aspetta si sta preparando, e il posto torna libero per qualcun altro.",
+      "collegamento": "Vai a Prenota un abitante per annullare:\n{url}",
+      "chiusura": "Ti aspettano."
+    },
     "moderazione": {
       "oggetto": "Un nome pubblico da controllare",
       "testo": "Una persona ha scelto o cambiato il nome che compare sulla pagina «Chi c'è in Valle».\n\nNome: {nome}\nIdentificativo della persona: {utente}\n\nSe il nome non rispetta le regole di utilizzo puoi rimuoverlo da qui:\n{url}"
@@ -818,15 +829,37 @@
     },
     "abitanti": {
       "senzaTitolo": "un’attività",
+      "chiTiOspita": "chi ti ospita",
       "corpo": {
         "attivita": "Attività: {valore}",
         "quando": "Quando: {valore}",
         "luogo": "Dove: {valore}",
         "chiTiAspetta": "Ti aspetta: {valore}",
         "telefono": "Telefono: {valore}",
+        "notaTelefono": "Il numero serve per avvisare {nome} se hai un imprevisto il giorno stesso. Non usarlo per altro.",
         "cosaPortare": "Cosa portare: {valore}",
         "lingua": "Lingua: {valore}",
-        "collegamento": "Per annullare, o per rileggere tutto:\n{url}"
+        "collegamento": "Per annullare, o per rileggere tutto:\n{url}",
+        "altre": "Le altre attività del programma sono qui:\n{url}"
+      },
+      "conferma": {
+        "oggetto": "Hai un posto in {attivita}",
+        "apertura": "Hai preso posto in un’attività di «Prenota un abitante». Qui sotto trovi tutto quello che ti serve per arrivare.",
+        "chiusura": "Ti aspettano."
+      },
+      "annullamento": {
+        "oggetto": "Hai annullato l’iscrizione a {attivita}",
+        "apertura": "Hai annullato la tua iscrizione a {attivita}. Il posto è tornato libero per qualcun altro.",
+        "aperturaConData": "Hai annullato la tua iscrizione a {attivita}, di {data}. Il posto è tornato libero per qualcun altro.",
+        "chiusura": "Non devi fare altro."
+      },
+      "attivitaAnnullata": {
+        "oggetto": "{attivita} non si farà",
+        "apertura": "L’attività {attivita} è stata annullata, e con lei la tua iscrizione.",
+        "aperturaConData": "L’attività {attivita}, di {data}, è stata annullata, e con lei la tua iscrizione.",
+        "motivo": "Il motivo: {motivo}",
+        "contatto": "Se vuoi saperne di più, scrivi a {indirizzo}.",
+        "chiusura": "Non devi fare niente: il posto è già stato tolto."
       },
       "iscritta": {
         "oggetto": "Sei iscritto a {attivita}",

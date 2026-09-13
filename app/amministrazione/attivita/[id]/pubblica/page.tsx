@@ -12,6 +12,7 @@ import { conValori, m } from "@/lib/messaggi";
 import { amministratore } from "../../../guardia";
 import { uno, type Parametri } from "../../../parametri";
 import {
+  AreaTesto,
   Avvertenza,
   Messaggio,
   Radio,
@@ -245,9 +246,24 @@ export default async function PaginaPubblicazione({
             )}
             <form action={annullaAttivitaAzione} className="mt-4">
               <input type="hidden" name="attivita" value={attivita.id ?? ""} />
-              <button type="submit" className={bottoneDistruttivo}>
-                {t.annulla.pulsante}
-              </button>
+              {/*
+                The reason of §15.10 row six. Optional, and written nowhere:
+                §15.3.2 has no column for it and none is being added (rule 20).
+                It reaches the emails the iscritti receive and stops there —
+                which is what the note under the field says out loud.
+              */}
+              <AreaTesto
+                nome="motivo"
+                testo={t.annulla.motivo}
+                nota={t.annulla.motivoNota}
+                massimo={300}
+                righe={2}
+              />
+              <p className="mt-6">
+                <button type="submit" className={bottoneDistruttivo}>
+                  {t.annulla.pulsante}
+                </button>
+              </p>
             </form>
           </Sezione>
         </>

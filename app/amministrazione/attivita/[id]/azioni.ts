@@ -13,7 +13,8 @@
  *             carries weight outside the software.
  *   ritira    the tick off: back to BOZZA. The abitante changed his mind, and
  *             he has no account to do it from (§15.12).
- *   annulla   the activity is off, and the iscrizioni with it.
+ *   annulla   the activity is off, the iscrizioni go with it, and everybody
+ *             who held a place is told (§15.10, §15.12).
  *
  * None of the four can be reached by anyone who is not an amministratore: the
  * guard here sends them to "pagina non trovata", and the database refuses
@@ -24,11 +25,13 @@ import { redirect } from "next/navigation";
 import {
   aggiornaAttivita,
   annullaAttivita,
+  attivitaSingola,
   MODALITA_CONSENSO,
   pubblicaAttivita,
   ritiraAttivita,
   type ModalitaConsenso,
 } from "@/lib/db/attivita";
+import { avvisaAttivitaAnnullata } from "@/lib/posta/abitanti";
 import { amministratore } from "../../guardia";
 
 const ELENCO = "/amministrazione/attivita";
@@ -101,16 +104,38 @@ export async function ritiraAttivitaAzione(formData: FormData): Promise<void> {
   redirect(`${ELENCO}?salvato=ritirata`);
 }
 
+/**
+ * Calling an activity off — §15.12, and since step 19 the email that goes
+ * with it (§15.10 row six).
+ *
+ * The card is read BEFORE the cancellation, because the message describes the
+ * activity that is not happening and `annulla_attivita()` is what makes it
+ * stop being one. The people, on the other hand, come back FROM the
+ * cancellation: reading the iscritti first and cancelling after would leave a
+ * gap in which somebody takes the last place and is never told.
+ *
+ * The reason is optional and is stored nowhere — §15.3.2 has no column for it
+ * and none is being added (rule 20). It is typed on the screen, it goes into
+ * the messages, and it stops there.
+ */
 export async function annullaAttivitaAzione(formData: FormData): Promise<void> {
   const { client } = await amministratore();
   const id = testo(formData.get("attivita"));
   if (!id) redirect(ELENCO);
 
+  const scheda = await attivitaSingola(client, id);
   const esito = await annullaAttivita(client, id);
   if (!esito.ok) redirect(schedaDi(id, `/pubblica?errore=${esito.motivo}`));
 
+  const motivo = testo(formData.get("motivo"));
+  if (scheda) {
+    for (const persona of esito.valore) {
+      await avvisaAttivitaAnnullata(persona, scheda, motivo);
+    }
+  }
+
   // How many people have just lost a place. A count, never a name and never
-  // an address (rule 4) — but a count somebody has to act on, because until
-  // step 19 nothing writes to them by itself (§15.12).
-  redirect(`${ELENCO}?salvato=annullata&iscritti=${esito.valore}`);
+  // an address (rule 4) — the panel says what was done, and the people have
+  // been told by the messages above.
+  redirect(`${ELENCO}?salvato=annullata&iscritti=${esito.valore.length}`);
 }

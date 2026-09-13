@@ -534,6 +534,7 @@ export type Database = {
           creata_il: string
           id: string
           posto_progressivo: number
+          promemoria_inviato_il: string | null
           stat_eta: Database["public"]["Enums"]["fascia_eta"] | null
           stat_genere: Database["public"]["Enums"]["genere"] | null
           stat_motivo_visita: string | null
@@ -551,6 +552,7 @@ export type Database = {
           creata_il?: string
           id?: string
           posto_progressivo: number
+          promemoria_inviato_il?: string | null
           stat_eta?: Database["public"]["Enums"]["fascia_eta"] | null
           stat_genere?: Database["public"]["Enums"]["genere"] | null
           stat_motivo_visita?: string | null
@@ -568,6 +570,7 @@ export type Database = {
           creata_il?: string
           id?: string
           posto_progressivo?: number
+          promemoria_inviato_il?: string | null
           stat_eta?: Database["public"]["Enums"]["fascia_eta"] | null
           stat_genere?: Database["public"]["Enums"]["genere"] | null
           stat_motivo_visita?: string | null
@@ -2072,7 +2075,12 @@ export type Database = {
         }
         Returns: undefined
       }
-      annulla_attivita: { Args: { p_id: string }; Returns: number }
+      annulla_attivita: {
+        Args: { p_id: string }
+        Returns: {
+          utente_id: string
+        }[]
+      }
       annulla_per_conto: { Args: { p_iscrizione_id: string }; Returns: string }
       annullabile: {
         Args: {
@@ -2218,6 +2226,26 @@ export type Database = {
           p_sede_id: string
         }
         Returns: string
+      }
+      promemoria_attivita_da_inviare: {
+        Args: { p_giorno?: string }
+        Returns: {
+          abitante_cognome: string
+          abitante_nome: string
+          abitante_telefono: string
+          attivita_id: string
+          cosa_portare: string
+          data: string
+          email: string
+          iscrizione_id: string
+          lingua_attivita: string
+          luogo_esatto: string
+          luogo_generico: string
+          ora_fine: string
+          ora_inizio: string
+          titolo: string
+          utente_id: string
+        }[]
       }
       promemoria_da_inviare: {
         Args: { p_giorno?: string }
