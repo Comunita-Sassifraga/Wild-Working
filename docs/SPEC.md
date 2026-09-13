@@ -577,6 +577,10 @@ chi partecipa alla residenza VIHTA, e i partecipanti sono maggiorenni (§15.4).
 | Registro delle moderazioni (§5.9) | Alla cancellazione dell'account | Le righe della persona spariscono insieme al suo account |
 | Log tecnici | 30 giorni | Cancellati. Non devono contenere email in chiaro. |
 
+**Queste cancellazioni dipendono da un'azione programmata che si può spegnere, e il segnale è il silenzio.** Il giro notturno è avviato da GitHub (§10, §14.5), e GitHub disattiva le azioni programmate di un repository pubblico dopo 60 giorni senza attività. A tenerlo acceso è `segno-di-vita.yml`, che scrive una data nel repository una volta al mese.
+
+**Chi dovesse proteggere il ramo `main` contro le scritture dirette deve prevedere un'eccezione per quell'azione.** Senza eccezione la scrittura mensile viene rifiutata, e l'unico segnale è un'esecuzione rossa il primo del mese: due mesi dopo l'anonimizzazione a 30 giorni smette di avvenire, in silenzio. Al 13/09/2026 `main` non è protetto e il problema non si pone.
+
 ### Diritti dell'interessato: dove si esercitano
 
 | Diritto                                   | Come                                                                                                                                                        |

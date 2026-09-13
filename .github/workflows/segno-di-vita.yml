@@ -41,7 +41,12 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Prendi il repository
-        uses: actions/checkout@v5
+        # Pinned to the exact commit of actions/checkout v5, not to the moving
+        # v5 tag: a tag can be repointed by whoever owns it, and this is the
+        # one step in this repository that runs with the right to write to it.
+        # To move it on, read the tag's commit from GitHub again — never copy
+        # a number from somewhere else.
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
       - name: Annota la data e commetti
         run: |

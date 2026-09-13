@@ -95,7 +95,10 @@ come intenzione (§10).
 
 I due giri non scaricano il repository, non usano azioni di terzi e ricevono
 `permissions: {}`, cioè nessun diritto sul repository: fanno una sola chiamata
-verso l'esterno e si fermano. Il segreto passa da una variabile d'ambiente e non
+verso l'esterno e si fermano. Il solo a usare un componente altrui è il segno di
+vita, che ha bisogno di una copia del repository per scriverci la data: usa
+quello ufficiale di GitHub, agganciato al numero esatto della versione e non
+all'etichetta `v5`, che il suo proprietario potrebbe spostare. Il segreto passa da una variabile d'ambiente e non
 finisce mai sulla riga di comando; se l'indirizzo non comincia per `https`
 l'esecuzione si ferma prima di mandarlo. Una risposta diversa da `2xx` fa
 diventare rossa l'esecuzione, e GitHub manda l'email. Nel diario finisce solo il
