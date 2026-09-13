@@ -288,10 +288,19 @@ second sender there can send the association's own mail to spam. See SPEC §14.2
     summarise or truncate it on display.
 
 27. **One entry point, no navigation item.** The module is reached from the
-    **top** of the availability page: a Stile 1 button labelled "Prenota un
-    abitante", shown only to signed-in users and only while an `edizione` is
-    active (SPEC §15.5). Do not add a header nav item, do not add a link on the
-    "Chi c'è in Valle" page, and do not promote the module anywhere else.
+    **top** of the availability page: a **Stile 2** button labelled "Prenota un
+    abitante", on the same line as the "Chi c'è in Valle" button and to its
+    right, shown only to signed-in users and only while an `edizione` is
+    active (SPEC §15.5, §6.2). Do not add a header nav item, do not add a link
+    on the "Chi c'è in Valle" page, and do not promote the module anywhere
+    else.
+
+    The two buttons carry the **same weight**, both filled `verde` with `testo`
+    text — never white on green (rule 13). A first draft made this one Stile 1,
+    outlined, so as not to compete; reversed on 2026-09-13. The hierarchy is
+    the reading order, not a paler outline: "Chi c'è in Valle" comes first and
+    carries the note underneath. On a narrow screen the two wrap and keep that
+    order. Still no full-width Stile 2 **band** above the grid (§13.2).
 
     **The button stands alone** — no note above it, no helper line below, and
     the same for everyone whether or not they hold an `abilitazione`. A first
@@ -678,13 +687,19 @@ must still hold afterwards:
 
 - `tests/diritti.test.ts` — erasure now also cancels the person's future
   `iscrizioni` and frees their seats, anonymises the past ones with `stat_*`
-  left empty, and removes their `abilitazione`, `codice_invito` and
-  `tentativi_codice`. The export still carries no `posto_progressivo` and no
-  `stat_` column, for iscrizioni as for prenotazioni.
+  left empty, and removes their `abilitazione` and `tentativi_codice`. Of the
+  `codice_invito` it removes the **link to the person and not the row**: the
+  `progressivo` stays burnt, because rule 23 forbids reissuing it (§15.12).
+  The export still carries no `posto_progressivo` and no `stat_` column, for
+  iscrizioni as for prenotazioni — and no level 2 column of §15.8 either: the
+  abitante's surname, telephone and exact address are somebody else's data,
+  they reached the person by email at sign-up, and a file kept for years is
+  not where they go.
 - `tests/retention.test.ts` — the nightly run now also anonymises iscrizioni
   30 days past the **activity's** date, deletes abilitazioni and code
   fingerprints of an edition closed for `GIORNI_CHIUSURA_EDIZIONE`, clears the
-  abitante's data of a closed edition **including `titolo` and `descrizione`**,
+  abitante's data of a closed edition **including `titolo`, `descrizione`,
+  `cosa_portare` and `lingua_attivita`**,
   and drops code attempts older than an hour.
 - `tests/installabilita.test.ts` — `sw.js` must refuse to keep **any** page of
   the module offline: not the list, not a detail, not the code form. Same
@@ -696,7 +711,11 @@ must still hold afterwards:
   signed-in user with an active edition, and the view still carries counts
   only.
 - `tests/amministrazione.test.ts` — the new panel section is unreachable by
-  anyone who is not an amministratore, like every other part of it.
+  anyone who is not an amministratore, like every other part of it. "Prenotazioni
+  da controllare" now also lists the **iscrizioni** a change left behind, for
+  the two reasons §15.12 names — a capienza lowered under the number signed up,
+  and an activity returned to `BOZZA` when the consent tick was cleared — and,
+  like the bookings beside them, it never cancels one (rule 6).
 
 If a change breaks one of these, the change is wrong. Do not adjust the test.
 
