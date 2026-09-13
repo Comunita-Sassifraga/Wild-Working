@@ -339,11 +339,13 @@ Il collegamento speculare di §6.6 **non** diventa un pulsante: l'asimmetria è 
 
 Accessibile **senza registrazione**. La registrazione serve solo per prenotare.
 
-**Ingresso a «Prenota un abitante».** In cima alla pagina, sopra il pulsante di "Chi c'è in Valle", compare l'ingresso al secondo servizio (§15.5). Si mostra **solo a chi ha fatto l'accesso** e **solo mentre un'edizione è attiva** (§15.3.1): un visitatore non registrato non lo vede, e il 18 ottobre sparisce da sé.
+**Ingresso a «Prenota un abitante».** In cima alla pagina, sulla stessa riga del pulsante di "Chi c'è in Valle" e alla sua destra, compare l'ingresso al secondo servizio (§15.5). Si mostra **solo a chi ha fatto l'accesso** e **solo mentre un'edizione è attiva** (§15.3.1): un visitatore non registrato non lo vede, e il 18 ottobre sparisce da sé.
 
-È un **pulsante in Stile 1** con scritto *"Prenota un abitante"*, che porta a `/abitanti`. Nient'altro: nessuna nota sopra, nessuna spiegazione sotto, e la stessa cosa per tutti — sia per chi è già abilitato, sia per chi deve ancora inserire il codice.
+È un **pulsante in Stile 2** con scritto *"Prenota un abitante"*, che porta a `/abitanti`. Nient'altro: nessuna nota sopra, nessuna spiegazione sotto, e la stessa cosa per tutti — sia per chi è già abilitato, sia per chi deve ancora inserire il codice.
 
-Il pulsante è in Stile 1 — non riempito di `verde` — proprio per non competere con quello di "Chi c'è in Valle", che è l'azione principale della pagina per tutti, mentre questo riguarda 45 persone su un'edizione sola.
+I due pulsanti hanno lo stesso peso, e la nota resta sotto il solo pulsante di "Chi c'è in Valle", che è quello di cui dice cosa c'è dall'altra parte. Da telefono vanno a capo e restano in quest'ordine. Decisione del 13/09/2026, che sostituisce lo Stile 1 di una prima stesura: le ragioni stanno in §15.5.
+
+Resta vietata anche qui la **fascia** in Stile 2 a tutta larghezza: due pulsanti restano due elementi circoscritti, una fascia sarebbe un registro (§13.2).
 
 Questa è la sola modifica che il modulo porta a una pagina già esistente del coworking, e il solo ingresso al modulo dentro l'applicazione. Sostituisce, dal 12/09/2026, la riga discreta in fondo alla griglia che era stata proposta in una prima stesura di §15.5: quella riga, in coda a una pagina lunga da telefono, non l'avrebbe vista nessuno, e il modulo si sarebbe retto tutto sul cartoncino di carta.
 
@@ -481,7 +483,7 @@ Il collegamento sta **fuori** dalla fascia verde, sullo sfondo crema, quindi è 
 - Gestione incarichi: assegnare e revocare il ruolo di referente.
 - **Moderazione dei nomi pubblici** (§6.5): dall'identificativo utente ricevuto per email, azzerare il nome pubblico con un'azione. L'azione richiede una conferma, invia in automatico l'avviso all'utente e viene registrata (chi, quando, quale nome è stato rimosso). La schermata mostra il nome pubblico e l'identificativo interno, **mai l'email dell'utente**.
 - **Gestione dell'elenco dei termini vietati** usato dal filtro automatico: aggiungere e rimuovere voci senza toccare il codice.
-- **Prenotazioni da controllare**: l'elenco delle prenotazioni che un cambiamento ha lasciato fuori — capienza abbassata sotto il numero di prenotati, chiusura inserita su un giorno già prenotato, periodo accorciato, sede sospesa, giorno della settimana tolto dalle aperture (§8.2, §8.4). Il pannello mostra sede, giorno, fascia, motivo e l'indirizzo a cui scrivere. Non annulla mai niente da solo: decide una persona. Lo stesso elenco accoglie le **iscrizioni** rimaste fuori da un cambiamento di capienza di un'attività (§15.12).
+- **Prenotazioni da controllare**: l'elenco delle prenotazioni che un cambiamento ha lasciato fuori — capienza abbassata sotto il numero di prenotati, chiusura inserita su un giorno già prenotato, periodo accorciato, sede sospesa, giorno della settimana tolto dalle aperture (§8.2, §8.4). Il pannello mostra sede, giorno, fascia, motivo e l'indirizzo a cui scrivere. Non annulla mai niente da solo: decide una persona. Lo stesso elenco accoglie le **iscrizioni** rimaste fuori da un cambiamento (§15.12), per due motivi: la capienza dell'attività abbassata sotto il numero di iscritti, e l'attività tornata in `BOZZA` perché la spunta del consenso è stata tolta — che è il punto in cui "il sistema lo segnala, non decide" di §15.12 diventa qualcosa che si vede. Di ciascuna mostra titolo, giorno, ora, motivo e l'indirizzo a cui scrivere.
 - **Attività, codici e abilitazioni** del modulo «Prenota un abitante»: la sezione è descritta in §15.9. Compare nel pannello solo quando esiste un'edizione.
 - Statistiche aggregate (§6.8).
 - **Cancellazione di un account** su richiesta scritta dell'interessato: la persona si cerca dal suo indirizzo email, che è quello con cui la richiesta arriva. La schermata mostra l'identificativo interno e quante prenotazioni verrebbero annullate, e l'azione chiede una conferma. Fa esattamente la stessa cosa del pulsante che la persona ha nelle proprie impostazioni (§7), non una cosa simile. Rifiuta però la cancellazione di chi ha un incarico di amministratore attivo, con un messaggio esplicito: un clic sbagliato non deve poter lasciare l'associazione senza pannello, e un amministratore che voglia andarsene ha sempre il pulsante nelle proprie impostazioni.
@@ -580,7 +582,7 @@ chi partecipa alla residenza VIHTA, e i partecipanti sono maggiorenni (§15.4).
 
 | Diritto                                   | Come                                                                                                                                                        |
 | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Accesso (art. 15) e portabilità (art. 20) | Pulsante "Scarica i miei dati", in fondo alle impostazioni personali → file JSON immediato. Contiene: il profilo (email, nome pubblico e sua visibilità, i cinque campi facoltativi, lingua, data di creazione, data dell'ultimo accesso), le prenotazioni ancora collegate alla persona — anche quelle passate e quelle annullate — con sede, comune, giorno, fascia, orario, stato e data della prenotazione, e le proprie righe del registro dei consensi. Non contiene il numero interno del posto (§8.1), non contiene i campi `stat_` delle prenotazioni anonimizzate — dopo la copia non sono più un suo dato (§5.3) — e non contiene il registro delle moderazioni, che resta dell'amministratore (§5.9, decisione del 11/09) |
+| Accesso (art. 15) e portabilità (art. 20) | Pulsante "Scarica i miei dati", in fondo alle impostazioni personali → file JSON immediato. Contiene: il profilo (email, nome pubblico e sua visibilità, i cinque campi facoltativi, lingua, data di creazione, data dell'ultimo accesso), le prenotazioni ancora collegate alla persona — anche quelle passate e quelle annullate — con sede, comune, giorno, fascia, orario, stato e data della prenotazione, le **iscrizioni** alle attività di «Prenota un abitante» ancora collegate alla persona — anche quelle passate e quelle annullate — con titolo, nome di battesimo del proponente, luogo generico, giorno, orario, stato e data dell'iscrizione, e le proprie righe del registro dei consensi. Non contiene il numero interno del posto (§8.1, §15.3.3), non contiene i campi `stat_` delle righe anonimizzate — dopo la copia non sono più un suo dato (§5.3) — non contiene nessun dato di **livello 2** dell'abitante, che è di un'altra persona e le è arrivato per email al momento dell'iscrizione (§15.8), e non contiene il registro delle moderazioni, che resta dell'amministratore (§5.9, decisione del 11/09) |
 | Rettifica (art. 16)                       | L'utente modifica da solo nome pubblico, eta, genere, professione, motivo visita, residenza e lingua. Per l'email: cambio con verifica del nuovo indirizzo. |
 | Cancellazione (art. 17)                   | Pulsante "Cancella il mio account", accanto al precedente → una pagina di conferma che scrive per esteso cosa succede e quante prenotazioni verranno annullate → esecuzione immediata, non richiesta a un umano. Nessuna email di conferma: dopo la cancellazione non c'è più un indirizzo a cui scrivere, e la persona ha appena letto l'esito a schermo |
 | Revoca del consenso (art. 7.3)            | Due consensi indipendenti (§5.5). Nome pubblico: interruttore nelle impostazioni, effetto immediato e retroattivo. Dati facoltativi: pulsante "Rimuovi i miei dati facoltativi", che svuota tutti e cinque i campi. Entrambe le revoche sono immediate, non richiedono l'intervento di un umano e non incidono sulle prenotazioni |
@@ -1145,7 +1147,7 @@ E una **revoca puntuale**: disattivare una singola abilitazione senza toccare le
 
 **Un solo ingresso dentro l'applicazione**, nessuna voce di navigazione (D19).
 
-**In cima alla pagina della disponibilità**, sopra il pulsante di «Chi c'è in Valle», a chi ha fatto l'accesso: un **pulsante in Stile 1** con scritto *"Prenota un abitante"*, che porta a `/abitanti`.
+**In cima alla pagina della disponibilità**, accanto al pulsante di «Chi c'è in Valle» e alla sua destra, a chi ha fatto l'accesso: un **pulsante in Stile 2** con scritto *"Prenota un abitante"*, che porta a `/abitanti`. Da telefono i due vanno a capo e restano in quest'ordine.
 
 **Solo il pulsante.** Nessuna nota, nessuna riga di spiegazione, né sopra né sotto, e identico per tutti: per chi è già abilitato e per chi deve ancora inserire il codice. Una prima stesura gli metteva accanto la domanda *"Sei un partecipante di VIHTA?"*; è stata tolta il 12/09/2026. Chi partecipa a VIHTA ha in mano un cartoncino e non ha bisogno che gli si chieda se è lui; a chiunque altro la nota spiegherebbe qualcosa che non può usare, aggiungendo due righe di testo in cima alla pagina più usata dell'applicazione. Il nome del pulsante dice già cos'è, e la spiegazione vera sta dietro al pulsante, su `/abitanti` (§15.6).
 
@@ -1153,7 +1155,7 @@ Questo pulsante è tutto il meccanismo di ingresso. La prima volta che lo si pre
 
 **Perché in cima e non in fondo.** In una prima stesura questa era una riga discreta sotto la griglia, per non competere con l'azione principale della pagina. Il 12/09/2026 la scelta è stata rovesciata: da telefono la griglia è lunga, e quello che sta in coda non lo legge nessuno — è la stessa ragione per cui il collegamento a «Chi c'è in Valle» sta sopra la griglia e non sotto (§6.2). Un ingresso che non si vede è un ingresso che non esiste, e questo modulo ha 29 giorni di vita per farsi trovare.
 
-La competizione con il "Prenota" delle celle si governa con il registro, non con la posizione: il pulsante di «Chi c'è in Valle» è in Stile 2, riempito di `verde`, perché riguarda tutti; questo è in **Stile 1**, perché riguarda 45 persone su un'edizione sola.
+**I due pulsanti hanno lo stesso peso**, entrambi riempiti di `verde` con testo `testo`. Una prima stesura metteva questo in Stile 1, di contorno, per non competere con «Chi c'è in Valle»; la scelta è stata rovesciata il 13/09/2026. Un ingresso che dura 29 giorni e riguarda persone appena arrivate, che l'applicazione non la conoscono, non può essere il più debole dei due: la gerarchia la fa l'ordine di lettura — «Chi c'è in Valle» viene prima e porta la sua nota sotto — non un contorno più chiaro. La competizione con il "Prenota" delle celle resta governata dal fatto che quelli sono collegamenti dentro la griglia, non pulsanti.
 
 **Compare soltanto a chi ha fatto l'accesso e soltanto mentre un'edizione è attiva** (§15.3.1). Un visitatore non registrato non lo vede: non gli servirebbe, perché il codice si inserisce da utenti. Il 18 ottobre sparisce da sé — nessuno deve ricordarsi di toglierlo — e l'anno prossimo ricompare cambiando due date dal pannello.
 
@@ -1191,7 +1193,11 @@ Un indirizzo solo, e non due, perché il pulsante di §15.5 è uno solo e non pu
 
 Questa versione della pagina **esiste anche per chi non è abilitato**: non risponde "pagina non trovata". Una pagina che non c'è genera richieste di assistenza; una che spiega, no. Ma non mostra **nulla** delle attività — nemmeno i soli titoli, che contengono i nomi degli abitanti — e non lascia capire se un'email è già registrata o abilitata, per la stessa ragione di §6.1.
 
-**`/le-mie-prenotazioni` — modificata.** Diventa una sola pagina con due sezioni, postazioni e attività. La sezione attività compare solo a chi è abilitato. Sarebbe un errore fare due elenchi separati: il residente ha una settimana sola da organizzare, non due agende.
+**`/le-mie-prenotazioni` — modificata.** Diventa una sola pagina con due sezioni, postazioni e attività. Sarebbe un errore fare due elenchi separati: il residente ha una settimana sola da organizzare, non due agende.
+
+La sezione attività compare a chi è abilitato, **e a chi ha almeno un'iscrizione anche senza esserlo più**: §15.12 tiene un'iscrizione già presa visibile al suo titolare attraverso un'edizione spenta e un'abilitazione revocata, e una sezione che sparisse gliela nasconderebbe. Precisato il 13/09/2026, perché la prima stesura diceva "solo a chi è abilitato" e le due frasi si contraddicevano. Per tutti gli altri la pagina resta esattamente quella di prima: nessuna intestazione nuova compare sopra una sezione che non c'è.
+
+Ogni voce porta il titolo, il giorno e l'ora, il luogo generico, e il collegamento all'attività — dove stanno i recapiti di chi ospita e dove si annulla (§15.7). I dati di livello 2 non si ripetono qui: chi apre questa pagina non l'ha aperta per leggere il telefono di Maria.
 
 ### 15.7 Iscriversi e annullare
 
@@ -1369,7 +1375,9 @@ La riga sul nome pubblico va detta anche **nell'informativa dei partecipanti**, 
 | Iscrizioni con data attività oltre `GIORNI_ANONIMIZZAZIONE` | Anonimizzate, con la copia `stat_` di §5.3 e le sue eccezioni |
 | Abilitazioni e impronte dei codici di un'edizione chiusa da `GIORNI_CHIUSURA_EDIZIONE` | Cancellate |
 | Tentativi di inserimento del codice più vecchi di un'ora | Cancellati |
-| Dati degli abitanti di un'edizione chiusa — tutti e tre i livelli, **titolo e descrizione compresi** | Cancellati. Restano `data`, `capienza` e il numero di iscritti, che è tutto ciò che serve per dire "nel 2026 abbiamo fatto 23 attività, 180 partecipazioni, in media 8 a serata". La dichiarazione di consenso (chi, quando, in che forma) resta finché resta l'attività: è la prova di aver fatto le cose per bene |
+| Dati degli abitanti di un'edizione chiusa — tutti e tre i livelli, **titolo e descrizione compresi**, e con loro `cosa_portare` e `lingua_attivita` | Cancellati. Restano **soltanto** `data`, `capienza` e il numero di iscritti, che è tutto ciò che serve per dire "nel 2026 abbiamo fatto 23 attività, 180 partecipazioni, in media 8 a serata". La dichiarazione di consenso (chi, quando, in che forma) resta finché resta l'attività: è la prova di aver fatto le cose per bene |
+
+`cosa_portare` e `lingua_attivita` sono nell'elenco dal 13/09/2026: sono testo libero dettato dall'abitante, e una frase come "portate la teglia, quella di mia sorella in piazza" nomina una persona e un luogo esattamente come le altre. La riga dice cosa **resta**, e loro non ci sono.
 
 **Si cancella anche il titolo**, e vale la pena dire perché, visto che sembra un dato innocuo. §15.6 stabilisce che nemmeno i titoli si mostrano a chi non è abilitato, e la ragione è che *i titoli contengono i nomi degli abitanti* — "Cena da Maria", "Il forno di Giulio". Tenere il titolo dopo aver cancellato il cognome non cancellerebbe granché. L'alternativa esaminata era imporre titoli senza nomi di persona, ma è una consegna che si dimentica alla terza sera di caricamento, ed è il genere di regola che nessun test può far rispettare.
 
@@ -1382,7 +1390,7 @@ L'informativa privacy va aggiornata di conseguenza: è una versione datata, non 
 | Due persone prendono l'ultimo posto insieme | Risolto dal vincolo di unicità del database, come §8.1. Alla seconda l'attività risulta "completa", con la riga di §15.7 che dice cosa fare |
 | Capienza abbassata sotto il numero di iscritti | Nessun annullamento automatico. Compare nell'elenco "Prenotazioni da controllare" del pannello (§6.7), che accoglie anche le iscrizioni |
 | Attività annullata con iscritti | L'amministratore conferma; tutti gli iscritti ricevono l'email; le iscrizioni passano ad `ANNULLATA` |
-| Abitante che ritira il consenso | Lo dice a voce a qualcuno del Direttivo: non ha un account. L'amministratore toglie la spunta, l'attività torna in `BOZZA` e sparisce. Gli iscritti restano e vanno avvisati a mano: il sistema lo segnala, non decide |
+| Abitante che ritira il consenso | Lo dice a voce a qualcuno del Direttivo: non ha un account. L'amministratore toglie la spunta, l'attività torna in `BOZZA` e sparisce. Gli iscritti restano e vanno avvisati a mano: il sistema lo segnala in "Prenotazioni da controllare" (§6.7), non decide |
 | Edizione disattivata con iscrizioni future | Le iscrizioni restano valide e visibili al loro titolare. Il modulo sparisce dall'ingresso, non dalle iscrizioni già fatte |
 | Partecipante non abilitato che apre un link diretto a un'attività | Viene portato a `/abitanti`, che gli chiede il codice (§15.6). Non vede titolo, abitante né luogo |
 | Abilitazione revocata con iscrizioni attive | Le iscrizioni restano ma non sono più modificabili dall'interessato. Le annulla l'amministratore, avvisando (§15.9) |
@@ -1392,7 +1400,7 @@ L'informativa privacy va aggiornata di conseguenza: è una versione datata, non 
 | Amministratore che iscrive un altro a un'attività completa | Rifiutato: il vincolo di capienza vale anche per lui. Prima si annulla l'iscrizione di chi rinuncia, poi si crea quella di chi subentra |
 | Attività senza la spunta del consenso | Non pubblicabile. Il sistema rifiuta il passaggio a `PUBBLICATA`, e il rifiuto è imposto dal database, non solo dal modulo |
 | Spunta del consenso senza la forma indicata | Rifiutata: `consenso_modalita` è obbligatorio quando la spunta è messa, e ammette due soli valori (§15.3.2, §15.8) |
-| Spunta del consenso tolta su un'attività già pubblicata | L'attività torna in `BOZZA` e sparisce dall'elenco. Gli iscritti restano e vanno avvisati a mano |
+| Spunta del consenso tolta su un'attività già pubblicata | L'attività torna in `BOZZA` e sparisce dall'elenco. Gli iscritti restano e vanno avvisati a mano: compaiono in "Prenotazioni da controllare" (§6.7) con il motivo scritto |
 | Partecipante abilitato ma non iscritto che tenta di leggere i dati di livello 2 | Rifiutato dal database, non solo nascosto dall'interfaccia: nessun cognome, telefono o indirizzo esatto esce verso chi non è iscritto a quella attività |
 | Partecipante che annulla e poi riapre la pagina | Perde il livello 2 nello stesso istante dell'annullamento (§15.8). Resta solo nell'email che ha già ricevuto |
 | Data dell'attività fuori dall'edizione | Rifiutata in scrittura |
@@ -1484,10 +1492,11 @@ Tutte insieme, perché sono le sole modifiche a parti già in mano alle persone,
 - L'ingresso di §15.5 in cima alla pagina della disponibilità.
 - Le due sezioni di `/le-mie-prenotazioni`.
 - Le iscrizioni nell'elenco «Prenotazioni da controllare» del pannello.
-- Le tre pulizie notturne di §15.11.
-- La cancellazione dell'account estesa alle iscrizioni, all'abilitazione e al codice.
-- Il `sw.js`, che **non deve tenere offline nessuna pagina del modulo**: né l'elenco, né un dettaglio, né la pagina del codice.
-- L'informativa privacy, versione nuova e datata.
+- Le **quattro** pulizie notturne di §15.11 — la tabella ne ha sempre elencate quattro; "tre" era un errore di conteggio, corretto il 13/09/2026.
+- La cancellazione dell'account estesa alle iscrizioni, all'abilitazione e al codice. **Non è una rifinitura**: finché non si fa, un account con un'iscrizione attaccata non si può cancellare affatto, perché la banca dati rifiuta di portarsi via la persona. È il diritto che la legge impone di rendere immediato, e qui si ripara.
+- Anche **«Scarica i miei dati»**, che deve portare le iscrizioni: l'informativa lo promette già.
+- Il `sw.js`, che **non deve tenere offline nessuna pagina del modulo**: né l'elenco, né un dettaglio, né la pagina del codice. L'elenco delle pagine conservabili è chiuso fin dal passo 13, quindi non c'è codice da cambiare — ci sono prove da aggiungere, indirizzo per indirizzo.
+- L'informativa privacy: la **1.0 copre già i due servizi**, perché è stata scritta completa una volta sola al passo 14. Qui si rilegge contro quello che il modulo fa davvero e si data alla pubblicazione. Non si apre una 1.1: una versione nuova si apre quando cambia un trattamento dopo che le persone hanno letto la precedente, e nessuno ha ancora letto niente (chiarito il 13/09/2026).
 
 Riferimenti: §15.1 (l'elenco delle sette cose), §6.2, §15.5, §15.6, §15.11, §15.12.
 Test: si estendono `diritti`, `retention`, `installabilita`, `disponibilita`, `amministrazione`. **Nessuno di questi va indebolito**: se uno si rompe, è il codice nuovo a essere sbagliato.

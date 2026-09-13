@@ -465,3 +465,61 @@ export async function prenotazioniDaVerificare(
         ];
   });
 }
+
+// ---------------------------------------------------------------------------
+// Iscrizioni da controllare — §6.7, §15.12
+// ---------------------------------------------------------------------------
+
+/**
+ * Why an iscrizione needs a human. Two reasons, and §15.12 names both:
+ * a capienza lowered under the number of people already signed up, and an
+ * activity returned to BOZZA because the consent tick was cleared.
+ */
+export type MotivoIscrizioneDaVerificare = "CAPIENZA_RIDOTTA" | "ATTIVITA_RITIRATA";
+
+export type IscrizioneDaVerificare = {
+  id: string;
+  attivitaId: string;
+  titolo: string | null;
+  data: DataISO | null;
+  oraInizio: string | null;
+  /** The address to write to (§8.4). Empty on an anonymised row, which has nobody left to warn. */
+  email: string;
+  motivo: MotivoIscrizioneDaVerificare;
+};
+
+const MOTIVI_ISCRIZIONE: MotivoIscrizioneDaVerificare[] = [
+  "CAPIENZA_RIDOTTA",
+  "ATTIVITA_RITIRATA",
+];
+
+/**
+ * The places a change has left behind (§6.7, §15.12). The same list as the
+ * bookings above and the same discipline: reading them is all the panel
+ * does, and there is no companion function that cancels one from here. The
+ * two admin actions that may touch somebody else's iscrizione are the ones
+ * of §15.9, and they live in lib/db/iscritti.ts where a person presses them
+ * deliberately (rule 29).
+ */
+export async function iscrizioniDaVerificare(client: Client): Promise<IscrizioneDaVerificare[]> {
+  const { data } = await client
+    .from("iscrizioni_da_verificare")
+    .select("iscrizione_id, attivita_id, titolo, data, ora_inizio, email, motivo")
+    .order("data");
+  return (data ?? []).flatMap((r) => {
+    const motivo = MOTIVI_ISCRIZIONE.find((v) => v === r.motivo);
+    return r.iscrizione_id === null || r.attivita_id === null || !motivo
+      ? []
+      : [
+          {
+            id: r.iscrizione_id,
+            attivitaId: r.attivita_id,
+            titolo: r.titolo,
+            data: r.data,
+            oraInizio: r.ora_inizio,
+            email: r.email ?? "",
+            motivo,
+          },
+        ];
+  });
+}

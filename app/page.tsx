@@ -5,11 +5,12 @@ import { AvvisoCopiaLocale } from "@/components/CopiaLocale";
 import { Rimando } from "@/components/Rimando";
 import { SediFuoriPeriodo } from "@/components/SediFuoriPeriodo";
 import { TabellaGiorno } from "@/components/TabellaGiorno";
-import { bottoneSecondario } from "@/components/controlli";
+import { bottonePrimario, bottoneSecondario } from "@/components/controlli";
 import { FINESTRA_GIORNI } from "@/config/limits";
 import { sonoAmministratore } from "@/lib/auth/ruoli";
 import { utenteAttuale } from "@/lib/auth/sessione";
 import { istanteGenerazione, settimaneCalendario } from "@/lib/dates";
+import { edizioneAttiva } from "@/lib/db/abitanti";
 import { apertureFuture, disponibilitaPubblica, sediPubbliche } from "@/lib/db/disponibilita";
 import { clientServer } from "@/lib/db/server";
 import { celleDelGiorno, giorniDelCalendario, giornoScelto } from "@/lib/disponibilita";
@@ -30,6 +31,12 @@ import { esciAzione } from "./accedi/azioni";
  * grid is long, and a link at the end of it would go unseen — and it is right
  * there that the question comes up, reading "2 hanno reso pubblica la
  * presenza" and wanting to know who they are.
+ *
+ * Beside that button, and only for somebody signed in while an edizione is
+ * open, the single entry to «Prenota un abitante» (§15.5, §6.2). It is the
+ * only change the module makes to a page of the coworking, and the only way
+ * into the module from inside the application: no navigation item, no link
+ * from "Chi c'è in Valle" (rule 27).
  */
 
 export default async function Home({
@@ -42,11 +49,14 @@ export default async function Home({
     clientServer(),
     searchParams,
   ]);
-  const [sedi, celle, aperture, amministratore] = await Promise.all([
+  const [sedi, celle, aperture, amministratore, edizione] = await Promise.all([
     sediPubbliche(client),
     disponibilitaPubblica(client),
     apertureFuture(client),
     utente ? sonoAmministratore(client) : Promise.resolve(false),
+    // Asked for only where the answer can change anything: the entry of
+    // §15.5 is drawn for signed-in people alone.
+    utente ? edizioneAttiva(client) : Promise.resolve(null),
   ]);
 
   const settimane = settimaneCalendario();
@@ -95,11 +105,29 @@ export default async function Home({
         </p>
       )}
 
+      {/* The one entry to «Prenota un abitante» inside the application
+          (§15.5, rule 27), beside the button to "Chi c'è in Valle". Only the
+          button: no note above, no line below, and the same for everybody —
+          for whoever already holds an abilitazione and for whoever has still
+          to type in their code. The explaining is done on /abitanti, behind
+          it, where it costs nothing to the people who came to book a desk.
+
+          It is drawn only for somebody signed in and only while an edizione
+          is active (§15.3.1): a visitor would have nothing to do with it,
+          the code is typed in by signed-in people, and on 18 October it goes
+          by itself — nobody has to remember to remove it. */}
       <Rimando
         href="/chi-ce-in-valle"
         etichetta={t.rimandoChiCe}
         nota={t.rimandoChiCeNota}
         forma="pulsante"
+        accanto={
+          utente && edizione ? (
+            <Link href="/abitanti" className={bottonePrimario}>
+              {m.abitanti.ingresso}
+            </Link>
+          ) : undefined
+        }
       />
 
       {utente ? (

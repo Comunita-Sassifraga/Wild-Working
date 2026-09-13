@@ -172,6 +172,16 @@
     "errori": {
       "tardi": "Questa prenotazione non si può più annullare: la fascia è già cominciata.",
       "generico": "Non siamo riusciti ad annullare la prenotazione. Riprova tra qualche minuto."
+    },
+    "sezionePostazioni": "Postazioni",
+    "sezioneAttivita": "Attività",
+    "attivita": {
+      "introduzione": "Le attività a cui ti sei iscritto, da oggi in avanti. Apri l'attività per vedere i recapiti di chi ti ospita, o per annullare.",
+      "vuoto": "Non sei iscritto a nessuna attività.",
+      "vedi": "Vai all'elenco delle attività",
+      "apri": "Apri l'attività",
+      "quando": "ore {orario}",
+      "cominciata": "Già cominciata"
     }
   },
   "impostazioni": {
@@ -304,6 +314,18 @@
         "CHIUSURA": "Quel giorno e quella fascia sono dentro una chiusura.",
         "GIORNO_CHIUSO": "Quel giorno della settimana la sede non è più aperta.",
         "CAPIENZA_RIDOTTA": "La capienza è stata abbassata sotto il numero di prenotati."
+      },
+      "iscrizioni": {
+        "titolo": "Iscrizioni alle attività",
+        "introduzione": "Anche qui il sistema non annulla niente da solo: guarda una per una e scrivi alle persone.",
+        "quante": "{numero} iscrizioni da controllare",
+        "unaSola": "1 iscrizione da controllare",
+        "senzaTitolo": "Attività senza titolo",
+        "orario": "ore {orario}",
+        "motivi": {
+          "CAPIENZA_RIDOTTA": "La capienza è stata abbassata sotto il numero di iscritti.",
+          "ATTIVITA_RITIRATA": "L'attività è tornata in bozza: gli iscritti non lo sanno."
+        }
       }
     },
     "sedi": {
@@ -718,6 +740,7 @@
   },
   "abitanti": {
     "titolo": "Prenota un abitante",
+    "ingresso": "Prenota un abitante",
     "chiuso": {
       "introduzione": "Durante VIHTA gli abitanti della Valle Soana propongono attività da fare insieme: una passeggiata, una cena, un pomeriggio a imparare qualcosa.",
       "testo": "In questo momento non c'è nessuna edizione aperta. Il servizio torna alla prossima."

@@ -1,9 +1,11 @@
 /**
- * Le pulizie automatiche notturne — SPEC §7, §12 step 11.
+ * Le pulizie automatiche notturne — SPEC §7, §15.11, §12 step 11, §15.14
+ * step 20.
  *
- * The retention table of §7, in the order it has to happen. Every decision
- * is taken inside the database (see supabase/migrations/*_pulizie.sql); this
- * file calls the seven statements once each and counts what they did.
+ * The retention table of §7 and the four lines §15.11 adds to it, in the
+ * order they have to happen. Every decision is taken inside the database
+ * (see supabase/migrations/*_pulizie.sql and *_modulo_e_cio_che_gira.sql);
+ * this file calls the eleven statements once each and counts what they did.
  *
  * The order is not arbitrary:
  *
@@ -19,7 +21,8 @@
  *      its side, but the order says it plainly;
  *   4. the closings run next, and each writes the date the consent register
  *      is measured from;
- *   5-7. the three sweeps have no bearing on the others and come last.
+ *   5-7. the three sweeps have no bearing on the others and come last;
+ *   8-11. the four of §15.11, which read nothing the seven above write.
  *
  * Nothing here stops the run: a step that fails is reported and the rest go
  * on. A cleanup that did not happen tonight happens tomorrow — but a cleanup
@@ -31,6 +34,7 @@
 
 import {
   GIORNI_ANONIMIZZAZIONE,
+  GIORNI_CHIUSURA_EDIZIONE,
   MESI_ACCOUNT_DORMIENTE,
   MESI_AVVISO_DORMIENZA,
   MESI_CONSERVAZIONE_CONSENSI,
@@ -55,11 +59,19 @@ export type EsitoPulizie = {
   impronteScadute: number;
   /** Consent rows of accounts closed 24 months ago (§5.5, §7). */
   consensiScaduti: number;
+  /** Places on activities whose link with a person was cut tonight (§15.11). */
+  iscrizioniAnonimizzate: number;
+  /** Abilitazioni and code fingerprints of a long-closed edition (§15.11). */
+  accessiEdizioniChiuse: number;
+  /** Activity cards emptied of the abitante's data, title and description (§15.11). */
+  datiAbitantiCancellati: number;
+  /** Code attempts older than an hour (§15.11). */
+  tentativiScaduti: number;
   /** Names of the steps that failed. Never a reason: a reason can quote data. */
   falliti: string[];
 };
 
-/** Runs the seven nightly jobs and reports what each one did. */
+/** Runs the eleven nightly jobs and reports what each one did. */
 export async function eseguiPulizie(client: Client): Promise<EsitoPulizie> {
   const esito: EsitoPulizie = {
     postiOffertiAnnotati: 0,
@@ -70,6 +82,10 @@ export async function eseguiPulizie(client: Client): Promise<EsitoPulizie> {
     richiesteIncomplete: 0,
     impronteScadute: 0,
     consensiScaduti: 0,
+    iscrizioniAnonimizzate: 0,
+    accessiEdizioniChiuse: 0,
+    datiAbitantiCancellati: 0,
+    tentativiScaduti: 0,
     falliti: [],
   };
 
@@ -114,6 +130,35 @@ export async function eseguiPulizie(client: Client): Promise<EsitoPulizie> {
     esito,
     "cancella_consensi_scaduti",
     await client.rpc("cancella_consensi_scaduti", { p_mesi: MESI_CONSERVAZIONE_CONSENSI }),
+  );
+
+  // 8-11. «Prenota un abitante» — SPEC §15.11. Four more lists in the same
+  // run, never a second run (§15.1 point 5). They come after the seven above
+  // because none of those reads anything of the module: an account closed
+  // tonight has already had its iscrizioni anonymised by the erasure itself,
+  // so what is left here is the ordinary passage of time.
+  esito.iscrizioniAnonimizzate = conta(
+    esito,
+    "anonimizza_iscrizioni",
+    await client.rpc("anonimizza_iscrizioni", { p_giorni: GIORNI_ANONIMIZZAZIONE }),
+  );
+
+  esito.accessiEdizioniChiuse = conta(
+    esito,
+    "cancella_accessi_edizioni_chiuse",
+    await client.rpc("cancella_accessi_edizioni_chiuse", { p_giorni: GIORNI_CHIUSURA_EDIZIONE }),
+  );
+
+  esito.datiAbitantiCancellati = conta(
+    esito,
+    "cancella_dati_abitanti",
+    await client.rpc("cancella_dati_abitanti"),
+  );
+
+  esito.tentativiScaduti = conta(
+    esito,
+    "cancella_tentativi_scaduti",
+    await client.rpc("cancella_tentativi_scaduti"),
   );
 
   return esito;

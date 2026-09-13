@@ -2,11 +2,13 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { bottoneDistruttivo } from "@/components/controlli";
 import { utenteAttuale } from "@/lib/auth/sessione";
-import { dataEstesa } from "@/lib/dates";
+import { dataEstesa, oggiRoma, ora } from "@/lib/dates";
+import { sonoAbilitato } from "@/lib/db/abitanti";
+import { mieAttivita, type AttivitaElencata } from "@/lib/db/iscrizioni";
 import { miePrenotazioni, type MiaPrenotazione } from "@/lib/db/prenotazioni";
 import { clientServer } from "@/lib/db/server";
 import { orarioTesto } from "@/lib/disponibilita";
-import { m } from "@/lib/messaggi";
+import { conValori, m } from "@/lib/messaggi";
 import { annullaAzione } from "./azioni";
 
 /**
@@ -21,6 +23,15 @@ import { annullaAzione } from "./azioni";
  *
  * The green register is used twice, and only as an accent (§13.2): the
  * confirmation of a booking just made, and the empty state.
+ *
+ * Since step 20 the page has two sections, postazioni and attività (§15.6).
+ * One page and not two: a resident has one week to organise, not two diaries.
+ * The second section is drawn for whoever holds an abilitazione, and for
+ * whoever holds a place even without one — §15.12 keeps an iscrizione
+ * already taken visible to its holder through a deactivated edition and a
+ * revoked abilitazione (agreed 2026-09-13, written into §15.6). For everybody
+ * else the page is exactly what it was: no second heading appears above a
+ * section that is not there.
  */
 
 type Proprieta = {
@@ -131,6 +142,45 @@ function Prenotazione({ voce }: { voce: Voce }) {
   );
 }
 
+/**
+ * One place on an activity — SPEC §15.6, second section.
+ *
+ * The heading of the elenco and nothing more: what to bring, the description
+ * and the recapiti of whoever is hosting are on the activity itself, which
+ * is also where one gives the place up (§15.7). Repeating a telephone number
+ * on a page nobody opened to read it would spread a third party's data for
+ * no reason (rule 24).
+ */
+function Attivita({ attivita }: { attivita: AttivitaElencata }) {
+  const t = m.prenotazioni.attivita;
+  return (
+    <li className="border-b border-linea py-6">
+      <h3 className="text-titolo-sezione font-grassetto">
+        <Link href={`/abitanti/${attivita.id}`}>{attivita.titolo}</Link>
+      </h3>
+
+      {attivita.abitanteNome && (
+        <p className="mt-2">
+          {conValori(m.abitanti.attivita.proposta, { nome: attivita.abitanteNome })}
+        </p>
+      )}
+
+      <p className="mt-2 text-testo-secondario">
+        {attivita.data && dataEstesa(attivita.data)}
+        {attivita.oraInizio && ` · ${conValori(t.quando, { orario: ora(attivita.oraInizio) })}`}
+        {attivita.luogoGenerico && ` · ${attivita.luogoGenerico}`}
+      </p>
+
+      {/* Colour never carries this on its own (rule 14): the word says it. */}
+      {!attivita.ancoraAperta && <p className="mt-2">{t.cominciata}</p>}
+
+      <p className="mt-4">
+        <Link href={`/abitanti/${attivita.id}`}>{t.apri}</Link>
+      </p>
+    </li>
+  );
+}
+
 export default async function PaginaPrenotazioni({ searchParams }: Proprieta) {
   const [utente, client, parametri] = await Promise.all([
     utenteAttuale(),
@@ -139,8 +189,13 @@ export default async function PaginaPrenotazioni({ searchParams }: Proprieta) {
   ]);
   if (!utente) redirect("/accedi");
 
-  const prenotazioni = await miePrenotazioni(client);
+  const [prenotazioni, attivita, abilitato] = await Promise.all([
+    miePrenotazioni(client),
+    mieAttivita(client, oggiRoma()),
+    sonoAbilitato(client),
+  ]);
   const voci = raggruppa(prenotazioni);
+  const conAttivita = abilitato || attivita.length > 0;
 
   const t = m.prenotazioni;
   const confermata = uno(parametri.confermata);
@@ -182,6 +237,13 @@ export default async function PaginaPrenotazioni({ searchParams }: Proprieta) {
         </p>
       )}
 
+      {/* The headings appear only when there really are two sections: for
+          somebody who has nothing to do with the module the page is
+          unchanged (§15.6). */}
+      {conAttivita && (
+        <h2 className="mt-10 text-titolo-sezione font-grassetto">{t.sezionePostazioni}</h2>
+      )}
+
       {voci.length === 0 ? (
         <section className="mt-8 bg-verde px-6 py-8 text-testo">
           <h2 className="text-titolo-sezione font-grassetto">{t.vuoto.titolo}</h2>
@@ -201,10 +263,36 @@ export default async function PaginaPrenotazioni({ searchParams }: Proprieta) {
               <Prenotazione key={voce.chiave} voce={voce} />
             ))}
           </ul>
-          <p className="mt-8">
-            <Link href="/">{t.vuoto.collegamento}</Link>
-          </p>
         </>
+      )}
+
+      {conAttivita && (
+        <>
+          <h2 className="mt-10 text-titolo-sezione font-grassetto">{t.sezioneAttivita}</h2>
+          {attivita.length === 0 ? (
+            <>
+              <p className="mt-6">{t.attivita.vuoto}</p>
+              <p className="mt-4">
+                <Link href="/abitanti">{t.attivita.vedi}</Link>
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="mt-6 italic">{t.attivita.introduzione}</p>
+              <ul className="mt-4 border-t border-linea">
+                {attivita.map((riga) => (
+                  <Attivita key={riga.id} attivita={riga} />
+                ))}
+              </ul>
+            </>
+          )}
+        </>
+      )}
+
+      {voci.length > 0 && (
+        <p className="mt-8">
+          <Link href="/">{t.vuoto.collegamento}</Link>
+        </p>
       )}
     </>
   );

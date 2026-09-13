@@ -258,6 +258,32 @@ export async function mieIscrizioni(client: Client): Promise<MiaIscrizione[]> {
   return data.map((r) => ({ id: r.id, attivitaId: r.attivita_id }));
 }
 
+/**
+ * The activities the caller holds a place on, from today on — SPEC §15.6,
+ * the second section of "Le mie prenotazioni".
+ *
+ * The level 2 window is the right one to read here even though the page does
+ * not draw a surname: it is the only one that keeps answering when the
+ * edition is switched off or the abilitazione revoked, and §15.12 says an
+ * iscrizione already taken stays visible to its holder. Holding an ATTIVA
+ * iscrizione is what makes the row appear, and cancelling makes it go — no
+ * filter in this file decides it (rule 24).
+ *
+ * From today on, like the bookings on the same page: what is over belongs to
+ * nobody's agenda. The filter is on the query and not on the result, so a
+ * long edition does not travel through the wire to be thrown away here.
+ */
+export async function mieAttivita(client: Client, oggi: DataISO): Promise<AttivitaElencata[]> {
+  const { data, error } = await client
+    .from("attivita_iscritto")
+    .select(COLONNE_ISCRITTO)
+    .gte("data", oggi)
+    .order("data")
+    .order("ora_inizio", { nullsFirst: true });
+  if (error || !data) return [];
+  return data.filter((r) => r.id !== null).map(daIscritto);
+}
+
 // ---------------------------------------------------------------------------
 // Writing
 // ---------------------------------------------------------------------------

@@ -630,6 +630,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "iscrizioni_attivita_id_fkey"
+            columns: ["attivita_id"]
+            isOneToOne: false
+            referencedRelation: "iscrizioni_da_verificare"
+            referencedColumns: ["attivita_id"]
+          },
+          {
             foreignKeyName: "iscrizioni_creata_da_fkey"
             columns: ["creata_da"]
             isOneToOne: false
@@ -1647,6 +1654,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "iscrizioni_attivita_id_fkey"
+            columns: ["attivita_id"]
+            isOneToOne: false
+            referencedRelation: "iscrizioni_da_verificare"
+            referencedColumns: ["attivita_id"]
+          },
+          {
             foreignKeyName: "iscrizioni_creata_da_fkey"
             columns: ["creata_da"]
             isOneToOne: false
@@ -1724,7 +1738,26 @@ export type Database = {
             referencedRelation: "attivita_iscritto"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "iscrizioni_attivita_id_fkey"
+            columns: ["attivita_id"]
+            isOneToOne: false
+            referencedRelation: "iscrizioni_da_verificare"
+            referencedColumns: ["attivita_id"]
+          },
         ]
+      }
+      iscrizioni_da_verificare: {
+        Row: {
+          attivita_id: string | null
+          data: string | null
+          email: string | null
+          iscrizione_id: string | null
+          motivo: string | null
+          ora_inizio: string | null
+          titolo: string | null
+        }
+        Relationships: []
       }
       mie_prenotazioni: {
         Row: {
@@ -1772,6 +1805,21 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      miei_dati_iscrizioni: {
+        Row: {
+          abitante_nome: string | null
+          annullata_il: string | null
+          creata_il: string | null
+          data: string | null
+          id: string | null
+          luogo_generico: string | null
+          ora_fine: string | null
+          ora_inizio: string | null
+          stato: Database["public"]["Enums"]["stato_iscrizione"] | null
+          titolo: string | null
+        }
+        Relationships: []
       }
       miei_dati_prenotazioni: {
         Row: {
@@ -2090,6 +2138,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      anonimizza_iscrizioni: { Args: { p_giorni: number }; Returns: number }
       anonimizza_prenotazioni: { Args: { p_giorni: number }; Returns: number }
       assegna_posto: {
         Args: { p_agente: string; p_attivita_id: string; p_utente_id: string }
@@ -2113,17 +2162,23 @@ export type Database = {
           nome_rimosso: string
         }[]
       }
+      cancella_accessi_edizioni_chiuse: {
+        Args: { p_giorni: number }
+        Returns: number
+      }
       cancella_account_dormienti: {
         Args: { p_mesi: number; p_mesi_avviso: number }
         Returns: number
       }
       cancella_consensi_scaduti: { Args: { p_mesi: number }; Returns: number }
+      cancella_dati_abitanti: { Args: never; Returns: number }
       cancella_impronte_scadute: { Args: never; Returns: number }
       cancella_mio_account: { Args: never; Returns: undefined }
       cancella_richieste_incomplete: {
         Args: { p_ore: number }
         Returns: number
       }
+      cancella_tentativi_scaduti: { Args: never; Returns: number }
       consenti_richiesta_link: {
         Args: {
           p_impronta_email: string
