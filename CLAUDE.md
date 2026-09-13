@@ -520,10 +520,16 @@ npm run typecheck    # tsc --noEmit — must pass before any commit
 npm run lint
 npm run test         # unit + integration
 npm run test:rls     # RLS policy tests — must pass before any commit
-npm run test:e2e     # Playwright
-npx supabase db reset # rebuild local db from migrations + seed
+npm run db:reset     # rebuild local db from migrations + seed
 npm run db:types     # regenerate lib/db/types.ts after a migration
 ```
+
+There is **no end-to-end suite and no Playwright** in this repo, and an earlier
+version of this file listed a `test:e2e` that never existed. `npm run test`
+already drives the real database and the real local mailbox — `accesso` opens
+a sign-in link out of Mailpit, `promemoria` reads the messages that went out —
+so what an e2e suite would add is the browser, and nothing has needed it yet.
+Do not write a command into this list before the script is in `package.json`.
 
 After editing `supabase/config.toml` (auth settings, email templates) run
 `npx supabase stop` then `npx supabase start`: `db reset` does not reload
