@@ -66,7 +66,9 @@ function Stato({ attivita }: { attivita: Attivita }) {
   return (
     <p className={introduzione}>
       {parole[attivita.stato ?? "BOZZA"]}
-      {iscritti > 0 ? ` ${conValori(t.scheda.iscritti, { quanti: iscritti })}.` : ""}
+      {iscritti > 0
+        ? ` ${iscritti === 1 ? t.unIscritto : conValori(t.quantiIscritti, { numero: iscritti })}.`
+        : ""}
     </p>
   );
 }

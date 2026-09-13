@@ -129,6 +129,7 @@
     "fascia": "Fascia",
     "posti": "Posti",
     "postiLiberi": "{liberi} liberi su {capienza}",
+    "unLibero": "1 libero su {capienza}",
     "note": "Informazioni pratiche",
     "prenota": "Prenota",
     "giornata": "Prenota tutta la giornata",
@@ -313,6 +314,7 @@
       "stagionale": "Stagionale",
       "tuttoAnno": "Aperta tutto l'anno",
       "posti": "{numero} posti",
+      "unPosto": "1 posto",
       "apri": "Apri",
       "vuoto": "Non c'è ancora nessuna sede.",
       "nuova": {
@@ -535,7 +537,11 @@
       "senzaTitolo": "Scheda senza titolo",
       "quando": "{giorno}, dalle {inizio} alle {fine}",
       "senzaGiorno": "Giorno ancora da mettere",
-      "posti": "{iscritti} iscritti su {capienza} posti",
+      "posti": "{iscritti} su {posti}",
+      "unIscritto": "1 iscritto",
+      "quantiIscritti": "{numero} iscritti",
+      "unPosto": "1 posto",
+      "quantiPosti": "{numero} posti",
       "senzaPosti": "Posti ancora da mettere",
       "daFinire": "Manca ancora: {campi}",
       "apri": "Apri",
@@ -554,7 +560,6 @@
         "statoBozza": "Bozza: non la vede nessun partecipante.",
         "statoPubblicata": "Pubblicata: la vedono tutti i partecipanti abilitati.",
         "statoAnnullata": "Annullata: non la vede più nessuno e le iscrizioni sono state annullate.",
-        "iscritti": "{quanti} iscritti",
         "livello1": {
           "titolo": "L'attività",
           "chiLoVede": "Lo vedono tutti i partecipanti abilitati, anche prima di iscriversi."

@@ -40,6 +40,15 @@ const t = m.amministrazione.attivita;
 
 const GRUPPI: StatoAttivita[] = ["BOZZA", "PUBBLICATA", "ANNULLATA"];
 
+/**
+ * A count with its noun, in the right number. Italian agrees the noun with
+ * the figure, so "1 iscritti" is not a rounding of the truth, it is a typo
+ * the software writes by itself — and on this screen it would write it on
+ * most rows, because an activity with one person on it is the common case.
+ */
+const quanti = (numero: number, singolare: string, plurale: string): string =>
+  numero === 1 ? singolare : conValori(plurale, { numero });
+
 function Voce({ attivita }: { attivita: Attivita }) {
   const mancanti = campiMancanti(attivita);
   const campi: Record<string, string> = t.campi;
@@ -65,8 +74,10 @@ function Voce({ attivita }: { attivita: Attivita }) {
       <span className={`${aiuto} block`}>
         {attivita.capienza
           ? conValori(t.posti, {
-              iscritti: attivita.iscritti ?? 0,
-              capienza: attivita.capienza,
+              // Two counts in one line, so each is inflected on its own before
+              // it goes in: "1 iscritto su 8 posti", "3 iscritti su 1 posto".
+              iscritti: quanti(attivita.iscritti ?? 0, t.unIscritto, t.quantiIscritti),
+              posti: quanti(attivita.capienza, t.unPosto, t.quantiPosti),
             })
           : t.senzaPosti}
       </span>

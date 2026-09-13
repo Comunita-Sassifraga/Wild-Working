@@ -104,7 +104,9 @@ export default async function PaginaPrenota({ searchParams }: Proprieta) {
           </span>
         </Riga>
         <Riga etichetta={t.posti}>
-          {conValori(t.postiLiberi, { liberi: cella.liberi, capienza: cella.capienza })}
+          {cella.liberi === 1
+            ? conValori(t.unLibero, { capienza: cella.capienza })
+            : conValori(t.postiLiberi, { liberi: cella.liberi, capienza: cella.capienza })}
           {stato === "ESAURITA" && (
             <span className="block font-regolare text-errore">{md.celle.esaurito}</span>
           )}
