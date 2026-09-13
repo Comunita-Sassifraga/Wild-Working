@@ -99,9 +99,25 @@ Se ritiene che stiamo sbagliando, può rivolgersi al **Garante per la protezione
 dei dati personali**, Piazza Venezia 11, 00187 Roma — `www.garanteprivacy.it` —
 oppure all'autorità giudiziaria.
 
-I Suoi dati non vengono venduti, ceduti, né comunicati ai Comuni. Sono
-conservati sui sistemi che fanno funzionare l'applicazione, con server in Unione
-Europea, e sono trattati solo dalle persone autorizzate dall'associazione.
+### Dove stanno i Suoi dati, e chi ci aiuta a tenerli
+
+I Suoi dati non vengono venduti, ceduti, né comunicati ai Comuni, e dentro
+l'associazione li tratta soltanto chi è autorizzato.
+
+**Sono conservati su server in Unione Europea**, a Francoforte in Germania. Le
+pagine che li mostrano vengono però costruite da una rete di computer sparsa in
+molti Paesi — quella del fornitore che ospita l'applicazione: quando un
+partecipante apre la pagina della Sua attività, i Suoi dati passano dal punto di
+quella rete più vicino a lui.
+**[DA VERIFICARE: se e come vincolare l'esecuzione all'Unione Europea]**
+
+A far funzionare l'applicazione e a mandare le email ci aiutano poche società
+tecniche, che lavorano **per conto nostro e soltanto secondo le nostre
+istruzioni**, con il contratto scritto che la legge richiede (art. 28 del
+Regolamento). Alcune hanno sede negli Stati Uniti: in quei casi il trasferimento
+avviene sulla base delle clausole contrattuali approvate dalla Commissione
+Europea. L'elenco completo e aggiornato, con i nomi, è nell'informativa
+dell'applicazione: **[DA COMPLETARE: indirizzo dell'informativa]**.
 
 ---
 
