@@ -83,7 +83,9 @@ export function envServizio(): EnvServizio {
  *
  * The name is Vercel's, not ours: when an environment variable called
  * `CRON_SECRET` exists, Vercel sends it as a bearer token on every scheduled
- * call. Renaming it would mean setting the same secret twice.
+ * call by itself. Renaming it would mean setting the same secret twice. A
+ * schedule that calls from outside the host presents the same header by hand
+ * (§10).
  */
 export function segretoMestieri(): string {
   const segreto = process.env.CRON_SECRET;

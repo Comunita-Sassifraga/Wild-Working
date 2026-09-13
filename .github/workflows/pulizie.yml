@@ -1,0 +1,70 @@
+# The nightly cleanups — SPEC §7, §10.
+#
+# Same shape and same secret as the reminder of the evening before: what
+# differs is the hour and the address. The cron expression is the one
+# vercel.json carried, copied unchanged — 01:00 universal is 03:00 in Italy
+# in summer and 02:00 in winter, and ORA_PULIZIE is an intent and not a clock
+# (§10): every cleanup is expressed in whole days or months, computed in
+# Europe/Rome.
+#
+# This is the run that must not stop. It anonymises the bookings older than
+# thirty days (§5.3), closes dormant accounts and records the seats offered
+# (§5.10): compliance, not courtesy. A night missed catches itself up at the
+# next run — but a schedule silently switched off does not, which is what
+# segno-di-vita.yml is there to prevent.
+#
+# The answer carries counts and the names of the steps that failed, never a
+# reason: a reason could quote data. That is why it may be printed into a log
+# anyone with access to this repository can read (rule 4).
+
+name: Pulizie notturne
+
+on:
+  schedule:
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+
+# The job reads nothing and writes nothing in the repository: it makes one
+# call out and stops. So it is given no rights over the repository at all.
+permissions: {}
+
+# A run started by hand must not overlap the scheduled one.
+concurrency:
+  group: pulizie
+  cancel-in-progress: false
+
+jobs:
+  pulizie:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Chiama il giro delle pulizie
+        env:
+          URL_APP: ${{ secrets.URL_APP }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+
+          # Unlike the Vercel call, this one crosses the open network. The
+          # secret must therefore never leave in clear: refuse before sending
+          # rather than discover it afterwards.
+          indirizzo="${URL_APP%/}"
+          case "$indirizzo" in
+            https://*) ;;
+            *)
+              echo "URL_APP non è un indirizzo https: il giro non parte." >&2
+              exit 1
+              ;;
+          esac
+
+          # The secret is read from the environment inside the header and is
+          # never written on the command line, so it cannot surface in the log
+          # through the echo of the command itself. --fail-with-body turns a
+          # refusal into a red run and still prints what the app answered.
+          # The retries are safe only because every cleanup is idempotent and
+          # catches up by itself (§5.10, §7) — they are not a way around that.
+          curl --silent --show-error --fail-with-body \
+            --retry 3 --retry-delay 30 --max-time 600 \
+            --header "Authorization: Bearer $CRON_SECRET" \
+            "$indirizzo/api/mestieri/pulizie"
+          echo

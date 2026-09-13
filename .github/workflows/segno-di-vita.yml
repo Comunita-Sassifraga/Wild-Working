@@ -1,0 +1,66 @@
+# Keeping the two nightly schedules alive — SPEC §7, §10.
+#
+# GitHub's own rule, in its words: "In a public repository, scheduled
+# workflows are automatically disabled when no repository activity has
+# occurred in 60 days." This repository is public, and two months without a
+# commit is an ordinary stretch for a volunteer association.
+#
+# What that would cost is not cosmetic. If the nightly cleanups stop, the
+# anonymisation at thirty days stops with them (§5.3, §7) and nobody is told:
+# the failure mode is silence, not a red run. So once a month this writes the
+# date into a file of its own, which is repository activity, and the sixty
+# days never run out.
+#
+# It runs monthly, not weekly: one commit a month is enough to stay well
+# inside the limit and is little enough noise to be ignored in the history.
+#
+# It is the one job here that changes the repository, so it asks for the one
+# right it needs and nothing more. It touches no file of the application: if
+# this ever fails, nothing of the service is affected — only the countdown
+# starts again.
+
+name: Segno di vita
+
+on:
+  schedule:
+    - cron: "0 5 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: segno-di-vita
+  cancel-in-progress: false
+
+jobs:
+  segno-di-vita:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Prendi il repository
+        uses: actions/checkout@v5
+
+      - name: Annota la data e commetti
+        run: |
+          set -euo pipefail
+
+          oggi="$(date -u +%Y-%m-%d)"
+          {
+            echo "Ultimo segno di vita automatico del repository."
+            echo "Serve a non far spegnere i giri notturni: vedi .github/workflows/segno-di-vita.yml"
+            echo "$oggi"
+          } > .github/ultimo-segno-di-vita
+
+          # Two runs in the same day would have nothing to commit, and an
+          # empty commit is not activity worth making.
+          if git diff --quiet -- .github/ultimo-segno-di-vita; then
+            echo "La data di oggi è già annotata: niente da commettere."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/ultimo-segno-di-vita
+          git commit -m "Keep the nightly schedules alive (60-day inactivity rule)"
+          git push

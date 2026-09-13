@@ -482,10 +482,16 @@ what to do next, not what went wrong internally.
   what a person receives is the reminder of the evening before (SPEC §6.3,
   decision of 2026-09-10). Do not add a confirmation email back.
 - **Automatic jobs are Route Handlers under `app/api/mestieri/`**, protected by
-  the shared secret `CRON_SECRET` and scheduled in `vercel.json` — one daily
-  run, in universal time, which is why `ORA_PROMEMORIA` is an intent and not a
-  clock (§10). The RLS-bypassing client is built in `lib/db/servizio.ts` alone;
-  never reach for it from a page or from an action serving a person's request.
+  the shared secret `CRON_SECRET` — one daily run each, in universal time,
+  which is why `ORA_PROMEMORIA` is an intent and not a clock (§10). What
+  starts them lives outside the app and depends on the host: `vercel.json` on
+  Vercel, the two scheduled GitHub actions in `.github/workflows/` on
+  Cloudflare, where a Cron Trigger can only call a Worker. Move an hour and
+  you must move the schedule in use with it. On GitHub a third action keeps
+  the other two from being switched off for inactivity — if it ever goes, the
+  nightly cleanups stop silently and retention stops with them. The
+  RLS-bypassing client is built in `lib/db/servizio.ts` alone; never reach for
+  it from a page or from an action serving a person's request.
 - **The offline copy keeps the availability page and nothing else.**
   `public/sw.js` is the only place that decides what a browser may keep, and
   it may keep `/`, the courtesy page `/senza-collegamento`, and the files
