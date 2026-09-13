@@ -1,0 +1,19 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "wild-working",
+	"main": ".open-next/worker.js",
+	// Anything before 2024-09-23 breaks the import of several npm packages at
+	// build time: it is the first entry on the adapter's troubleshooting page.
+	"compatibility_date": "2026-09-01",
+	// Without nodejs_compat the Worker has no Node.js built-ins, and both the
+	// Supabase client and the Next.js server expect them.
+	"compatibility_flags": ["nodejs_compat"],
+	"assets": {
+		"directory": ".open-next/assets",
+		"binding": "ASSETS"
+	}
+	// Deliberately absent, and absent only because this is a local trial:
+	// the R2 cache bucket, the self-reference service binding and the image
+	// binding of the adapter's own template. All three need a Cloudflare
+	// account, and nothing in this trial is published online.
+}

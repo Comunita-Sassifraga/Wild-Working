@@ -11,7 +11,9 @@
     "test": "vitest run",
     "test:rls": "vitest run tests/rls.test.ts tests/public-name.test.ts tests/dati-facoltativi.test.ts tests/periodi-attivita.test.ts tests/disponibilita.test.ts tests/prenotazione.test.ts tests/moderazione.test.ts tests/chi-ce.test.ts tests/amministrazione.test.ts tests/promemoria.test.ts tests/diritti.test.ts tests/retention.test.ts tests/posti-offerti.test.ts",
     "db:reset": "supabase db reset",
-    "db:types": "supabase gen types typescript --local > lib/db/types.ts"
+    "db:types": "supabase gen types typescript --local > lib/db/types.ts",
+    "cloudflare:build": "opennextjs-cloudflare build",
+    "cloudflare:preview": "opennextjs-cloudflare preview"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -21,6 +23,7 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "^1.20.6",
     "@tailwindcss/node": "4.3.3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^24",
@@ -31,6 +34,7 @@
     "jose": "^6.2.12",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.0",
+    "wrangler": "^4.131.1"
   }
 }
