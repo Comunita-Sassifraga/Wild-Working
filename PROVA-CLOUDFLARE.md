@@ -81,13 +81,17 @@ Tre file, ognuno con un compito solo:
 
 | File | Quando | Che cosa fa |
 |---|---|---|
-| `.github/workflows/promemoria.yml` | `0 16 * * *` | chiama `/api/mestieri/promemoria` |
-| `.github/workflows/pulizie.yml` | `0 1 * * *` | chiama `/api/mestieri/pulizie` |
+| `.github/workflows/promemoria.yml` | `26 16 * * *` | chiama `/api/mestieri/promemoria` |
+| `.github/workflows/pulizie.yml` | `41 1 * * *` | chiama `/api/mestieri/pulizie` |
 | `.github/workflows/segno-di-vita.yml` | il 1º di ogni mese | scrive una data, per non farsi spegnere |
 
-Gli orari sono quelli di prima, ricopiati senza toccarli: erano già scritti in
-orario universale e GitHub li legge allo stesso modo, quindi il momento in cui
-i due giri partono non cambia (§10).
+Gli orari sono quelli di prima, spostati di poco: erano già scritti in orario
+universale e GitHub li legge allo stesso modo, ma le azioni programmate partono
+in ritardo quando GitHub è carico, e i momenti peggiori sono gli inizi d'ora —
+dove per di più si accalca quasi ogni programmazione scritta a mano. I due giri
+stanno quindi a metà ora, 26 e 41 minuti più tardi di prima, su minuti che
+nessuno sceglie per abitudine. Restano dentro l'ora di scarto che §10 dichiara
+come intenzione (§10).
 
 I due giri non scaricano il repository, non usano azioni di terzi e ricevono
 `permissions: {}`, cioè nessun diritto sul repository: fanno una sola chiamata
@@ -130,7 +134,7 @@ rispondano come devono, non vederli partire da soli. Non è un guasto.
 ### I ritardi, e che cosa comportano
 
 Le azioni programmate di GitHub partono spesso in ritardo, anche di parecchi
-minuti. Per il promemoria è tollerabile e per le pulizie pure. Una notte saltata
+minuti — ed è il motivo per cui gli orari stanno lontani dagli inizi d'ora. Per il promemoria è tollerabile e per le pulizie pure. Una notte saltata
 si comporta in due modi diversi, ed è voluto: le **pulizie** recuperano da sole
 alla ripartenza (§5.10, §7), un **promemoria** mancato resta mancato (§6.3,
 §8.4) — meglio perso che doppio.

@@ -330,7 +330,7 @@ fanno funzionare il servizio:
 | Fornitore | Cosa fa | Dove |
 |---|---|---|
 | **Supabase** | Banca dati e gestione degli accessi | Server nell'Unione Europea (Francoforte, Germania). Società statunitense |
-| **Vercel** | Ospita l'applicazione | Società statunitense — **[DA VERIFICARE: regione impostata sul progetto]** |
+| **Cloudflare** | Ospita l'applicazione | Società statunitense. Rete distribuita: il programma viene eseguito nel punto di rete più vicino a chi si collega, mentre la banca dati resta a Francoforte — **[DA VERIFICARE: se e come vincolare l'esecuzione all'Unione Europea]** |
 | **Resend** | Invia le email di accesso, il promemoria e gli avvisi | Società statunitense |
 
 Alcuni di questi fornitori sono società con sede negli Stati Uniti e possono
@@ -340,6 +340,15 @@ approvate dalla Commissione Europea** (art. 46.2 GDPR) e, dove applicabile,
 dell'adesione del fornitore al **Data Privacy Framework UE‑USA**.
 **[DA COMPLETARE: confermare, fornitore per fornitore, quale dei due strumenti
 si applica, e archiviare i contratti di nomina firmati.]**
+
+**Un fornitore che non riceve dati: GitHub.** Il promemoria della sera prima e
+le cancellazioni automatiche di cui al §8 sono avviati ogni notte da
+un'operazione programmata su **GitHub**, dove è ospitato il codice del servizio.
+GitHub non compare nella tabella qui sopra perché **non riceve nessun dato
+personale**: dà soltanto il via all'operazione, e quello che riceve in risposta
+sono dei numeri — quanti messaggi sono partiti, quante righe sono state
+cancellate — senza nomi, indirizzi email o identificativi. Lo scriviamo lo
+stesso, per completezza.
 
 Possono inoltre accedere ai dati, nei limiti descritti al §5, le persone
 autorizzate dall'associazione: gli **amministratori** (il Consiglio Direttivo) e

@@ -95,10 +95,12 @@ export const MINUTI_COPIA_VECCHIA = 30;
  *
  * Declared here as the intent; what actually fires the job is a schedule that
  * lives outside the application and is expressed in universal time — so the
- * message leaves at 18:00 Italian time in summer and 17:00 in winter. For an
- * evening reminder that hour of difference changes nothing, and it costs one
- * daily run instead of twenty-four. Whoever moves this value must move the
- * schedule in use with it (§10): the two do not line up by themselves.
+ * message leaves at 18:26 Italian time in summer and 17:26 in winter, the odd
+ * minute being a deliberate step away from the top of the hour (§10). For an
+ * evening reminder neither that hour nor those minutes change anything, and
+ * it costs one daily run instead of twenty-four. Whoever moves this value
+ * must move the schedule in use with it (§10): they do not line up by
+ * themselves.
  *
  * It also draws the line of §8.4: a booking made after the job has run for
  * tomorrow gets no reminder at all — the next run is already looking at the
@@ -110,8 +112,8 @@ export const ORA_PROMEMORIA = "18:00";
  * Hour at which the nightly cleanups run (§7, §12 step 11, §10).
  *
  * An intention, exactly like ORA_PROMEMORIA: the schedule that fires the job
- * is in universal time, so the run happens at 03:00 Italian time in summer
- * and 02:00 in winter. Nothing here depends on the minute — every cleanup is
+ * is in universal time, so the run happens at 03:41 Italian time in summer
+ * and 02:41 in winter. Nothing here depends on the minute — every cleanup is
  * expressed in whole days or months, computed in Europe/Rome (§8.4).
  * Whoever moves this value must move the schedule in use with it (§10).
  */

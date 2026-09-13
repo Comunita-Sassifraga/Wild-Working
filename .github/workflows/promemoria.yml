@@ -2,10 +2,15 @@
 #
 # This is the schedule vercel.json used to carry, moved out of the host: on
 # Cloudflare a Cron Trigger can only call a Worker, never an arbitrary
-# address, so the two nightly jobs are started from here instead. The cron
-# expression is copied unchanged, because GitHub reads it in universal time
-# exactly as Vercel did — 16:00 universal is 18:00 in Italy in summer and
-# 17:00 in winter, and ORA_PROMEMORIA is an intent and not a clock (§10).
+# address, so the two nightly jobs are started from here instead. GitHub reads
+# cron in universal time, like the host that fired them before: 16:26 universal
+# is 18:26 in Italy in summer and 17:26 in winter, and ORA_PROMEMORIA is an
+# intent and not a clock (§10).
+#
+# The minute is chosen, not left at zero. GitHub delays scheduled runs when it
+# is loaded and says the start of every hour is one of those moments — which is
+# also where nearly every hand-written schedule lands. Half past the hour, on a
+# minute nobody picks out of habit, is the quietest place to stand.
 #
 # Three things worth knowing before reading a run:
 #
@@ -22,7 +27,7 @@ name: Promemoria della sera prima
 
 on:
   schedule:
-    - cron: "0 16 * * *"
+    - cron: "26 16 * * *"
   workflow_dispatch:
 
 # The job reads nothing and writes nothing in the repository: it makes one

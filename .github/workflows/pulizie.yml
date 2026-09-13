@@ -1,11 +1,12 @@
 # The nightly cleanups — SPEC §7, §10.
 #
 # Same shape and same secret as the reminder of the evening before: what
-# differs is the hour and the address. The cron expression is the one
-# vercel.json carried, copied unchanged — 01:00 universal is 03:00 in Italy
-# in summer and 02:00 in winter, and ORA_PULIZIE is an intent and not a clock
+# differs is the hour and the address. 01:41 universal is 03:41 in Italy in
+# summer and 02:41 in winter, and ORA_PULIZIE is an intent and not a clock
 # (§10): every cleanup is expressed in whole days or months, computed in
-# Europe/Rome.
+# Europe/Rome, so the minute cannot change the outcome. It is chosen away from
+# the top of the hour for the same reason as the reminder's — that is when
+# GitHub is most loaded, and when nearly every hand-written schedule fires.
 #
 # This is the run that must not stop. It anonymises the bookings older than
 # thirty days (§5.3), closes dormant accounts and records the seats offered
@@ -21,7 +22,7 @@ name: Pulizie notturne
 
 on:
   schedule:
-    - cron: "0 1 * * *"
+    - cron: "41 1 * * *"
   workflow_dispatch:
 
 # The job reads nothing and writes nothing in the repository: it makes one

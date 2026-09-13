@@ -13,6 +13,8 @@
 #
 # It runs monthly, not weekly: one commit a month is enough to stay well
 # inside the limit and is little enough noise to be ignored in the history.
+# Its minute is off the hour like the other two — a late run would cost this
+# one nothing, but there is no reason to queue behind everybody else.
 #
 # It is the one job here that changes the repository, so it asks for the one
 # right it needs and nothing more. It touches no file of the application: if
@@ -23,7 +25,7 @@ name: Segno di vita
 
 on:
   schedule:
-    - cron: "0 5 1 * *"
+    - cron: "13 5 1 * *"
   workflow_dispatch:
 
 permissions:
