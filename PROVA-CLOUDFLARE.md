@@ -17,7 +17,9 @@ arrivata o non è negativa, resta qui.
 Il codice dell'applicazione non è stato toccato. Le uniche modifiche sono due
 dipendenze di sviluppo, due comandi nuovi in `package.json`, due file di
 configurazione dell'adattatore, due righe in `.gitignore`, le tre azioni
-programmate, e i documenti che nominavano l'ospite precedente.
+programmate, uno strumento che alleggerisce il programma compilato — e che
+non fa parte dell'applicazione — e i documenti che nominavano l'ospite
+precedente.
 
 ## Come farlo girare
 
@@ -45,7 +47,7 @@ tutte le prove automatiche.
 Poi:
 
 ```bash
-npm run cloudflare:build     # compila per il Worker
+npm run cloudflare:build     # compila per il Worker, e lo alleggerisce
 npm run cloudflare:preview   # avvia il Worker in locale, su 127.0.0.1:8787
 ```
 
@@ -62,11 +64,88 @@ Serve lo stack Supabase locale acceso (`npx supabase start`).
   Cloudflare è una domanda diversa da quella che era per Vercel.
 - **Il record DNS** va agganciato come *Custom Domain* del Worker e **resta
   proxato** (nuvoletta arancione), al contrario di quanto valeva prima.
-- **La misura del Worker.** Il piano gratuito si ferma a 3 MB compressi e il
-  13/09/2026 eravamo a 2 967 KiB senza «Prenota un abitante». Va rimisurata
-  prima di ogni pubblicazione.
+- **Segnalare a monte la dimenticanza di `@vercel/og`**, così che
+  `strumenti/alleggerisci-worker.mjs` possa sparire. Vedi qui sotto.
 - ~~I due giri notturni.~~ Fatti: tre azioni programmate di GitHub, in
   `.github/workflows/`. Restano i passaggi a mano descritti qui sotto.
+- ~~La misura del Worker.~~ Rientrata: 1 920 KiB contro un tetto di 3 MB,
+  spiegata qui sotto. Va comunque **rifatta prima di ogni pubblicazione**,
+  con `npm run cloudflare:build` seguito da `npx wrangler deploy --dry-run`.
+
+## La misura del Worker
+
+Il piano gratuito non accetta un Worker più grande di **3 MB compressi**, e
+non è chiaro se Cloudflare conti 3 072 KiB o 3 000. La prima misura, il
+13/09/2026, era **2 967 KiB** — dentro nel primo caso, fuori nel secondo, e
+comunque senza «Prenota un abitante».
+
+Due interventi, nessuno dei quali tocca una riga dell'applicazione, l'hanno
+portata a **1 920 KiB**, con oltre 1 150 liberi:
+
+| | KiB compressi |
+|---|---|
+| prima | 2 967 |
+| `"minify": true` in `wrangler.jsonc` | 2 608 |
+| più `@vercel/og` rimossa | **1 920** |
+
+Le immagini non c'entrano: logo, icone e caratteri sono *assets*, che
+Cloudflare carica a parte e non conta sul tetto. E il codice nostro è una
+frazione del totale — l'85% abbondante è Next.js e React — per cui il modulo
+di §15, che aggiunge una manciata di pagine, peserà qualche decina di KiB.
+
+### Perché `@vercel/og` va tolta, e non è per il peso
+
+`@vercel/og` è il generatore delle immagini di anteprima che i social
+mostrano per un collegamento. **Non è una dipendenza nostra e non ha niente a
+che vedere con l'ospite che abbiamo lasciato**: è una libreria che Next si
+porta dentro, sotto `next/dist/compiled/@vercel/`, accanto ad altre due con
+lo stesso prefisso. Il nome trae in inganno, la cosa no.
+
+Nessuna pagina di questa applicazione genera immagini. Ma dentro quella
+libreria c'è **codice che chiama `https://fonts.googleapis.com`**, più sei
+riferimenti a `cdn.jsdelivr.net`. È irraggiungibile — nulla costruisce mai un
+`ImageResponse`, quindi non viene mai eseguito, e nessun dato è mai partito
+verso nessuno — ma CLAUDE.md tiene il carattere ospitato da noi e l'app
+libera da terze parti proprio perché l'indirizzo di un visitatore non arrivi
+a Google, e una chiamata dormiente a Google Fonts dentro il Worker non è una
+cosa che questo progetto debba trovarsi a spiegare. I 731 KiB compressi che
+se ne vanno con lei sono il beneficio secondario, non il motivo.
+
+Non va nell'informativa privacy: dopo la rimozione non c'è niente da
+dichiarare. Deciso il 13/09/2026.
+
+### È una dimenticanza dell'adattatore, da segnalare
+
+I manutentori di `@opennextjs/cloudflare` hanno scritto **questa identica
+correzione nella versione 1.19.4**, per la nostra stessa ragione — il tetto
+dei 3 MB — sostituendo la libreria con un guscio che lancia un errore quando
+l'applicazione non la usa. La applicano però solo quando compilano la metà
+del programma che serve le pagine. La metà che compila `proxy.ts`, quella che
+l'adattatore stesso annuncia a ogni compilazione come sperimentale e non
+mantenuta ufficialmente, è rimasta scoperta.
+
+Va aperta una segnalazione su
+`github.com/opennextjs/opennextjs-cloudflare`, indicando che
+`bundle-node-middleware.js` non ha l'`alias` verso `shims/throw.js` che
+`bundle-server.js` ha già. **Quando la correzione arriva,
+`strumenti/alleggerisci-worker.mjs` si cancella**: alla compilazione
+successiva dirà da solo «libreria già assente, niente da fare».
+
+### Perché Turbopack e non webpack
+
+Il vecchio costruttore di Next darebbe un programma di **1 420 KiB**, altri
+500 in meno, perché non duplica i pezzi condivisi come fa Turbopack — e per
+di più la dimenticanza qui sopra non lo riguarda. È stato comunque scartato
+il 13/09/2026, per due ragioni che contano più dei megabyte:
+
+- `--webpack` è dichiarato da Next una via d'uscita temporanea, e **Next 17
+  potrebbe toglierlo del tutto**: vorrebbe dire un aggiornamento futuro, in
+  una data che non decidiamo noi, in cui l'applicazione non si compila più;
+- `npm run dev` usa Turbopack. Costruire per la pubblicazione con webpack
+  vorrebbe dire **due costruttori diversi fra la prova in locale e il sito
+  vero**, senza nessun ambiente intermedio dove accorgersi della differenza.
+
+Il margine che abbiamo non vale quei due rischi.
 
 ## I due giri notturni, fatti partire da GitHub
 

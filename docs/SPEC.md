@@ -975,7 +975,11 @@ Il record DNS del sottodominio (§14.1) va agganciato come *Custom Domain* del W
 
 **I due giri notturni partono da fuori.** Su Cloudflare un Cron Trigger può chiamare soltanto un Worker, non un indirizzo qualsiasi, e il programma generato dall'adattatore espone solo la gestione delle richieste web: non c'è un rimpiazzo diretto della programmazione dell'ospite. I due giri sono quindi fatti partire da altrettante azioni programmate di GitHub, più una terza che impedisce alle prime due di essere spente per inattività. Come e perché sta in §10. **GitHub non riceve nessun dato personale**: chiama due indirizzi in `https` presentando il segreto condiviso, e quello che torna sono i conteggi di §6.3 e §7, senza un indirizzo, un nome o un identificativo.
 
-**Il tetto del piano gratuito va rimisurato prima di ogni pubblicazione.** Cloudflare non accetta un Worker più grande di **3 MB compressi**; la misura del 13/09/2026 era di 2 967 KiB, **senza** il modulo «Prenota un abitante» (§15). Il margine è quindi minimo, e il modulo lo consumerà.
+**Il tetto del piano gratuito va rimisurato prima di ogni pubblicazione.** Cloudflare non accetta un Worker più grande di **3 MB compressi**. La prima misura, il 13/09/2026, era di 2 967 KiB **senza** il modulo «Prenota un abitante» (§15): un margine di un centinaio di KiB, che il modulo avrebbe consumato.
+
+Due interventi sulla sola compilazione — nessuna riga dell'applicazione — l'hanno portata a **1 920 KiB** lo stesso giorno, con circa 1 150 KiB liberi. Sono l'accorciamento dei nomi interni, attivato in `wrangler.jsonc`, e la rimozione di `@vercel/og`, il generatore di immagini di anteprima che Next si porta dentro e che l'adattatore Cloudflare lascia nel programma anche quando nessuna pagina lo usa. La rimozione è fatta da `strumenti/alleggerisci-worker.mjs`, agganciato a `npm run cloudflare:build`; **la ragione per cui esiste non è il peso ma la privacy**, e sta scritta in testa a quel file e in `PROVA-CLOUDFLARE.md`.
+
+**La compilazione usa Turbopack**, il costruttore predefinito di Next 16. Il vecchio costruttore, webpack, darebbe un programma più piccolo di altri 500 KiB, ed è stato scartato il 13/09/2026: è dichiarato una via d'uscita temporanea che Next 17 potrebbe togliere, e userebbe un costruttore diverso da quello di `npm run dev`, facendo divergere la prova in locale dal sito pubblicato. Il margine non serve a tanto.
 
 ---
 

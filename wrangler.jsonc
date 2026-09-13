@@ -8,6 +8,13 @@
 	// Without nodejs_compat the Worker has no Node.js built-ins, and both the
 	// Supabase client and the Next.js server expect them.
 	"compatibility_flags": ["nodejs_compat"],
+	// Shortens the names inside the compiled program: 2 968 KiB compressed
+	// become 2 608, against a free-plan limit of 3 MB (§14.5). The adapter
+	// deliberately leaves the names long in its own passes, because it has to
+	// find them again to apply its corrections; wrangler runs last, after all
+	// of them, so here it costs nothing. Nothing in the app changes — only the
+	// spelling of names nobody reads.
+	"minify": true,
 	"assets": {
 		"directory": ".open-next/assets",
 		"binding": "ASSETS"

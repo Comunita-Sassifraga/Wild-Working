@@ -12,6 +12,12 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Build output of the Cloudflare adapter and local state of the Worker,
+    // both ignored by git too. Without these, `npm run lint` reads the
+    // compiled program — tens of thousands of complaints about code nobody
+    // wrote — as soon as `npm run cloudflare:build` has run once.
+    ".open-next/**",
+    ".wrangler/**",
   ]),
 ]);
 
