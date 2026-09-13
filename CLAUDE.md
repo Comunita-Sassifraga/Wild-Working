@@ -25,7 +25,8 @@ If code and spec disagree, the spec wins — flag the discrepancy, do not silent
 - Supabase (Postgres + Auth), **eu-central-1 / Frankfurt**
 - Auth: **magic link only**. No passwords, no OAuth, no social login.
 - Resend for transactional email, sending from `noreply@wildworking.sassifraga.org`
-- Deployed on Vercel, served at **`wildworking.sassifraga.org`**
+- Deployed on **Cloudflare Workers** (built by `@opennextjs/cloudflare`), served
+  at **`wildworking.sassifraga.org`** — SPEC D25, §14.5
 - PWA: installable, read-only offline cache of availability
 
 The app lives on its own subdomain, never under `www.sassifraga.org/...` — the
@@ -484,12 +485,12 @@ what to do next, not what went wrong internally.
 - **Automatic jobs are Route Handlers under `app/api/mestieri/`**, protected by
   the shared secret `CRON_SECRET` — one daily run each, in universal time,
   which is why `ORA_PROMEMORIA` is an intent and not a clock (§10). What
-  starts them lives outside the app and depends on the host: `vercel.json` on
-  Vercel, the two scheduled GitHub actions in `.github/workflows/` on
-  Cloudflare, where a Cron Trigger can only call a Worker. Move an hour and
-  you must move the schedule in use with it. On GitHub a third action keeps
-  the other two from being switched off for inactivity — if it ever goes, the
-  nightly cleanups stop silently and retention stops with them. The
+  starts them lives outside the app: two scheduled GitHub actions in
+  `.github/workflows/` call the two addresses over https, because a Cloudflare
+  Cron Trigger can only call a Worker (D25). Move an hour and you must move
+  the cron expression with it. A third action keeps those two from being
+  switched off for inactivity — if it ever goes, the nightly cleanups stop
+  silently and retention stops with them. The
   RLS-bypassing client is built in `lib/db/servizio.ts` alone; never reach for
   it from a page or from an action serving a person's request.
 - **The offline copy keeps the availability page and nothing else.**
