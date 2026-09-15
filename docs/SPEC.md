@@ -1030,6 +1030,8 @@ Due interventi sulla sola compilazione — nessuna riga dell'applicazione — l'
 
 **La misura in vigore è 2 175 KiB**, presa il 15/09/2026 subito dopo che il modulo «Prenota un abitante» (§15) è entrato in `main`: restano quasi 900 KiB liberi. Il modulo è dunque costato 255 KiB, contro i «qualche decina» che si erano previsti — il margine guadagnato il 13/09 lo assorbe senza che nulla vada deciso, ma il numero da confrontare col tetto, prima di ogni pubblicazione, è questo e non più 1 920.
 
+**Si pubblica da una compilazione fatta senza `.env.local`.** Next legge quel file anche quando compila per la produzione, e l'adattatore scrive quello che Next ha letto dentro il programma pubblicato: indirizzo del database locale, chiavi, chiave delle impronte, segreto dei giri notturni. Scoperto il 15/09/2026 alla prima pubblicazione vera. Le variabili configurate su Cloudflare vincono comunque su quelle incorporate, quindi il servizio funziona lo stesso — ma finché un segreto non è configurato il programma gira sui valori del computer di chi ha compilato, e un database irraggiungibile si presenta come una valle senza spazi aperti invece che come un errore. Prima di ogni pubblicazione il file va quindi spostato, e `.open-next/cloudflare/next-env.mjs` deve risultare vuoto. Il procedimento e le sue ragioni stanno in `PROVA-CLOUDFLARE.md`.
+
 **La compilazione usa Turbopack**, il costruttore predefinito di Next 16. Il vecchio costruttore, webpack, darebbe un programma più piccolo di altri 500 KiB, ed è stato scartato il 13/09/2026: è dichiarato una via d'uscita temporanea che Next 17 potrebbe togliere, e userebbe un costruttore diverso da quello di `npm run dev`, facendo divergere la prova in locale dal sito pubblicato. Il margine non serve a tanto.
 
 ---
