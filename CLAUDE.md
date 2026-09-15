@@ -518,7 +518,6 @@ npm run typecheck    # tsc --noEmit — must pass before any commit
 npm run lint
 npm run test         # unit + integration
 npm run test:rls     # RLS policy tests — must pass before any commit
-npm run test:e2e     # Playwright
 npx supabase db reset # rebuild local db from migrations + seed
 npm run db:types     # regenerate lib/db/types.ts after a migration
 ```
