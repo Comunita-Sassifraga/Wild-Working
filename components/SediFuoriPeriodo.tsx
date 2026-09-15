@@ -1,3 +1,4 @@
+import { Mappa } from "@/components/Mappa";
 import { dataBreve } from "@/lib/dates";
 import type { AperturaFutura, SedePubblica } from "@/lib/db/disponibilita";
 import { conValori, m } from "@/lib/messaggi";
@@ -37,6 +38,8 @@ export function SediFuoriPeriodo({ sedi, aperture }: Proprieta) {
                     })
                   : t.riaperturaSconosciuta}
               </span>
+              {/* Knowing where Pigna is matters out of season too (§6.2). */}
+              <Mappa sede={sede} />
             </li>
           );
         })}

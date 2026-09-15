@@ -13,6 +13,7 @@ import {
   type Sede,
 } from "@/lib/db/amministrazione";
 import { FASCE } from "@/lib/db/prenotazioni";
+import { posizioneDaColonna, testoDaPosizione } from "@/lib/mappa";
 import { m } from "@/lib/messaggi";
 import { amministratore } from "../../guardia";
 import { uno, type Parametri } from "../../parametri";
@@ -56,6 +57,12 @@ import {
 
 const t = m.amministrazione;
 
+/** The saved position as the field shows it back, or an empty field (§6.2). */
+function posizioneScritta(coordinate: unknown): string {
+  const posizione = posizioneDaColonna(coordinate);
+  return posizione ? testoDaPosizione(posizione) : "";
+}
+
 /** A hidden field so every form on this page says which sede it is about. */
 function Sede({ id }: { id: string }) {
   return <input type="hidden" name="sede" value={id} />;
@@ -69,6 +76,14 @@ function DatiSede({ sede }: { sede: Sede }) {
       <Campo nome="nome" testo={t.sede.nome} valore={sede.nome} richiesto />
       <Campo nome="comune" testo={t.sede.comune} valore={sede.comune} richiesto />
       <Campo nome="indirizzo" testo={t.sede.indirizzo} valore={sede.indirizzo} />
+      {/* Latitude first, the way a person reads and writes them; the column
+          keeps them the other way round, which is Postgres's business. */}
+      <Campo
+        nome="posizione"
+        testo={t.sede.posizione}
+        valore={posizioneScritta(sede.coordinate)}
+        nota={t.sede.posizioneNota}
+      />
       <Campo
         nome="capienza"
         testo={t.sede.capienza}

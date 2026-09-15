@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Mappa } from "@/components/Mappa";
 import { dataEstesa, type DataISO } from "@/lib/dates";
 import { orarioDi, statoCella, type Cella } from "@/lib/disponibilita";
 import type { SedePubblica } from "@/lib/db/disponibilita";
@@ -98,6 +99,7 @@ export function TabellaGiorno({ data, sedi, celle }: Proprieta) {
               <span className="mt-1 block text-nota font-regolare text-testo-secondario">
                 {sede.comune}
               </span>
+              <Mappa sede={sede} />
             </th>
             {FASCE.map((fascia) => {
               const cella = per(sede.id, fascia);

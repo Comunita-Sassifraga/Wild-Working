@@ -77,15 +77,30 @@ function esitoDaRighe(
 // Sedi — §6.7 first bullet
 // ---------------------------------------------------------------------------
 
-/** Every sede, suspended ones included: only an amministratore sees those. */
+/**
+ * Every sede, suspended ones included, `note` included.
+ *
+ * Both reads go through `sedi_amministrazione` and not through the table:
+ * since D26 the column `note` is granted to nobody, and that view is the
+ * amministratore's door to it (§5.2). The view also settles who may read a
+ * suspended sede, which is why there is no filter here.
+ *
+ * A view declares every column nullable — Postgres cannot see the table's
+ * NOT NULLs through one — but the rows are the table's rows, so they are
+ * read back as such.
+ */
 export async function sediTutte(client: Client): Promise<Sede[]> {
-  const { data } = await client.from("sedi").select("*").order("nome");
-  return data ?? [];
+  const { data } = await client.from("sedi_amministrazione").select("*").order("nome");
+  return (data ?? []) as Sede[];
 }
 
 export async function sedeSingola(client: Client, sedeId: string): Promise<Sede | null> {
-  const { data } = await client.from("sedi").select("*").eq("id", sedeId).maybeSingle();
-  return data;
+  const { data } = await client
+    .from("sedi_amministrazione")
+    .select("*")
+    .eq("id", sedeId)
+    .maybeSingle();
+  return (data as Sede | null) ?? null;
 }
 
 export type DatiSede = {
@@ -99,6 +114,8 @@ export type DatiSede = {
   ora_fine_pomeriggio: string;
   giorni_apertura: GiornoApertura[];
   note: string | null;
+  /** `(longitudine,latitudine)`, composed by `colonnaDaPosizione` (§6.2). */
+  coordinate: string | null;
   attiva: boolean;
   sempre_disponibile: boolean;
 };

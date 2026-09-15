@@ -18,12 +18,19 @@ import type { Database } from "./types";
 
 type GiornoApertura = Database["public"]["Enums"]["giorno_settimana"];
 
-/** A sede as a visitor sees it: no `note`, which is for registered users only. */
+/**
+ * A sede as a visitor sees it: never `note`, which since D26 is read only by
+ * somebody who has booked there, by its referente and by the amministratore
+ * (§5.2). What the visitor gets is where it is, when it is open and how full
+ * it is — enough to choose, nothing about how to get in.
+ */
 export type SedePubblica = {
   id: string;
   nome: string;
   comune: string;
   indirizzo: string | null;
+  /** Postgres `point`, read through `posizioneDaColonna` (§6.2, lib/mappa.ts). */
+  coordinate: unknown;
   capienza: number;
   /** Start and end of each fascia, as real times (§5.2). The label is composed from them. */
   orari: Record<Fascia, { inizio: string; fine: string }>;
@@ -37,24 +44,12 @@ export type AperturaFutura = {
   data: DataISO;
 };
 
-/**
- * The practical notes of a sede — Wi-Fi, keys, access (§5.2). Readable by
- * registered users only: the grant exists for `authenticated` alone, so a
- * visitor gets nothing here, and the booking page asks only when someone is
- * signed in. Never contains passwords or codes.
- */
-export async function noteSede(client: Client, sedeId: string): Promise<string | null> {
-  const { data, error } = await client.from("sedi").select("note").eq("id", sedeId).maybeSingle();
-  if (error || !data) return null;
-  return data.note;
-}
-
 export async function sediPubbliche(client: Client): Promise<SedePubblica[]> {
   const { data, error } = await client
     .from("sedi_pubbliche")
     // One literal: the client reads the column list at compile time to type the rows.
     // prettier-ignore
-    .select("id, nome, comune, indirizzo, capienza, ora_inizio_mattina, ora_fine_mattina, ora_inizio_pomeriggio, ora_fine_pomeriggio, giorni_apertura")
+    .select("id, nome, comune, indirizzo, coordinate, capienza, ora_inizio_mattina, ora_fine_mattina, ora_inizio_pomeriggio, ora_fine_pomeriggio, giorni_apertura")
     .order("nome");
   if (error || !data) return [];
   return data.flatMap((r) =>
@@ -66,6 +61,7 @@ export async function sediPubbliche(client: Client): Promise<SedePubblica[]> {
             nome: r.nome ?? "",
             comune: r.comune ?? "",
             indirizzo: r.indirizzo,
+            coordinate: r.coordinate,
             capienza: r.capienza ?? 0,
             orari: {
               MATTINA: { inizio: r.ora_inizio_mattina ?? "", fine: r.ora_fine_mattina ?? "" },

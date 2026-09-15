@@ -78,6 +78,7 @@ describe("§6.6 forma della pagina", () => {
     nome: `Sede ${id}`,
     comune: "Valle",
     indirizzo: null,
+    coordinate: null,
     capienza: 6,
     orari: {
       MATTINA: { inizio: "09:00:00", fine: "13:00:00" },
