@@ -364,7 +364,7 @@ La nota sta **sopra** il pulsante dal 15/09/2026, e prima stava sotto: da sopra 
 
 Sta sopra la griglia, non in fondo, per due ragioni. Da telefono la griglia è lunga e un collegamento in coda non lo vedrebbe nessuno. Ed è lì che nasce la domanda: si legge "2 persone hanno reso pubblica la presenza" e si vuole sapere chi sono.
 
-È un **pulsante di azione principale** (§13.6): riempimento `verde`, testo `testo`, angoli 4px, con la nota sotto in `testo-secondario`. Decisione del 10/09/2026, che sostituisce la scelta precedente di un collegamento sottolineato: «Chi c'è in Valle» è la funzione che dà valore all'app (§1), e chi arriva sulla disponibilità deve vederla senza doverla cercare. Il costo è dichiarato: il pulsante pesa più del "Prenota" delle celle, che resta un collegamento dentro la griglia.
+È un **pulsante di azione principale** (§13.6): riempimento `verde`, testo `testo`, angoli 4px, con la nota sopra in `testo-secondario`. Decisione del 10/09/2026, che sostituisce la scelta precedente di un collegamento sottolineato: «Chi c'è in Valle» è la funzione che dà valore all'app (§1), e chi arriva sulla disponibilità deve vederla senza doverla cercare. Il costo è dichiarato: il pulsante pesa più del "Prenota" delle celle, che resta un collegamento dentro la griglia.
 
 Resta vietata la **fascia** in Stile 2 sopra la griglia. Un pulsante è un elemento circoscritto; una fascia a tutta larghezza è un registro (§13.2), e sopra la griglia la schiaccerebbe.
 
