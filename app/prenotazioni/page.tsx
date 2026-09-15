@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { bottoneDistruttivo } from "@/components/controlli";
+import { bottoneDistruttivo, bottoneSecondario } from "@/components/controlli";
 import { utenteAttuale } from "@/lib/auth/sessione";
 import { dataEstesa, oggiRoma, ora } from "@/lib/dates";
 import { sonoAbilitato } from "@/lib/db/abitanti";
@@ -291,7 +291,9 @@ export default async function PaginaPrenotazioni({ searchParams }: Proprieta) {
 
       {voci.length > 0 && (
         <p className="mt-8">
-          <Link href="/">{t.vuoto.collegamento}</Link>
+          <Link href="/" className={bottoneSecondario}>
+            {t.vuoto.collegamento}
+          </Link>
         </p>
       )}
     </>

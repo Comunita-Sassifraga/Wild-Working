@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { bottoneSecondario } from "@/components/controlli";
 import { m } from "@/lib/messaggi";
 
 /**
@@ -43,7 +44,7 @@ export default function Installa() {
 
       <p className="mt-10 text-nota text-testo-secondario">{t.nota}</p>
       <p className="mt-8">
-        <Link href="/" className="inline-flex min-h-tocco items-center">
+        <Link href="/" className={bottoneSecondario}>
           {t.torna}
         </Link>
       </p>

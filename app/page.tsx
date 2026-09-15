@@ -5,7 +5,7 @@ import { AvvisoCopiaLocale } from "@/components/CopiaLocale";
 import { Rimando } from "@/components/Rimando";
 import { SediFuoriPeriodo } from "@/components/SediFuoriPeriodo";
 import { TabellaGiorno } from "@/components/TabellaGiorno";
-import { bottonePrimario, bottoneSecondario } from "@/components/controlli";
+import { bottonePrimario, bottoneSecondario, notaControllo } from "@/components/controlli";
 import { FINESTRA_GIORNI } from "@/config/limits";
 import { sonoAmministratore } from "@/lib/auth/ruoli";
 import { utenteAttuale } from "@/lib/auth/sessione";
@@ -130,9 +130,7 @@ export default async function Home({
           standing above a button that is no longer there. */}
       {utente && edizione && (
         <p className="mt-6">
-          <span className="mb-1 block text-nota text-testo-secondario">
-            {m.abitanti.ingressoNota}
-          </span>
+          <span className={notaControllo}>{m.abitanti.ingressoNota}</span>
           <Link href="/abitanti" className={bottonePrimario}>
             {m.abitanti.ingresso}
           </Link>

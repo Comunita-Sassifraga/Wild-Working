@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { bottoneDistruttivo, bottonePrimario, campo } from "@/components/controlli";
+import {
+  bottoneDistruttivo,
+  bottonePrimario,
+  bottoneSecondario,
+  campo,
+} from "@/components/controlli";
 import { frasePerProponente } from "@/lib/abitanti/proponente";
 import type { DataISO } from "@/lib/dates";
 import { attivitaSingola } from "@/lib/db/attivita";
@@ -199,7 +204,9 @@ export default async function PaginaIscritti({
       )}
 
       <p className="mt-10">
-        <Link href={`/amministrazione/attivita/${attivitaId}`}>{t.torna}</Link>
+        <Link href={`/amministrazione/attivita/${attivitaId}`} className={bottoneSecondario}>
+          {t.torna}
+        </Link>
       </p>
     </>
   );

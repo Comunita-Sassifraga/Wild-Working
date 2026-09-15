@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { bottoneSecondario } from "@/components/controlli";
 import { dataEstesa, ora } from "@/lib/dates";
 import { iscrizioniDaVerificare, prenotazioniDaVerificare } from "@/lib/db/amministrazione";
 import { conValori, m } from "@/lib/messaggi";
@@ -179,7 +180,9 @@ export default async function PaginaAmministrazione() {
       </Sezione>
 
       <p className="mt-10">
-        <Link href="/">{m.prenotazioni.vuoto.collegamento}</Link>
+        <Link href="/" className={bottoneSecondario}>
+          {m.prenotazioni.vuoto.collegamento}
+        </Link>
       </p>
     </>
   );

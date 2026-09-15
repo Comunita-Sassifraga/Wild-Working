@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { bottonePrimario } from "@/components/controlli";
+import { bottonePrimario, bottoneSecondario } from "@/components/controlli";
 import { dataBreve, ora, oggiRoma } from "@/lib/dates";
 import { attivitaEdizione, campiMancanti, type Attivita, type StatoAttivita } from "@/lib/db/attivita";
 import { edizioniTutte, type Edizione } from "@/lib/db/abitanti";
@@ -201,7 +201,9 @@ export default async function PaginaAttivita({
       )}
 
       <p className="mt-10">
-        <Link href="/amministrazione">{m.amministrazione.torna}</Link>
+        <Link href="/amministrazione" className={bottoneSecondario}>
+          {m.amministrazione.torna}
+        </Link>
       </p>
     </>
   );

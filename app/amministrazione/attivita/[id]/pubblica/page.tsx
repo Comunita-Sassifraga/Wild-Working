@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { bottoneDistruttivo, bottonePrimario } from "@/components/controlli";
+import { bottoneDistruttivo, bottonePrimario, bottoneSecondario } from "@/components/controlli";
 import { dataEstesa, istanteEsteso, ora } from "@/lib/dates";
 import {
   attivitaSingola,
@@ -282,7 +282,9 @@ export default async function PaginaPubblicazione({
       )}
 
       <p className="mt-10">
-        <Link href={`/amministrazione/attivita/${attivita.id}`}>{t.pubblica.torna}</Link>
+        <Link href={`/amministrazione/attivita/${attivita.id}`} className={bottoneSecondario}>
+          {t.pubblica.torna}
+        </Link>
       </p>
     </>
   );

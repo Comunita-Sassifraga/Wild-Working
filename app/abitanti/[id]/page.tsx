@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { bottoneDistruttivo, bottonePrimario } from "@/components/controlli";
+import { bottoneDistruttivo, bottonePrimario, bottoneSecondario } from "@/components/controlli";
 import { EMAIL_ASSISTENZA_ABITANTI, ORE_DISDETTA } from "@/config/limits";
 import { completa, disdettaTardiva } from "@/lib/abitanti/elenco";
 import { utenteAttuale } from "@/lib/auth/sessione";
@@ -232,7 +232,9 @@ export default async function PaginaAttivita({
       </section>
 
       <p className="mt-10">
-        <Link href="/abitanti">{t.torna}</Link>
+        <Link href="/abitanti" className={bottoneSecondario}>
+          {t.torna}
+        </Link>
       </p>
     </>
   );

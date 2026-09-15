@@ -234,7 +234,9 @@ export default async function PaginaAttivitaSingola({
       </p>
 
       <p className="mt-10">
-        <Link href="/amministrazione/attivita">{t.scheda.torna}</Link>
+        <Link href="/amministrazione/attivita" className={bottoneSecondario}>
+          {t.scheda.torna}
+        </Link>
       </p>
     </>
   );

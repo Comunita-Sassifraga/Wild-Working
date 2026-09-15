@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { bottoneDistruttivo } from "@/components/controlli";
+import { bottoneDistruttivo, bottoneSecondario } from "@/components/controlli";
 import { istanteEsteso } from "@/lib/dates";
 import { codiciEdizione, edizioneAttiva, edizioniTutte } from "@/lib/db/abitanti";
 import { conValori, m } from "@/lib/messaggi";
@@ -112,7 +112,9 @@ export default async function PaginaCodici({
       )}
 
       <p className="mt-10 print:hidden">
-        <Link href="/amministrazione">{m.amministrazione.torna}</Link>
+        <Link href="/amministrazione" className={bottoneSecondario}>
+          {m.amministrazione.torna}
+        </Link>
       </p>
     </>
   );

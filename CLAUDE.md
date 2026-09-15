@@ -307,7 +307,11 @@ second sender there can send the association's own mail to spam. See SPEC §14.2
     text — never white on green (rule 13). A first draft made this one Stile 1,
     outlined, so as not to compete; reversed on 2026-09-13. The hierarchy is
     the reading order, not a paler outline: "Chi c'è in Valle" comes first,
-    with its note under it, and "Prenota un abitante" comes below them both.
+    with its note **above** it, and "Prenota un abitante" comes below them
+    both, with its own line above it in the same way and at the same distance
+    (§6.2, 2026-09-15). That distance is `notaControllo` in
+    `components/controlli.ts` and is written nowhere else — "the same" has to
+    stay true without anybody checking.
     Still no full-width Stile 2 **band** above the grid (§13.2).
 
     **One line stands above the button** — *"Sei un partecipante a VIHTA?
@@ -410,8 +414,12 @@ literal in `app/` or `components/` — comments included, so do not write
 "4px" even in a comment there.
 
 Shared controls (`bottonePrimario`, `bottoneSecondario`, `bottoneDistruttivo`,
-`campo`) live in `components/controlli.ts`; header and footer in
-`components/`. The font is declared once in `app/font.ts` (`next/font/local`,
+`campo`, `notaControllo`) live in `components/controlli.ts`; header and footer
+in `components/`. The **back link at the foot of a page is a
+`bottoneSecondario`**, never a plain link (SPEC §13.6, 2026-09-15) — with the
+two exceptions written there: inside a Stile 2 band, and the offline courtesy
+page, where it stays the primary button it is. A link that goes *forward*, or
+one inside a sentence, stays a link. The font is declared once in `app/font.ts` (`next/font/local`,
 files in `app/fonts/`) and reaches the theme as `--font-inclusive`. The header
 logo is `public/logo.png` until the SVG of SPEC §13.10 arrives.
 

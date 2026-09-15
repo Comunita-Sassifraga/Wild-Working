@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { bottonePrimario } from "@/components/controlli";
+import { bottonePrimario, bottoneSecondario } from "@/components/controlli";
 import { sediTutte } from "@/lib/db/amministrazione";
 import { conValori, m } from "@/lib/messaggi";
 import { amministratore } from "../guardia";
@@ -85,7 +85,9 @@ export default async function PaginaSedi({ searchParams }: { searchParams: Promi
       </Sezione>
 
       <p className="mt-10">
-        <Link href="/amministrazione">{t.torna}</Link>
+        <Link href="/amministrazione" className={bottoneSecondario}>
+          {t.torna}
+        </Link>
       </p>
     </>
   );

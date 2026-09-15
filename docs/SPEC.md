@@ -327,7 +327,9 @@ Per ogni combinazione sede / giorno / fascia si mostra:
 
 I nomi pubblici stanno soltanto nella pagina "Chi c'è in Valle" (§6.6, D15). La griglia è una tabella di conteggi: con tre sedi, quindici giorni e due fasce sono novanta celle, e farci stare fino a sei nomi ciascuna la renderebbe illeggibile su un telefono. Le due pagine si dividono il lavoro: qui *quanti*, lì *chi*.
 
-**Collegamento alla pagina pubblica.** Subito sotto l'introduzione della pagina e **sopra la griglia**, un collegamento a "Chi c'è in Valle" accompagnato dalla nota: *"Guarda chi c'è in valle nei prossimi giorni"*.
+**Collegamento alla pagina pubblica.** Subito sotto l'introduzione della pagina e **sopra la griglia**, un collegamento a "Chi c'è in Valle" preceduto dalla nota: *"Guarda chi c'è in valle nei prossimi giorni"*.
+
+La nota sta **sopra** il pulsante dal 15/09/2026, e prima stava sotto: da sopra si legge nell'ordine in cui serve — prima cosa c'è dall'altra parte, poi il pulsante che ci porta — e soprattutto le due coppie della pagina si costruiscono allo stesso modo invece di essere una lo specchio dell'altra (§15.5). La distanza fra la scritta e il proprio pulsante è la stessa per tutte e due, ed è un valore solo scritto in un posto solo.
 
 Sta sopra la griglia, non in fondo, per due ragioni. Da telefono la griglia è lunga e un collegamento in coda non lo vedrebbe nessuno. Ed è lì che nasce la domanda: si legge "2 persone hanno reso pubblica la presenza" e si vuole sapere chi sono.
 
@@ -343,7 +345,7 @@ Accessibile **senza registrazione**. La registrazione serve solo per prenotare.
 
 È un **pulsante in Stile 2** con scritto *"Prenota un abitante"*, che porta a `/abitanti`, preceduto da una riga che dice a chi è rivolto: *"Sei un partecipante a VIHTA? Premi qui sotto per entrare in «Prenota un abitante»."* Riga e pulsante compaiono e spariscono insieme: fuori da un'edizione attiva non resta né l'una né l'altro.
 
-I due pulsanti hanno lo stesso peso, entrambi riempiti di `verde` con testo `testo`, e ciascuno porta la propria riga: la nota di "Chi c'è in Valle" sta sotto il suo pulsante e dice cosa c'è dall'altra parte, la riga di «Prenota un abitante» sta sopra il suo e dice a chi serve. La gerarchia la fa l'ordine di lettura: "Chi c'è in Valle" viene prima. Decisione del 15/09/2026, che sostituisce l'affiancamento sulla stessa riga del 13/09/2026 e riprende la riga di spiegazione tolta il 12/09/2026.
+I due pulsanti hanno lo stesso peso, entrambi riempiti di `verde` con testo `testo`, e ciascuno porta la propria riga **sopra**, alla stessa distanza: la nota di "Chi c'è in Valle" dice cosa c'è dall'altra parte, la riga di «Prenota un abitante» dice a chi serve. La gerarchia la fa l'ordine di lettura: "Chi c'è in Valle" viene prima. Decisione del 15/09/2026, che sostituisce l'affiancamento sulla stessa riga del 13/09/2026 e riprende la riga di spiegazione tolta il 12/09/2026.
 
 Resta vietata anche qui la **fascia** in Stile 2 a tutta larghezza: due pulsanti restano due elementi circoscritti, una fascia sarebbe un registro (§13.2).
 
@@ -471,7 +473,7 @@ I due gruppi stanno in una riga sola, non in due elenchi separati: prima i nomi,
 
 **È l'unico posto in cui compaiono i nomi pubblici.** La griglia di §6.2 si ferma ai conteggi. Chi in futuro volesse aggiungere i nomi anche alla griglia sta cancellando la ragione per cui questa pagina esiste.
 
-**Collegamento alla disponibilità.** Nella stessa posizione speculare — sotto l'introduzione, sopra l'elenco delle sedi — un collegamento alla pagina della disponibilità con la nota: *"Guarda quanti posti restano e prenota il tuo"*. Chi arriva qui da un collegamento condiviso non ha visto nient'altro dell'app: senza questo rimando vede chi c'è e non sa come aggiungersi.
+**Collegamento alla disponibilità.** Nella stessa posizione speculare — sotto l'introduzione, sopra l'elenco delle sedi — un collegamento alla pagina della disponibilità, preceduto dalla nota: *"Guarda quanti posti restano e prenota il tuo"*. La nota sta sopra dal 15/09/2026, come quella di §6.2 e alla stessa distanza: le due pagine restano speculari, e lo restano anche in questo. Chi arriva qui da un collegamento condiviso non ha visto nient'altro dell'app: senza questo rimando vede chi c'è e non sa come aggiungersi.
 
 Il collegamento sta **fuori** dalla fascia verde, sullo sfondo crema, quindi è in `verde-testo` come tutti gli altri. Dentro un blocco Stile 2 sarebbe in `testo` (§13.6). Resta un collegamento sottolineato anche ora che quello di §6.2 è un pulsante: qui sta a ridosso della fascia verde del titolo, e una seconda superficie verde attaccata a quella si leggerebbe come un blocco solo.
 
@@ -887,6 +889,10 @@ Il sito non ha pulsanti: usa collegamenti verdi sottolineati. L'app ne ha bisogn
 - **Azione secondaria**: contorno in `testo`, sfondo trasparente.
 - **Azione distruttiva** (Annulla prenotazione, Cancella account): testo in `errore`, senza riempimento.
 - Ogni elemento cliccabile ha un'area di tocco di almeno 44×44px: si usa da telefono, spesso all'aperto.
+
+**Il ritorno in fondo a una pagina è un pulsante di azione secondaria**, non un collegamento. *"Torna alla disponibilità"*, *"Torna all'amministrazione"*, *"Torna alle attività"*: contorno in `testo` su sfondo crema, come tutti gli altri. Deciso il 15/09/2026, perché un collegamento sottolineato in fondo a una pagina lunga si vede poco, ed è la strada che quasi tutti prendono quando hanno finito. Resta un'azione secondaria e non principale: in fondo a una pagina la cosa più vistosa non può essere quella per andarsene.
+
+Vale per il ritorno, non per ogni collegamento in fondo: uno che porta **avanti** — *"Vai agli iscritti"*, *"Vai alle impostazioni"* — resta un collegamento, come restano collegamenti quelli dentro una frase. Due eccezioni, decise lo stesso giorno: dentro una fascia Stile 2 il ritorno resta un collegamento in `testo`, perché un pulsante crema sul verde sarebbe un terzo registro che non esiste; e nella pagina di cortesia senza connessione resta il pulsante di **azione principale** che è già, perché lì è l'unica cosa che si può fare.
 
 ### 13.7 Accessibilità
 

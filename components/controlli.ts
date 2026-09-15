@@ -19,6 +19,19 @@ export const bottoneSecondario = `${bottone} border border-testo bg-trasparente 
 /** Destructive action (Annulla prenotazione, Cancella account): errore text, no fill. */
 export const bottoneDistruttivo = `${bottone} bg-trasparente text-errore`;
 
+/**
+ * The line of explanation that stands **above** a control — the note of the
+ * two Rimando of §6.2 and §6.6, the line of §15.5 above the module entry.
+ *
+ * One class set, so "the same distance" stays true: the three pairs on the
+ * availability page and the public one are built from this single value, and
+ * moving it moves all of them at once. Above and not below since 2026-09-15:
+ * the reader meets the sentence first and then the control it describes, and
+ * the same shape serves both blocks instead of one being the mirror of the
+ * other.
+ */
+export const notaControllo = "mb-2 block text-nota text-testo-secondario";
+
 /** Text field: linea hairline border, superficie background, controllo radius. */
 export const campo =
   "block w-full min-h-tocco rounded-controllo border border-linea bg-superficie px-3 py-2 text-testo";

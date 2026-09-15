@@ -158,7 +158,9 @@ export default async function PaginaPrenota({ searchParams }: Proprieta) {
       )}
 
       <p className="mt-8">
-        <Link href={`/?data=${data}`}>{t.torna}</Link>
+        <Link href={`/?data=${data}`} className={bottoneSecondario}>
+          {t.torna}
+        </Link>
       </p>
     </>
   );

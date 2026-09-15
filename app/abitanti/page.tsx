@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { bottonePrimario, campo } from "@/components/controlli";
+import { bottonePrimario, bottoneSecondario, campo } from "@/components/controlli";
 import { EMAIL_ASSISTENZA_ABITANTI } from "@/config/limits";
 import { completa, perSettimana } from "@/lib/abitanti/elenco";
 import { utenteAttuale } from "@/lib/auth/sessione";
@@ -238,7 +238,9 @@ export default async function PaginaAbitanti({
       )}
 
       <p className="mt-10">
-        <Link href="/">{t.abilitato.torna}</Link>
+        <Link href="/" className={bottoneSecondario}>
+          {t.abilitato.torna}
+        </Link>
       </p>
     </>
   );
