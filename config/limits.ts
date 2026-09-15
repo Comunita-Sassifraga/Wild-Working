@@ -129,11 +129,14 @@ export const EMAIL_MITTENTE = "noreply@wildworking.sassifraga.org";
 export const EMAIL_MODERAZIONE: string | undefined = process.env.EMAIL_MODERAZIONE;
 
 /**
- * Privacy notice linked above the sign-in button (§6.1, §14.4). The notice
- * is a new page on the institutional site, still to be written: placeholder
- * address, to confirm.
+ * Privacy notice linked above the sign-in button (§6.1, §14.4). Published on
+ * the institutional site on 2026-09-15 as a single notice covering the
+ * association and both services of this app, and confirmed as its final
+ * address. Until this change the constant still held the placeholder, which
+ * answered 404: every "Informativa privacy" link in the app led nowhere,
+ * including the one §6.1 requires to be readable before registering.
  */
-export const URL_INFORMATIVA_PRIVACY = "https://www.sassifraga.org/privacy-coworking";
+export const URL_INFORMATIVA_PRIVACY = "https://www.sassifraga.org/trasparenza/privacy";
 
 /**
  * Institutional site, linked from the header logo and the footer (§13.8,

@@ -13,7 +13,8 @@
     "db:reset": "supabase db reset",
     "db:types": "supabase gen types typescript --local > lib/db/types.ts",
     "cloudflare:build": "opennextjs-cloudflare build && node strumenti/alleggerisci-worker.mjs",
-    "cloudflare:preview": "opennextjs-cloudflare preview"
+    "cloudflare:preview": "opennextjs-cloudflare preview",
+    "cloudflare:deploy": "opennextjs-cloudflare deploy"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
