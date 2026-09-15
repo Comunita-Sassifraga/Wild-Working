@@ -58,13 +58,16 @@ questa riga di `package.json` si può togliere.
 
 ## Che cosa resta da fare
 
-- **La tabella dei fornitori al §9 di `docs/informativa-privacy.md`**, dove
-  oggi c'è ancora Vercel. Va sostituito con Cloudflare, che è un responsabile
-  del trattamento a tutti gli effetti: termina il TLS e vede indirizzi IP,
-  cookie di sessione e contenuto delle richieste. **GitHub non va aggiunto a
-  quella tabella**: non riceve nessun dato personale, solo conteggi (§14.5).
-  Resta anche da sciogliere il *[DA VERIFICARE]* sulla regione, che per
-  Cloudflare è una domanda diversa da quella che era per Vercel.
+- ~~La tabella dei fornitori al §9 di `docs/informativa-privacy.md`.~~ Fatta
+  con la fusione del 15/09/2026: la riga nomina Cloudflare, responsabile del
+  trattamento a tutti gli effetti — termina il TLS e vede indirizzi IP, cookie
+  di sessione e contenuto delle richieste. **GitHub non è stato aggiunto a
+  quella tabella**, ed è la scelta giusta: non riceve nessun dato personale,
+  solo conteggi (§14.5). **Resta aperto il *[DA VERIFICARE]* sulla regione**,
+  che per Cloudflare è una domanda diversa da quella che era per Vercel: lì si
+  sceglieva la regione di una funzione, qui il programma gira nel punto di rete
+  più vicino a chi si collega mentre la banca dati resta a Francoforte. Va
+  sciolto prima del rilascio, non prima di una pubblicazione di prova.
 - **Il record DNS** va agganciato come *Custom Domain* del Worker e **resta
   proxato** (nuvoletta arancione), al contrario di quanto valeva prima.
 - **Segnalare a monte la dimenticanza di `@vercel/og`**, così che
