@@ -607,7 +607,7 @@ chi partecipa alla residenza VIHTA, e i partecipanti sono maggiorenni (§15.4).
 | Cosa | Quando | Come |
 |---|---|---|
 | Prenotazioni oltre 30 giorni | Ogni notte | Si recide il legame con l'utente. Restano il conteggio, la sede e — se il consenso è attivo — i cinque valori facoltativi copiati nei campi `stat_` (§5.3), senza sapere di chi fossero. |
-| Account senza accessi da 24 mesi | Ogni notte | Avviso via email a 23 mesi; cancellazione a 24. **L'avviso è condizione della cancellazione:** un account che non è stato avvisato almeno un mese prima non viene chiuso, viene avvisato. Serve a un giro rimasto spento a lungo, che alla ripartenza deve avvisare e non cancellare tutti in una notte. |
+| Account senza accessi da 24 mesi | Ogni notte | Avviso via email a 23 mesi; cancellazione a 24. **L'avviso è condizione della cancellazione:** un account che non è stato avvisato almeno un mese prima non viene chiuso, viene avvisato. Serve a un giro rimasto spento a lungo, che alla ripartenza deve avvisare e non cancellare tutti in una notte. **Attenzione: «senza accessi» oggi significa «senza aver riaperto un link», non «senza aver usato il servizio» — vedi §10, `DURATA_SESSIONE_GIORNI`. Finché quella cosa non è sistemata, questa riga può colpire una persona attiva.** |
 | Richieste di accesso mai completate | Ogni notte | Cancellate dopo 24 ore |
 | Link di accesso | 15 minuti | Non più utilizzabili; non ne resta traccia |
 | Impronte delle richieste di link (§6.1) | 1 ora | Cancellate. Sono hash con chiave, non indirizzi: nessuna email o indirizzo di rete viene conservato |
@@ -716,7 +716,7 @@ Valori che devono essere modificabili senza toccare la logica del programma. Viv
 | `VALIDITA_LINK_MINUTI` — validità del link di accesso | 15 minuti |
 | `MAX_LINK_PER_EMAIL_ORA` — richieste di link per email all'ora | **5** |
 | `MAX_LINK_PER_RETE_ORA` — richieste di link per indirizzo di rete all'ora | **20** |
-| `DURATA_SESSIONE_GIORNI` — durata della sessione | 30 giorni dall'ultimo utilizzo |
+| `DURATA_SESSIONE_GIORNI` — durata della sessione | 30 giorni dall'ultimo utilizzo — **oggi non applicato: vedi sotto** |
 | `GIORNI_ANONIMIZZAZIONE` — giorni prima dell'anonimizzazione | 30 |
 | `MESI_ACCOUNT_DORMIENTE` — mesi prima della cancellazione di un account dormiente | 24 |
 | `MESI_AVVISO_DORMIENZA` — mesi di inattività dopo cui parte l'avviso (§7) | **23** |
@@ -732,6 +732,12 @@ Valori che devono essere modificabili senza toccare la logica del programma. Viv
 | `URL_INFORMATIVA_PRIVACY` — indirizzo dell'informativa linkata prima dell'accesso (§6.1) | da definire, pagina su `www.sassifraga.org` |
 
 I parametri del modulo «Prenota un abitante» stanno in §15.13 e vivono nello stesso file.
+
+**`DURATA_SESSIONE_GIORNI` non è applicato, e sul piano gratuito non si può applicare.** Scoperto il 15/09/2026 durante il rilascio: Supabase riserva al piano Pro la configurazione delle sessioni, sia la scadenza per inattività sia il tempo massimo. La regola non è imposta da nessun'altra parte — nel programma non c'è, era affidata per intero a quella impostazione — quindi una sessione che continua a rinnovarsi dura a tempo indeterminato.
+
+Ne discendono due cose. La prima è minore: una sessione lasciata aperta su un computer condiviso non scade dopo un mese. **La seconda è una trappola a scoppio ritardato, e riguarda §7.** La colonna `utenti.ultimo_accesso` si muove soltanto quando qualcuno apre un link di accesso, perché la scrive `registra_accesso()` e nient'altro la tocca; ed è esattamente quella colonna che il giro notturno legge per decidere chi è dormiente. Una persona che entra una volta e poi usa il servizio ogni settimana non riapre mai un link: la sua colonna resta ferma al primo giorno, e dopo ventitré mesi le arriva l'avviso di dormienza, dopo ventiquattro l'account viene chiuso — mentre lo sta usando.
+
+**Finché questo non è risolto, la cancellazione degli account dormienti di §7 non è sicura.** Il rimedio previsto non è pagare il piano Pro, che per una casella di configurazione non è proporzionato: è **far muovere `ultimo_accesso` quando la persona usa davvero il servizio**, non solo quando apre un link, al massimo una volta al giorno per non scrivere a ogni richiesta. Renderebbe vero ciò che il nome della colonna promette e toglierebbe la trappola alla radice. Non è ancora stato fatto, e non ha urgenza tecnica — il primo avviso possibile è a ventitré mesi dal primo accesso — ma va fatto prima di allora, ed è scritto qui perché nessuno lo riscopra per caso.
 
 **`FINESTRA_GIORNI` è una fonte di verità unica.** Governa insieme la validazione della prenotazione, la vista di disponibilità e la pagina pubblica. I tre valori devono coincidere per costruzione, non essere impostati separatamente: altrimenti l'app finirebbe per mostrare giorni non prenotabili o nascondere giorni prenotabili.
 
