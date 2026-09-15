@@ -112,8 +112,17 @@ describe("§8.3 politiche di accesso", () => {
       expect(error?.code).toBe(CODICE_PERMESSO_NEGATO);
     });
 
-    it("legge le note della sede, che il visitatore non vede", async () => {
-      const { data } = await a.client.from("sedi").select("note").eq("id", sedeX).single();
+    // D26 del 15/09/2026: le informazioni della sede si leggono dopo aver
+    // prenotato, non prima. La tabella non le dà a nessuno — nemmeno a chi
+    // ha prenotato lì, che le legge dalla propria prenotazione.
+    it("non legge le note della sede dalla tabella, nemmeno dove ha prenotato", async () => {
+      expect((await a.client.from("sedi").select("note").eq("id", sedeX)).error?.code).toBe(CODICE_PERMESSO_NEGATO);
+      // Nemmeno una lettera alla volta, filtrando su una colonna che non può leggere.
+      expect((await a.client.from("sedi").select("id").like("note", "Chiavi%")).error?.code).toBe(CODICE_PERMESSO_NEGATO);
+    });
+
+    it("le legge dalla propria prenotazione, che è la porta prevista", async () => {
+      const { data } = await a.client.from("mie_prenotazioni").select("note").eq("sede_id", sedeX).limit(1).single();
       expect(data?.note).toBe("Chiavi dal bar");
     });
   });

@@ -1,0 +1,76 @@
+# The reminder of the evening before — SPEC §6.3, §10.
+#
+# This is the schedule vercel.json used to carry, moved out of the host: on
+# Cloudflare a Cron Trigger can only call a Worker, never an arbitrary
+# address, so the two nightly jobs are started from here instead. GitHub reads
+# cron in universal time, like the host that fired them before: 16:26 universal
+# is 18:26 in Italy in summer and 17:26 in winter, and ORA_PROMEMORIA is an
+# intent and not a clock (§10).
+#
+# The minute is chosen, not left at zero. GitHub delays scheduled runs when it
+# is loaded and says the start of every hour is one of those moments — which is
+# also where nearly every hand-written schedule lands. Half past the hour, on a
+# minute nobody picks out of habit, is the quietest place to stand.
+#
+# Three things worth knowing before reading a run:
+#
+#   - a scheduled workflow only ever starts from the default branch, whatever
+#     branch its file was written on;
+#   - GitHub delays scheduled runs when it is loaded, and a reminder missed
+#     for one night stays missed on purpose (§6.3, §8.4): better lost than
+#     sent twice;
+#   - the answer carries counts and nothing else — no address, no name, no
+#     identifier — which is the only reason it may be printed into a log that
+#     anyone with access to this repository can read (rule 4).
+
+name: Promemoria della sera prima
+
+on:
+  schedule:
+    - cron: "26 16 * * *"
+  workflow_dispatch:
+
+# The job reads nothing and writes nothing in the repository: it makes one
+# call out and stops. So it is given no rights over the repository at all.
+permissions: {}
+
+# A run started by hand must not overlap the scheduled one.
+concurrency:
+  group: promemoria
+  cancel-in-progress: false
+
+jobs:
+  promemoria:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Chiama il giro dei promemoria
+        env:
+          URL_APP: ${{ secrets.URL_APP }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+
+          # Unlike the Vercel call, this one crosses the open network. The
+          # secret must therefore never leave in clear: refuse before sending
+          # rather than discover it afterwards.
+          indirizzo="${URL_APP%/}"
+          case "$indirizzo" in
+            https://*) ;;
+            *)
+              echo "URL_APP non è un indirizzo https: il giro non parte." >&2
+              exit 1
+              ;;
+          esac
+
+          # The secret is read from the environment inside the header and is
+          # never written on the command line, so it cannot surface in the log
+          # through the echo of the command itself. --fail-with-body turns a
+          # refusal into a red run and still prints what the app answered.
+          # The retries are safe only because the job is built to be harmless
+          # when repeated (§6.3) — they are not a way around that.
+          curl --silent --show-error --fail-with-body \
+            --retry 3 --retry-delay 30 --max-time 300 \
+            --header "Authorization: Bearer $CRON_SECRET" \
+            "$indirizzo/api/mestieri/promemoria"
+          echo

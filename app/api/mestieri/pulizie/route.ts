@@ -1,10 +1,10 @@
 /**
  * The scheduled call that runs the nightly cleanups — SPEC §7, §12 step 11.
  *
- * Called once a night by the schedule in vercel.json, at the hour
- * `ORA_PULIZIE` documents. Same shape and same shared secret as the reminder
- * of step 9: a request without the right bearer token is refused before
- * anything is read or written.
+ * Called once a night by the schedule that lives outside the application
+ * (§10), at the hour `ORA_PULIZIE` documents. Same shape and same shared
+ * secret as the reminder of step 9: a request without the right bearer token
+ * is refused before anything is read or written.
  *
  * The answer carries counts and nothing else — no address, no name, no
  * identifier (rule 4). It is also the only place a failed cleanup becomes

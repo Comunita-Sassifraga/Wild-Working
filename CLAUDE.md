@@ -25,7 +25,8 @@ If code and spec disagree, the spec wins — flag the discrepancy, do not silent
 - Supabase (Postgres + Auth), **eu-central-1 / Frankfurt**
 - Auth: **magic link only**. No passwords, no OAuth, no social login.
 - Resend for transactional email, sending from `noreply@wildworking.sassifraga.org`
-- Deployed on Vercel, served at **`wildworking.sassifraga.org`**
+- Deployed on **Cloudflare Workers** (built by `@opennextjs/cloudflare`), served
+  at **`wildworking.sassifraga.org`** — SPEC D25, §14.5
 - PWA: installable, read-only offline cache of availability
 
 The app lives on its own subdomain, never under `www.sassifraga.org/...` — the
@@ -373,7 +374,8 @@ translate them, do not mix languages within an identifier.
 | `referente`            | Site steward, sees own sede only, today + `FINESTRA_GIORNI` — never a hardcoded day count                                               |
 | `incarico`             | Role assignment. `REFERENTE` always has a `sede_id`; `AMMINISTRATORE` never does — admins are global (SPEC §5.6).                       |
 | `giorni_apertura`      | Weekdays a sede is open, default LUN–SAB, admin-editable per sede. Fifth bookability condition of SPEC §5.2.                            |
-| `sedi.note`            | Practical info (Wi-Fi, keys). Authenticated users only — never in a public view, never contains passwords.                              |
+| `sedi.note`            | How to get there and how to get in: keys, access code, Wi-Fi password (D26). Read **only** by somebody holding an active `prenotazione` at that sede, by that sede's `referente`, and by an admin — through `mie_prenotazioni`, `sedi_referente`, `sedi_amministrazione` and the reminder. The SELECT grant is restated column by column without it: never filter it in a component, and never show it before the booking. |
+| `sedi.coordinate`      | Latitude and longitude, kept as a Postgres `point` — `(longitude,latitude)`, the reverse of the order a person writes. Feeds the public "Dove si trova" link of §6.2, through `lib/mappa.ts`. Never an embedded map: third parties and cookies (rule 7). |
 | `posto_progressivo`    | Internal seat number 1..capienza. **Never shown to users.**                                                                             |
 | `dati_facoltativi`     | The five consent-based statistical fields: `eta`, `genere`, `professione`, `motivo_visita`, `residenza`. Never public, never per-user in admin. `eta` is a bracket, never a date of birth, and its first value is `Meno di 18` (rule 17). |
 | `stat_*`               | Snapshot of the five fields copied onto a `prenotazione` at anonymisation time (SPEC §5.3). No longer personal data — nothing links them back to a person. |
@@ -511,10 +513,16 @@ what to do next, not what went wrong internally.
   what a person receives is the reminder of the evening before (SPEC §6.3,
   decision of 2026-09-10). Do not add a confirmation email back.
 - **Automatic jobs are Route Handlers under `app/api/mestieri/`**, protected by
-  the shared secret `CRON_SECRET` and scheduled in `vercel.json` — one daily
-  run, in universal time, which is why `ORA_PROMEMORIA` is an intent and not a
-  clock (§10). The RLS-bypassing client is built in `lib/db/servizio.ts` alone;
-  never reach for it from a page or from an action serving a person's request.
+  the shared secret `CRON_SECRET` — one daily run each, in universal time,
+  which is why `ORA_PROMEMORIA` is an intent and not a clock (§10). What
+  starts them lives outside the app: two scheduled GitHub actions in
+  `.github/workflows/` call the two addresses over https, because a Cloudflare
+  Cron Trigger can only call a Worker (D25). Move an hour and you must move
+  the cron expression with it. A third action keeps those two from being
+  switched off for inactivity — if it ever goes, the nightly cleanups stop
+  silently and retention stops with them. The
+  RLS-bypassing client is built in `lib/db/servizio.ts` alone; never reach for
+  it from a page or from an action serving a person's request.
 - **The offline copy keeps the availability page and nothing else.**
   `public/sw.js` is the only place that decides what a browser may keep, and
   it may keep `/`, the courtesy page `/senza-collegamento`, and the files
@@ -653,6 +661,17 @@ except the one marked as still to come:
   does not appear; `giorni_apertura` and `chiusure` decide bookability per
   day and per fascia, a chiusura on one fascia leaving the other open; the
   view carries counts only — no email, no `nome_pubblico`, no `utente_id`.
+- `tests/informazioni-sede.test.ts` — `sedi.note` (D26): no signed-in user
+  reads it from the table, not even one who booked there, and not by
+  filtering or ordering on it; the person who booked reads it through their
+  own booking and only for that sede; a past booking and a cancelled one
+  carry nothing; the sede's referente reads it always, with no booking, and
+  only for the sedi they are referente of; the panel view is the admin's
+  alone; nobody else can rewrite it.
+- `tests/mappa.test.ts` — the "Dove si trova" link of §6.2: the two numbers
+  pasted from Google Maps survive the round trip to the `point` column
+  without swapping, an unreadable position is refused, and a sede with
+  neither coordinates nor an address produces no link at all.
 - `tests/accesso.test.ts` — the real sign-in flow through the local mailbox:
   the `utenti` row does not exist before the link is opened and holds only
   the email afterwards; the same link opens nothing a second time; the first

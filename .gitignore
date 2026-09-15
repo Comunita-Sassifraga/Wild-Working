@@ -18,7 +18,7 @@ supabase/.branches/
 # Vercel
 .vercel/
 
-# Cloudflare build output (OpenNext adapter + Wrangler state)
+# Cloudflare adapter build output and local Worker state
 .open-next/
 .wrangler/
 

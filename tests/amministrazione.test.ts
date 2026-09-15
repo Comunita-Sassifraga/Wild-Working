@@ -48,6 +48,7 @@ import {
   terminiVietati,
 } from "@/lib/db/amministrazione";
 import { impostaNomePubblico, mioProfilo, segnaAvvisoModerazioneLetto } from "@/lib/db/utenti";
+import { posizioneDaColonna } from "@/lib/mappa";
 import {
   assegnaIncarico,
   CODICE_PERMESSO_NEGATO,
@@ -226,6 +227,7 @@ describe("§6.7 pannello di amministrazione", () => {
           attiva: false,
           giorni_apertura: ["LUN", "MAR"],
           note: "Le chiavi sono al bar.",
+          coordinate: "(7.5512,45.5123)",
         }),
       ).toMatchObject({ ok: true });
 
@@ -233,6 +235,12 @@ describe("§6.7 pannello di amministrazione", () => {
       expect(dopo?.capienza).toBe(5);
       expect(dopo?.attiva).toBe(false);
       expect(dopo?.giorni_apertura).toEqual(["LUN", "MAR"]);
+      // D26: le informazioni della sede si scrivono e si rileggono solo qui.
+      expect(dopo?.note).toBe("Le chiavi sono al bar.");
+      expect(posizioneDaColonna(dopo?.coordinate)).toEqual({
+        latitudine: 45.5123,
+        longitudine: 7.5512,
+      });
 
       // Una sede sospesa resta visibile all'amministratore e a nessun altro.
       expect((await sediTutte(admin.client)).some((s) => s.id === creata.valore)).toBe(true);

@@ -6,6 +6,7 @@ import { dataEstesa, oggiRoma, ora } from "@/lib/dates";
 import { sonoAbilitato } from "@/lib/db/abitanti";
 import { mieAttivita, type AttivitaElencata } from "@/lib/db/iscrizioni";
 import { miePrenotazioni, type MiaPrenotazione } from "@/lib/db/prenotazioni";
+import { sediSeguite, type SedeSeguita } from "@/lib/db/sedi";
 import { clientServer } from "@/lib/db/server";
 import { orarioTesto } from "@/lib/disponibilita";
 import { conValori, m } from "@/lib/messaggi";
@@ -103,11 +104,19 @@ function Prenotazione({ voce }: { voce: Voce }) {
       </ul>
       {voce.giornataIntera && <p className="mt-2 text-nota">{t.giornataIntera}</p>}
 
+      {/*
+        The practical information of the sede (§5.2, D26). It is read here
+        and not before booking, because here there is the booking that gives
+        the right to read it, and it goes away with it. A block and not the
+        small line it used to be: since D26 it can hold a door code or a
+        Wi-Fi password, and those have to be legible one per line.
+      */}
       {prima.note && (
-        <p className="mt-4 text-nota text-testo-secondario">
-          <span className="font-grassetto">{t.note}: </span>
-          {prima.note}
-        </p>
+        <section className="mt-6 border-t border-linea pt-4">
+          <h3 className="font-grassetto">{t.note}</h3>
+          <p className="mt-2 whitespace-pre-line">{prima.note}</p>
+          <p className="mt-2 text-nota text-testo-secondario">{t.noteNota}</p>
+        </section>
       )}
 
       {annullabili.length === 0 ? (
@@ -181,6 +190,42 @@ function Attivita({ attivita }: { attivita: AttivitaElencata }) {
   );
 }
 
+/**
+ * The sedi a referente looks after — SPEC §4, §5.2, D26.
+ *
+ * A referente needs the keys and the Wi-Fi password of the space they look
+ * after whether or not they booked a desk that day: booking one to read the
+ * door code would be an absurd way in. The list comes from `sedi_referente`,
+ * which is empty for everybody else, so there is no check in this file
+ * deciding who sees the section (§8.3) — it simply does not appear.
+ *
+ * It lives here, at the foot of a person's own page, and not behind a new
+ * address: this is already the page of the things that concern you, and the
+ * panel is for the amministratore.
+ */
+function SediSeguite({ sedi }: { sedi: SedeSeguita[] }) {
+  if (sedi.length === 0) return null;
+  const t = m.prenotazioni.referente;
+
+  return (
+    <section className="mt-12 border-t border-linea pt-8">
+      <h2 className="text-titolo-sezione font-grassetto">{t.titolo}</h2>
+      <p className="mt-2 text-testo-secondario">{t.introduzione}</p>
+      <ul className="mt-6 flex flex-col gap-8">
+        {sedi.map((sede) => (
+          <li key={sede.id}>
+            <p className="font-grassetto">{sede.nome}</p>
+            <p className="text-testo-secondario">
+              {sede.indirizzo ? `${sede.comune} · ${sede.indirizzo}` : sede.comune}
+            </p>
+            {sede.note && <p className="mt-2 whitespace-pre-line">{sede.note}</p>}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export default async function PaginaPrenotazioni({ searchParams }: Proprieta) {
   const [utente, client, parametri] = await Promise.all([
     utenteAttuale(),
@@ -189,10 +234,11 @@ export default async function PaginaPrenotazioni({ searchParams }: Proprieta) {
   ]);
   if (!utente) redirect("/accedi");
 
-  const [prenotazioni, attivita, abilitato] = await Promise.all([
+  const [prenotazioni, attivita, abilitato, seguite] = await Promise.all([
     miePrenotazioni(client),
     mieAttivita(client, oggiRoma()),
     sonoAbilitato(client),
+    sediSeguite(client),
   ]);
   const voci = raggruppa(prenotazioni);
   const conAttivita = abilitato || attivita.length > 0;
@@ -288,6 +334,8 @@ export default async function PaginaPrenotazioni({ searchParams }: Proprieta) {
           )}
         </>
       )}
+
+      <SediSeguite sedi={seguite} />
 
       {voci.length > 0 && (
         <p className="mt-8">

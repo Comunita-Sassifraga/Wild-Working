@@ -49,12 +49,15 @@ Lo strumento è realizzato e messo a disposizione da Comunità Sassifraga APS. G
 | D15 | Divisione fra le due pagine pubbliche     | La griglia di disponibilità mostra **conteggi**: posti liberi su totale e numero di presenze pubbliche. I **nomi pubblici** compaiono soltanto nella pagina "Chi c'è in Valle". Ogni pagina rimanda all'altra con un collegamento e una nota. Vedi §6.2 e §6.6.                        |
 | D17 | Secondo servizio nella stessa applicazione | **«Prenota un abitante»** — attività proposte dagli abitanti della valle ai residenti VIHTA — vive dentro Wild Working, non in una piattaforma separata. Il modulo è **additivo**: cinque tabelle nuove più una di servizio, nessuna tabella esistente modificata — ma sette parti già in esercizio vengono comunque toccate, elencate in §15.1. Vedi §15. |
 | D18 | Accesso al modulo                         | **Codice personale monouso** per ogni residente, che una volta usato genera un'abilitazione legata all'account. Non un codice unico condiviso. Il codice si inserisce **dopo** l'accesso normale, una volta sola, la prima volta che si apre il modulo: **il flusso di autenticazione non si tocca in nessun punto**. Vedi §15.4. |
-| D19 | Ingresso al modulo                        | Un solo ingresso dentro l'applicazione: **in cima alla pagina della disponibilità**, a chi ha fatto l'accesso e mentre un'edizione è attiva, un **pulsante «Prenota un abitante»** che porta a `/abitanti`. Solo il pulsante, senza nessuna nota che lo accompagni: chi è di VIHTA sa cos'è, e a chi non lo è la spiegazione non serve. Nessuna voce di navigazione, nessun rimando dalla pagina «Chi c'è in Valle». Il cartoncino consegnato all'arrivo porta il codice e un QR verso `/abitanti`, ma non è più il solo modo di arrivarci. Vedi §15.5. |
+| D19 | Ingresso al modulo                        | Un solo ingresso dentro l'applicazione: **in cima alla pagina della disponibilità**, a chi ha fatto l'accesso e mentre un'edizione è attiva, un **pulsante in Stile 2 «Prenota un abitante»** che porta a `/abitanti`, **sotto il pulsante di «Chi c'è in Valle» e la sua nota**. I due pulsanti hanno lo stesso peso: la gerarchia la fa l'ordine di lettura. **Sopra il pulsante sta una riga sola**, uguale per tutti: *"Sei un partecipante a VIHTA? Premi qui sotto per entrare in «Prenota un abitante»."* Dice a chi serve il pulsante; la spiegazione vera resta dietro, su `/abitanti`. Riga e pulsante compaiono e spariscono insieme. Nessuna voce di navigazione, nessun rimando dalla pagina «Chi c'è in Valle». Il cartoncino consegnato all'arrivo porta il codice e un QR verso `/abitanti`, ma non è più il solo modo di arrivarci. Aggiornata il 15/09/2026, che rovescia due scelte del 12/09/2026 — il pulsante senza nessuna nota — e del 13/09/2026 — i due pulsanti affiancati sulla stessa riga. Vedi §6.2 e §15.5. |
 | D20 | Chi carica le attività                    | L'amministratore, a mano, dal pannello. Gli abitanti non hanno un account: propongono per telefono, email o di persona. |
 | D21 | Consenso degli abitanti proponenti        | L'informativa si raccoglie **firmata a mano**, di persona: molti abitanti sono anziani e non si registrerebbero mai su un'app. Nel software l'amministratore mette una **spunta** con cui dichiara di averla raccolta e conservata; il sistema annota quando e chi. Senza spunta l'attività non è pubblicabile. Il valore legale sta nella carta, la spunta è la dichiarazione tracciata che la carta esiste. Vedi §15.8. |
 | D23 | Visibilità dei dati degli abitanti        | Tre livelli. **1**, a tutti gli abilitati: nome di battesimo, titolo, comune o frazione, descrizione scritta dall'abitante. **2**, solo a chi si iscrive: cognome, telefono, indirizzo esatto. **3**, solo all'amministratore: note interne. Vedi §15.8. |
 | D22 | Lista d'attesa per le attività            | **No.** Era stata proposta, ed è stata scartata il 12/09 per tenere il modulo costruibile nei tempi dell'edizione 2026. A posti esauriti l'attività dice "completa" e non si può fare altro dall'app. Chi disdice lo annuncia fra i partecipanti, che si coordinano fuori dall'applicazione; l'amministratore annulla l'iscrizione di chi rinuncia e iscrive chi subentra, dal pannello (§15.7, §15.9). Vedi anche §15.15. |
+| D26 | Informazioni della sede                   | Le informazioni pratiche di una sede — come si arriva, chiavi, codice di accesso, password del Wi‑Fi — si leggono **solo dopo aver prenotato**, in "Le mie prenotazioni" e nel promemoria della sera prima, e solo da chi ha una prenotazione attiva in quella sede. Le vede sempre anche il **referente** di quella sede, che la sorveglia (§4). La pagina di conferma dice dove si troveranno, senza mostrarle. Il limite è imposto dalla banca dati, non dalle pagine. Supera il divieto di scrivere password in `note` che valeva fino al 15/09/2026. Chi sta ancora scegliendo ha i posti liberi, gli orari e la posizione sulla mappa, che restano pubblici. Vedi §5.2, §6.2, §6.3. |
+| D27 | Posizione delle sedi                      | Accanto a ogni sede della griglia, **un collegamento** alla posizione su Google Maps, visibile anche senza aver fatto l'accesso. Non una mappa disegnata dentro l'applicazione: quella scriverebbe cookie di terze parti e obbligherebbe a chiedere un consenso che tutta l'app evita (regola 7 di `CLAUDE.md`, §14.3). Chiude la terza domanda di §11.B. Vedi §6.2. |
 | D16 | Nome del servizio                         | **Wild Working**. Per esteso, dove serve dire chi lo fa: *Wild Working — Comunità Sassifraga*. Il nome vive nel titolo della pagina, sotto l'icona sul telefono, nel titolo della schermata di disponibilità e nelle email di accesso; non compare nell'intestazione, che resta logo più "Comunità Sassifraga" (§13.8). Non tocca il verbo *prenotare*: il pulsante che prenota continua a dire "Prenota", e i nomi di dati e tabelle restano quelli del glossario (§3). Un nome inglese non dice da solo di cosa si tratta, quindi dove compare per la prima volta — le email, la descrizione dell'app — lo accompagna sempre la frase che lo spiega: *"il servizio di prenotazione degli spazi di coworking della Valle Soana"*. Decisione dell'11/09, che sostituisce il precedente "Prenota". |
+| D25 | Dove gira l'applicazione                  | **Cloudflare Workers**, non Vercel. Il DPA di Vercel copre soltanto i piani Pro ed Enterprise e l'account dell'associazione è sul piano gratuito: senza contratto di nomina a responsabile del trattamento non si può pubblicare (art. 28 GDPR). Il DPA di Cloudflare copre anche gli account gratuiti self-serve. Una condizione per non profit era stata chiesta a Vercel il 13/09/2026 e non è arrivata. Conseguenza diretta: i due giri notturni non possono più essere programmati dall'ospite — su Cloudflare un Cron Trigger chiama un Worker, non un indirizzo qualsiasi — e partono da **tre azioni programmate di GitHub**, che è già il repository del progetto e non riceve nessun dato personale. Vedi §10 e §14.5. |
 | D24 | Minorenni                                 | **Il servizio è aperto anche ai minorenni.** Non si chiede l'età, non si verifica, non si aggiunge nessuna barriera d'ingresso. Registrazione e prenotazione si fondano sull'art. 6.1.b e non hanno soglie d'età. I **due consensi facoltativi** (nome pubblico e dati facoltativi) si fondano invece sull'art. 6.1.a, e per i servizi online il consenso di chi ha meno di **14 anni** vale solo se lo presta chi esercita la responsabilità genitoriale (art. 8 GDPR, art. 2‑quinquies del Codice Privacy). La soglia si dichiara nell'informativa e **non si costruisce nel software**: un controllo dell'età richiederebbe la data di nascita, cioè esattamente il dato che la regola 1 vieta. Aggiunge la fascia `Meno di 18` a §5.1. Fuori da questa decisione resta «Prenota un abitante», i cui partecipanti sono maggiorenni (§15.4). Decisione del 12/09/2026. |
 
 ---
@@ -92,7 +95,7 @@ Da usare in modo coerente in tutto il progetto — nel codice, nell'interfaccia 
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Visitatore** (non registrato) | Vedere la disponibilità della finestra prenotabile (oggi + `FINESTRA_GIORNI`). Vedere la pagina pubblica "Chi c'è". Leggere l'informativa privacy.                                        |
 | **Utente registrato**           | Tutto quanto sopra, più: prenotare, annullare le proprie prenotazioni, impostare il nome pubblico, modificare il proprio profilo, scaricare i propri dati, cancellare il proprio account. |
-| **Referente di sede**           | Tutto quanto sopra, più: vedere l'elenco nominativo delle prenotazioni **della sola sede assegnata**, limitato alla **finestra prenotabile**. Non inserisce chiusure: le segnala al Direttivo, che le inserisce dal pannello (§6.7). |
+| **Referente di sede**           | Tutto quanto sopra, più: vedere l'elenco nominativo delle prenotazioni **della sola sede assegnata**, limitato alla **finestra prenotabile**, e le informazioni della sede che segue (§5.2) **sempre**, anche senza avervi prenotato — sorveglia quello spazio (D26). Non inserisce chiusure: le segnala al Direttivo, che le inserisce dal pannello (§6.7). |
 | **Partecipante VIHTA**          | Un utente registrato con un'**abilitazione attiva** (§15.3.4). Tutto quanto sopra, più: vedere le attività dell'edizione, iscriversi, annullare la propria iscrizione. Non è un ruolo separato dagli altri: è un utente registrato con un permesso in più, che scade con l'edizione. |
 | **Amministratore**              | Tutto. Gestire sedi, capienze, chiusure, referenti. Moderare i nomi pubblici (§6.5). Vedere le statistiche aggregate (§6.8), che non contengono né email né nomi pubblici. Cancellare un account su richiesta. Gestire edizioni, attività, codici, abilitazioni e iscritti del modulo «Prenota un abitante», comprese l'iscrizione e l'annullamento per conto di un partecipante (§15.9). |
 
@@ -157,9 +160,31 @@ quindi la migrazione va fatta **prima** di pubblicarla.
 | `ora_inizio_pomeriggio` | orario      | Default `14:00`. Da qui in poi la prenotazione del pomeriggio non si annulla più (§6.4)                                                    |
 | `ora_fine_pomeriggio` | orario        | Default `18:00`                                                                                                                           |
 | `giorni_apertura`    | elenco         | Default lun–sab. Modificabile per sede dal pannello. Concorre alla prenotabilità (condizione 5 sotto)                                     |
-| `note`               | testo libero   | Wi‑Fi, chiavi, accesso, dotazioni. Visibile solo agli utenti registrati, mai nelle pagine pubbliche. Non contiene mai password o codici    |
+| `note`               | testo libero   | Tutto ciò che serve per accedere allo spazio e usarlo: come si arriva, chiavi, codice di accesso, password del Wi‑Fi, dotazioni. Visibile **soltanto a chi ha una prenotazione attiva in quella sede**, in "Le mie prenotazioni" (§6.4) e nel promemoria della sera prima (§6.3), più il referente della sede (§4) e l'amministratore. Mai prima di prenotare, mai a un visitatore |
 | `attiva`             | sì/no          | Interruttore generale. Se spento, la sede scompare ovunque, a prescindere dai periodi. Serve per sospensioni immediate o non pianificate. |
 | `sempre_disponibile` | sì/no          | Se sì, la sede ignora i periodi di attività ed è disponibile tutto l'anno. Default: sì.                                                   |
+
+**Le informazioni della sede si leggono dopo aver prenotato, non prima.**
+Servono a entrare e a usare lo spazio, non a scegliere dove andare: chi sta
+ancora decidendo ha i posti liberi, gli orari e la posizione sulla mappa
+(§6.2), che sono pubblici. Per questo `note` può contenere una password del
+Wi‑Fi o un codice di accesso, cosa che fino al 15/09/2026 era vietata.
+
+Il limite è imposto dalla banca dati e non dalle pagine (§8.3): il permesso di
+leggere `note` è tolto a tutti gli utenti registrati colonna per colonna, come
+già accade per i cinque campi facoltativi di §5.1. Ne esce per tre sole strade
+— la vista delle proprie prenotazioni, che il database aggancia a chi chiede;
+la vista del referente, che gli dà le sole sedi che segue; la vista
+dell'amministratore, che le scrive dal pannello — più il giro notturno del
+promemoria, che ha permessi suoi. Annullata la prenotazione, spariscono nello
+stesso istante. Restano invece nelle email già partite: un codice scritto in
+un'email non si ritira più (§6.3).
+
+**Il referente le vede sempre**, con o senza una prenotazione (§4): sorveglia
+quello spazio, e prenotare una postazione per leggere il codice della porta
+sarebbe un modo assurdo di entrare. Le trova in fondo a "Le mie prenotazioni",
+che è già la pagina delle cose che riguardano lui; non esiste un indirizzo suo
+e il pannello resta dell'amministratore.
 
 L'orario che le persone leggono (`09:00–13:00`) è composto da questi quattro
 valori: sono orari veri e non testo libero, perché l'ora di inizio della fascia
@@ -321,6 +346,12 @@ Sotto il calendario, per il giorno scelto, le sedi sulle righe e le due fasce su
 
 Le sedi fuori dal proprio periodo di attività **non compaiono nella griglia**, ma sono elencate sotto, in una sezione separata e discreta: *"Sedi non disponibili in questo periodo"*, con l'etichetta del prossimo periodo e la data di riapertura, se nota. Farle sparire del tutto porterebbe le persone a credere che abbiano chiuso definitivamente.
 
+**Dove si trova una sede.** Nella griglia, sotto il nome e il comune di ogni sede, un collegamento *"Dove si trova"* apre la posizione della sede su Google Maps, in una scheda nuova. Lo stesso collegamento compare nell'elenco delle sedi non disponibili in questo periodo. È visibile **a chiunque, anche senza aver fatto l'accesso**: chi non conosce la valle deve poter capire dove sono gli spazi prima di decidere se registrarsi.
+
+Il collegamento si costruisce dalle `coordinate` della sede (§5.2) e, se mancano, dal suo `indirizzo` con accanto il comune. Una sede che non ha né le une né l'altro **non porta nessun collegamento**: uno che apre il posto sbagliato è peggio della sua assenza. Le coordinate si inseriscono dal pannello (§6.7) incollando i due numeri che Google Maps copia tenendo premuto su un punto.
+
+È un collegamento e **non una mappa incorporata nella pagina** (D27). Una mappa incorporata scriverebbe cookie di terze parti e obbligherebbe l'app a chiedere un consenso, che è esattamente ciò che la scelta di non avere terze parti evita (§14.3, regola 7 di `CLAUDE.md`). Finché la persona non lo tocca, dall'app non parte niente verso Google, e il collegamento non porta con sé l'indirizzo della pagina di partenza.
+
 Per ogni combinazione sede / giorno / fascia si mostra:
 - posti liberi su totale (es. "4 / 6");
 - il **numero** di persone che hanno reso pubblica la presenza — **non i loro nomi**.
@@ -360,7 +391,8 @@ Questa è la sola modifica che il modulo porta a una pagina già esistente del c
    accontenta di mezza giornata senza che la persona lo abbia scelto.
 2. Il sistema verifica in tempo reale che ci sia ancora posto.
 3. La prenotazione è confermata **immediatamente**, senza approvazioni. La conferma si legge a schermo e resta consultabile in **"Le mie prenotazioni"**: al momento della prenotazione non parte nessuna email (decisione del 10/09).
-4. **La sera prima parte un promemoria** con: sede, comune, indirizzo, data, orario di ogni fascia prenotata, le informazioni pratiche della sede, e il collegamento a "Le mie prenotazioni" per annullare. Il messaggio contiene un invito esplicito ad annullare a chi già sa che non verrà: il posto torna libero per qualcun altro.
+   La pagina che chiede la conferma **non** mostra le informazioni della sede, e dice dove si troveranno: *"Una volta confermata la prenotazione, la vedrai sulla pagina «Le mie prenotazioni». Lì saranno presenti anche le informazioni pratiche per accedere e usare la sede (es. come arrivare, password del Wi‑Fi)."* Sapere come si entra è utile a chi entra, non a chi sta scegliendo: chi deve ancora decidere ha la posizione sulla mappa e i posti liberi, che sono pubblici (§6.2, D26).
+4. **La sera prima parte un promemoria** con: sede, comune, indirizzo, data, orario di ogni fascia prenotata, le informazioni della sede di §5.2 — comprese quelle che servono a entrare — e il collegamento a "Le mie prenotazioni" per annullare. Il messaggio contiene un invito esplicito ad annullare a chi già sa che non verrà: il posto torna libero per qualcun altro.
 
 **Perché un promemoria e non una conferma.** Una conferma dice quello che la persona ha appena visto a schermo e può rileggere in ogni momento nella propria pagina. Un promemoria arriva invece nel momento in cui la persona può ancora cambiare idea, ed è l'unico momento in cui l'email fa qualcosa che l'app da sola non fa. Ne parte una sola per persona e per giorno: chi ha preso la giornata intera, o due sedi lo stesso giorno, legge un messaggio con tutto dentro.
 
@@ -370,6 +402,8 @@ Questa è la sola modifica che il modulo porta a una pagina già esistente del c
 - Una prenotazione annullata non riceve nessun promemoria.
 - Una prenotazione riceve il promemoria **una volta sola**. Il segno di "già inviato" è scritto dalla banca dati nello stesso gesto con cui le righe vengono prese in carico, come il vincolo di §8.1: due esecuzioni sovrapposte non possono mandare due messaggi. La conseguenza, accettata, è che un invio fallito è un promemoria perso, mai un promemoria doppio.
 - Una `chiusura` inserita dopo la prenotazione **non** ferma il promemoria: la prenotazione resta valida finché una persona non interviene (§8.2, e non si annulla mai d'ufficio la prenotazione di qualcun altro).
+
+**Perché le informazioni della sede viaggiano anche per email.** Il promemoria arriva la sera prima, che è il momento in cui serve sapere come si entra: cercarlo nell'app la mattina dopo, davanti a una porta chiusa e magari senza campo, vuol dire non averlo. Il costo è dichiarato e accettato (decisione del 15/09/2026, D26): quello che è scritto in un'email **resta nella casella di chi l'ha ricevuta** anche dopo che la prenotazione è finita, si inoltra per sbaglio e non si può ritirare. Chi cambia un codice di accesso o una password del Wi‑Fi deve sapere che i promemoria già partiti continuano a dire il valore vecchio, e che il valore nuovo raggiungerà le persone solo con i promemoria successivi.
 
 Vincoli:
 - Non si può prenotare nel passato.
@@ -381,7 +415,7 @@ Vincoli:
 ### 6.4 Annullare
 
 - Sempre possibile, fino all'orario di inizio della fascia.
-- Un clic da **"Le mie prenotazioni"** — la pagina che elenca le proprie prenotazioni attive da oggi fino alla fine della finestra, con sede, giorno, fascia e orario. Nessuna conferma richiesta oltre al clic. Le prenotazioni passate non compaiono: dopo 30 giorni vengono comunque anonimizzate (§7).
+- Un clic da **"Le mie prenotazioni"** — la pagina che elenca le proprie prenotazioni attive da oggi fino alla fine della finestra, con sede, giorno, fascia e orario. Nessuna conferma richiesta oltre al clic. Le prenotazioni passate non compaiono: dopo 30 giorni vengono comunque anonimizzate (§7). Sotto ogni prenotazione compaiono le informazioni della sede (§5.2) — come si arriva, come si entra, la password del Wi‑Fi: si leggono lì perché lì c'è la prenotazione che dà il diritto di leggerle, e spariscono appena la prenotazione viene annullata. In fondo alla pagina, a chi ha un incarico di **referente**, compare l'elenco delle sedi che segue con le stesse informazioni, che vede sempre, anche senza aver prenotato (§4, D26).
 - Il promemoria di §6.3 **porta a quella pagina**, non annulla da solo. Un collegamento che annullasse con un clic dall'email avrebbe bisogno di un gettone segreto nell'indirizzo, cioè di un'altra cosa da proteggere e da tenere fuori da ogni registro (§8.3). Siccome la sessione dura 30 giorni, quasi sempre il collegamento apre la pagina già collegati; chi è scaduto rifà l'accesso normale. Nell'email il collegamento si legge *"Vai a Le mie prenotazioni per annullare"*, che è esattamente quello che fa.
 - Annullando una giornata intera si annullano entrambe le fasce, salvo scelta esplicita di annullarne una sola.
 - Se il posto liberato era l'ultimo disponibile e qualcuno è in attesa: **fuori dall'MVP**, vedi §9.
@@ -479,7 +513,7 @@ Il collegamento sta **fuori** dalla fascia verde, sullo sfondo crema, quindi è 
 
 ### 6.7 Pannello di amministrazione
 
-- Gestione sedi: aggiunta/cancellazione sede, nome, indirizzo, capienza, orari, giorni di apertura, note, attiva/sospesa, sempre disponibile sì/no.
+- Gestione sedi: aggiunta/cancellazione sede, nome, indirizzo, **posizione sulla mappa** (§6.2), capienza, orari, giorni di apertura, informazioni della sede (§5.2), attiva/sospesa, sempre disponibile sì/no. La posizione si incolla come i due numeri che Google Maps copia tenendo premuto su un punto; scritta in un altro modo, il salvataggio viene rifiutato con un messaggio che dice come si scrive.
 - **Gestione periodi di attività**: aggiungere, modificare, eliminare i periodi di una sede stagionale; marcarli come ricorrenti ogni anno. Deve bastare un minuto per far comparire o scomparire una sede dalla vista, senza chiedere aiuto a nessuno.
 - Gestione chiusure: intervallo di date, fascia.
 - Gestione incarichi: assegnare e revocare il ruolo di referente.
@@ -580,6 +614,10 @@ chi partecipa alla residenza VIHTA, e i partecipanti sono maggiorenni (§15.4).
 | Registro delle moderazioni (§5.9) | Alla cancellazione dell'account | Le righe della persona spariscono insieme al suo account |
 | Log tecnici | 30 giorni | Cancellati. Non devono contenere email in chiaro. |
 
+**Queste cancellazioni dipendono da un'azione programmata che si può spegnere, e il segnale è il silenzio.** Il giro notturno è avviato da GitHub (§10, §14.5), e GitHub disattiva le azioni programmate di un repository pubblico dopo 60 giorni senza attività. A tenerlo acceso è `segno-di-vita.yml`, che scrive una data nel repository una volta al mese.
+
+**Chi dovesse proteggere il ramo `main` contro le scritture dirette deve prevedere un'eccezione per quell'azione.** Senza eccezione la scrittura mensile viene rifiutata, e l'unico segnale è un'esecuzione rossa il primo del mese: due mesi dopo l'anonimizzazione a 30 giorni smette di avvenire, in silenzio. Al 13/09/2026 `main` non è protetto e il problema non si pone.
+
 ### Diritti dell'interessato: dove si esercitano
 
 | Diritto                                   | Come                                                                                                                                                        |
@@ -596,7 +634,7 @@ chi partecipa alla residenza VIHTA, e i partecipanti sono maggiorenni (§15.4).
 
 1. **Informativa privacy** in italiano e inglese, linkata prima della registrazione.
 2. **Voce nel registro dei trattamenti** dell'APS (art. 30). L'esonero per le organizzazioni piccole non si applica: il trattamento è sistematico, non occasionale.
-3. **Accordi con i fornitori** (DPA) con Supabase, Vercel/Hetzner, Resend. Moduli standard, da accettare e archiviare.
+3. **Accordi con i fornitori** (DPA) con Supabase, Cloudflare, Resend. Moduli standard, da accettare e archiviare. È il vincolo che ha deciso l'ospite: vedi D25.
 4. **Nota interna** che motiva perché non serve una valutazione d'impatto (DPIA): nessuna categoria particolare di dati, nessun monitoraggio sistematico su larga scala, numeri contenuti.
 
 ---
@@ -643,6 +681,8 @@ Serve una suite di test che, impersonando un utente qualunque, provi a leggere l
 | Registrazione con tutti i campi facoltativi vuoti | Registrazione completata normalmente. Nessuna sollecitazione successiva, nessun banner ricorrente. |
 | Prenotazione fatta dopo l'ora del promemoria, per il giorno dopo | Nessun promemoria: il giro di quella sera è già passato e il successivo guarda al giorno dopo ancora. La persona ha appena letto la conferma a schermo (§6.3). |
 | Chiusura inserita dopo la prenotazione | Il promemoria parte lo stesso. La prenotazione resta valida finché una persona non interviene (§8.2). |
+| Codice di accesso o password del Wi‑Fi cambiati | Il valore nuovo si vede subito in "Le mie prenotazioni" e parte con i promemoria successivi. I promemoria già inviati continuano a dire il valore vecchio: l'email non si riscrive (§6.3, D26) |
+| Sede senza coordinate e senza indirizzo | Il collegamento "Dove si trova" non compare, per quella sede soltanto. Nessun errore: un collegamento che apre il posto sbagliato è peggio della sua assenza (§6.2) |
 | Invio del promemoria non riuscito | Quel promemoria è perso, e il giro del giorno dopo non lo recupera. Scelta deliberata: la riga è segnata come presa in carico prima che il fornitore di posta confermi, perché un promemoria doppio è peggio di un promemoria mancato (§6.3). |
 
 ---
@@ -695,7 +735,13 @@ I parametri del modulo «Prenota un abitante» stanno in §15.13 e vivono nello 
 
 **`FINESTRA_GIORNI` è una fonte di verità unica.** Governa insieme la validazione della prenotazione, la vista di disponibilità e la pagina pubblica. I tre valori devono coincidere per costruzione, non essere impostati separatamente: altrimenti l'app finirebbe per mostrare giorni non prenotabili o nascondere giorni prenotabili.
 
-**`ORA_PROMEMORIA` è un'intenzione, non un orologio al minuto.** Il giro è programmato su Vercel, che ragiona in orario universale: una sola esecuzione al giorno, alle 16:00 universali, cioè le 18:00 italiane d'estate e le 17:00 d'inverno. Per un promemoria serale quell'ora di scarto non cambia nulla, e costa una esecuzione al giorno invece di ventiquattro. Chi cambia questo valore deve cambiare anche la programmazione in `vercel.json`: le due non si allineano da sole. Lo stesso vale per `ORA_PULIZIE`, programmato allo stesso modo: le pulizie di §7 ragionano in giorni e in mesi interi, calcolati in `Europe/Rome`, e il minuto in cui partono non cambia il loro esito.
+**`ORA_PROMEMORIA` è un'intenzione, non un orologio al minuto.** Il giro parte una sola volta al giorno, alle 16:26 in orario universale, cioè le 18:26 italiane d'estate e le 17:26 d'inverno. Per un promemoria serale quell'ora di scarto non cambia nulla, e costa una esecuzione al giorno invece di ventiquattro. Lo stesso vale per `ORA_PULIZIE`, programmato allo stesso modo alle 01:41 universali, cioè le 03:41 italiane d'estate e le 02:41 d'inverno: le pulizie di §7 ragionano in giorni e in mesi interi, calcolati in `Europe/Rome`, e il minuto in cui partono non cambia il loro esito.
+
+**La programmazione vive fuori dall'applicazione.** Su Cloudflare non può stare dentro: un Cron Trigger chiama un Worker e non un indirizzo qualsiasi (D25). I due giri sono quindi fatti partire da altrettante azioni programmate di GitHub (`.github/workflows/promemoria.yml` e `pulizie.yml`), che chiamano i due indirizzi dall'esterno, solo in `https`, presentando il `CRON_SECRET`. Le espressioni degli orari sono scritte in orario universale, e **chi cambia `ORA_PROMEMORIA` o `ORA_PULIZIE` deve cambiare anche l'espressione dell'azione corrispondente: le due non si allineano da sole.**
+
+**I minuti sono scelti, non casuali.** GitHub fa partire le azioni programmate in ritardo quando è carico, e dichiara che fra i momenti peggiori ci sono gli inizi d'ora — che sono anche il punto dove si accalca quasi ogni programmazione scritta a mano. I due giri stanno quindi a metà ora e su minuti che nessuno sceglie per abitudine. Resta comunque un'intenzione e non un orologio: un ritardo non cambia l'esito delle pulizie, e per il promemoria della sera prima vale §6.3 — meglio perso che doppio.
+
+**Un'azione programmata di GitHub si spegne da sola.** GitHub disattiva le azioni programmate di un repository pubblico dopo 60 giorni senza attività, e due mesi senza un commit sono del tutto normali per un'associazione di volontari. Se si fermano le pulizie si ferma anche l'anonimizzazione a 30 giorni (§5.3, §7), e si ferma in silenzio: nessuna esecuzione rossa, nessun avviso. Per questo una terza azione (`.github/workflows/segno-di-vita.yml`) scrive una data nel repository una volta al mese, così i sessanta giorni non scadono mai. Se quella terza azione fallisce va guardata subito: il suo silenzio precede quello delle pulizie.
 
 **`ORA_APERTURA_FINESTRA` esiste per un problema prevedibile.** Con una finestra mobile, nei periodi di punta i posti del nuovo giorno si esauriranno subito dopo l'apertura, premiando chi sta sveglio. Con 14 giorni e le capienze attuali è improbabile che accada subito, quindi il valore iniziale è mezzanotte. Se dovesse diventare un problema di equità, si sposta l'apertura a un'ora civile (es. 08:00) cambiando un parametro, senza toccare il codice.
 
@@ -720,12 +766,14 @@ Contatto privacy: Letizia Melano
 
 Comuni: Ronco Coworking e Bar Soana → Ronco Canavese; Valprato Coworking, Valprato Comune e Pigna → Valprato Soana; Ingria Coworking → Ingria. Le sedi stagionali non hanno ancora i periodi: finché non vengono inseriti dal pannello, i dati di sviluppo usano un periodo segnaposto (1 giugno – 30 settembre, ricorrente) etichettato "da confermare".
 
+Gli indirizzi mancanti hanno ora una conseguenza visibile: finché non sono inseriti, e finché non sono inserite le coordinate, il collegamento *"Dove si trova"* di §6.2 non compare per nessuna sede.
+
 
 ### B. Da valutare
 
 - Serve una **conferma dell'email** prima della prima prenotazione? Con il link magico la verifica è implicita (per entrare devi accedere alla casella): probabilmente no. -> Update 10/09: no.
 - Il **nome pubblico va moderato**? → **Deciso**: sì. Moderazione successiva, con filtro automatico, avviso all'amministratore e azione di azzeramento. Vedi D14 e §6.5: non è più una decisione aperta.
-- Le  sedi vanno mostrate anche su **mappa**? Utile per chi non conosce la valle. Costo basso. -> Update: forse in uno sviluppo futuro.
+- Le  sedi vanno mostrate anche su **mappa**? Utile per chi non conosce la valle. Costo basso. → **Deciso il 15/09/2026** (D27): non una mappa dentro l'app, che porterebbe cookie di terze parti e un banner di consenso, ma un **collegamento** alla posizione su Google Maps accanto a ogni sede nella griglia, visibile anche senza accesso (§6.2). Le posizioni si inseriscono dal pannello, sede per sede. Una mappa vera e propria dentro l'app resta fuori dall'MVP (§11.C).
 
 ### C. Rimandato a dopo il rilascio
 
@@ -768,7 +816,11 @@ Aggiornato all'11/09, chiuso il passo 13.
   dimenticanza. Fra queste **inglese e francese**: i testi sono già tutti in
   `messages/it.json`, separati dal codice, e il campo `lingua` esiste — manca
   la traduzione, non il posto dove metterla.
-- **Mappa delle sedi** (§11.B), se si deciderà di farla.
+- **Le posizioni delle sedi** (§6.2, §11.A): il collegamento *"Dove si trova"*
+  esiste, ma compare solo per le sedi di cui è stata inserita la posizione. Al
+  rilascio vanno inserite tutte e sei dal pannello — bastano i due numeri che
+  Google Maps copia tenendo premuto sul punto. Una **mappa disegnata dentro
+  l'app** resta invece fuori dall'MVP: costerebbe il banner dei cookie (D27).
 
 **Materiali** (§13.10)
 
@@ -964,6 +1016,20 @@ Le pagine informative — presentazione del coworking, contatti, informativa pri
 - **L'informativa privacy dell'app è un documento nuovo**, non quella del sito: tratta dati diversi per finalità diverse. Va linkata dall'app prima della registrazione (§6.1).
 - **Il sottodominio di posta va autenticato** presso il fornitore (record SPF, DKIM e DMARC su `wildworking.sassifraga.org`), e la chiave del fornitore va messa fra le variabili d'ambiente insieme al segreto del programmatore di orari e all'indirizzo `EMAIL_MODERAZIONE`. Finché la chiave manca, l'app non manda niente e non se ne accorge nessuno: il promemoria è l'unica email che una persona riceve dopo l'accesso, e la sua assenza non blocca nulla. Va quindi verificato a mano che il primo promemoria parta davvero.
 
+### 14.5 Dove gira l'applicazione
+
+L'applicazione gira su **Cloudflare Workers** (D25), costruita dall'adattatore `@opennextjs/cloudflare`. Il codice dell'applicazione non contiene niente di specifico dell'ospite: l'adattatore compila il progetto Next.js così com'è, verificato il 13/09/2026.
+
+Il record DNS del sottodominio (§14.1) va agganciato come *Custom Domain* del Worker e **resta proxato** da Cloudflare, con la nuvoletta arancione accesa — il contrario di quanto valeva per l'ospite precedente, dove il record andava lasciato in sola risoluzione.
+
+**I due giri notturni partono da fuori.** Su Cloudflare un Cron Trigger può chiamare soltanto un Worker, non un indirizzo qualsiasi, e il programma generato dall'adattatore espone solo la gestione delle richieste web: non c'è un rimpiazzo diretto della programmazione dell'ospite. I due giri sono quindi fatti partire da altrettante azioni programmate di GitHub, più una terza che impedisce alle prime due di essere spente per inattività. Come e perché sta in §10. **GitHub non riceve nessun dato personale**: chiama due indirizzi in `https` presentando il segreto condiviso, e quello che torna sono i conteggi di §6.3 e §7, senza un indirizzo, un nome o un identificativo.
+
+**Il tetto del piano gratuito va rimisurato prima di ogni pubblicazione.** Cloudflare non accetta un Worker più grande di **3 MB compressi**. La prima misura, il 13/09/2026, era di 2 967 KiB **senza** il modulo «Prenota un abitante» (§15): un margine di un centinaio di KiB, che il modulo avrebbe consumato.
+
+Due interventi sulla sola compilazione — nessuna riga dell'applicazione — l'hanno portata a **1 920 KiB** lo stesso giorno, con circa 1 150 KiB liberi. Sono l'accorciamento dei nomi interni, attivato in `wrangler.jsonc`, e la rimozione di `@vercel/og`, il generatore di immagini di anteprima che Next si porta dentro e che l'adattatore Cloudflare lascia nel programma anche quando nessuna pagina lo usa. La rimozione è fatta da `strumenti/alleggerisci-worker.mjs`, agganciato a `npm run cloudflare:build`; **la ragione per cui esiste non è il peso ma la privacy**, e sta scritta in testa a quel file e in `PROVA-CLOUDFLARE.md`.
+
+**La compilazione usa Turbopack**, il costruttore predefinito di Next 16. Il vecchio costruttore, webpack, darebbe un programma più piccolo di altri 500 KiB, ed è stato scartato il 13/09/2026: è dichiarato una via d'uscita temporanea che Next 17 potrebbe togliere, e userebbe un costruttore diverso da quello di `npm run dev`, facendo divergere la prova in locale dal sito pubblicato. Il margine non serve a tanto.
+
 ---
 
 ## 15. Modulo «Prenota un abitante»
@@ -976,7 +1042,7 @@ Edizione di riferimento: **20 settembre – 18 ottobre 2026**, 45 residenti atte
 
 Le due cose che si prenotano sono diverse — posti intercambiabili che si ripetono ogni giorno contro eventi unici — ma tutto ciò che costa da costruire è identico: accesso con link email, profilo, consensi, nome pubblico, moderazione, posta in uscita, anonimizzazione, campi `stat_`, struttura del pannello, token grafici.
 
-Un servizio separato avrebbe significato un secondo progetto Supabase e un secondo Vercel a pagamento, due informative, due serie di accordi con i fornitori, due superfici su cui può accadere un errore di privacy — e un residente costretto a registrarsi due volte, nella stessa settimana, per due servizi della stessa associazione.
+Un servizio separato avrebbe significato un secondo progetto Supabase e un secondo ospite a pagamento, due informative, due serie di accordi con i fornitori, due superfici su cui può accadere un errore di privacy — e un residente costretto a registrarsi due volte, nella stessa settimana, per due servizi della stessa associazione.
 
 **Il modulo è additivo.** Non modifica **nessuna delle nove tabelle esistenti**: l'abilitazione sta in una tabella sua, i consensi riusano i due tipi che già esistono (§5.5), l'amministratore è già globale (§5.6).
 

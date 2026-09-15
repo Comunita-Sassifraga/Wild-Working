@@ -332,7 +332,21 @@ export type Database = {
             foreignKeyName: "chiusure_sede_id_fkey"
             columns: ["sede_id"]
             isOneToOne: false
+            referencedRelation: "sedi_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chiusure_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
             referencedRelation: "sedi_pubbliche"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chiusure_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "sedi_referente"
             referencedColumns: ["id"]
           },
         ]
@@ -498,7 +512,21 @@ export type Database = {
             foreignKeyName: "incarichi_sede_id_fkey"
             columns: ["sede_id"]
             isOneToOne: false
+            referencedRelation: "sedi_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incarichi_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
             referencedRelation: "sedi_pubbliche"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incarichi_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "sedi_referente"
             referencedColumns: ["id"]
           },
           {
@@ -798,7 +826,21 @@ export type Database = {
             foreignKeyName: "periodi_attivita_sede_id_fkey"
             columns: ["sede_id"]
             isOneToOne: false
+            referencedRelation: "sedi_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "periodi_attivita_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
             referencedRelation: "sedi_pubbliche"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "periodi_attivita_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "sedi_referente"
             referencedColumns: ["id"]
           },
         ]
@@ -848,7 +890,21 @@ export type Database = {
             foreignKeyName: "persone_per_mese_sede_id_fkey"
             columns: ["sede_id"]
             isOneToOne: false
+            referencedRelation: "sedi_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "persone_per_mese_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
             referencedRelation: "sedi_pubbliche"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "persone_per_mese_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "sedi_referente"
             referencedColumns: ["id"]
           },
         ]
@@ -898,7 +954,21 @@ export type Database = {
             foreignKeyName: "posti_offerti_sede_id_fkey"
             columns: ["sede_id"]
             isOneToOne: false
+            referencedRelation: "sedi_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posti_offerti_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
             referencedRelation: "sedi_pubbliche"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posti_offerti_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "sedi_referente"
             referencedColumns: ["id"]
           },
         ]
@@ -984,7 +1054,21 @@ export type Database = {
             foreignKeyName: "prenotazioni_sede_id_fkey"
             columns: ["sede_id"]
             isOneToOne: false
+            referencedRelation: "sedi_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
             referencedRelation: "sedi_pubbliche"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "sedi_referente"
             referencedColumns: ["id"]
           },
           {
@@ -1801,7 +1885,21 @@ export type Database = {
             foreignKeyName: "prenotazioni_sede_id_fkey"
             columns: ["sede_id"]
             isOneToOne: false
+            referencedRelation: "sedi_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
             referencedRelation: "sedi_pubbliche"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "sedi_referente"
             referencedColumns: ["id"]
           },
         ]
@@ -1892,7 +1990,21 @@ export type Database = {
             foreignKeyName: "prenotazioni_sede_id_fkey"
             columns: ["sede_id"]
             isOneToOne: false
+            referencedRelation: "sedi_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
             referencedRelation: "sedi_pubbliche"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "sedi_referente"
             referencedColumns: ["id"]
           },
         ]
@@ -1933,7 +2045,21 @@ export type Database = {
             foreignKeyName: "prenotazioni_sede_id_fkey"
             columns: ["sede_id"]
             isOneToOne: false
+            referencedRelation: "sedi_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
             referencedRelation: "sedi_pubbliche"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "sedi_referente"
             referencedColumns: ["id"]
           },
         ]
@@ -1975,7 +2101,21 @@ export type Database = {
             foreignKeyName: "prenotazioni_sede_id_fkey"
             columns: ["sede_id"]
             isOneToOne: false
+            referencedRelation: "sedi_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
             referencedRelation: "sedi_pubbliche"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "sedi_referente"
             referencedColumns: ["id"]
           },
         ]
@@ -2013,10 +2153,81 @@ export type Database = {
             foreignKeyName: "prenotazioni_sede_id_fkey"
             columns: ["sede_id"]
             isOneToOne: false
+            referencedRelation: "sedi_amministrazione"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
             referencedRelation: "sedi_pubbliche"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "prenotazioni_sede_id_fkey"
+            columns: ["sede_id"]
+            isOneToOne: false
+            referencedRelation: "sedi_referente"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      sedi_amministrazione: {
+        Row: {
+          attiva: boolean | null
+          capienza: number | null
+          comune: string | null
+          coordinate: unknown
+          giorni_apertura:
+            | Database["public"]["Enums"]["giorno_settimana"][]
+            | null
+          id: string | null
+          indirizzo: string | null
+          nome: string | null
+          note: string | null
+          ora_fine_mattina: string | null
+          ora_fine_pomeriggio: string | null
+          ora_inizio_mattina: string | null
+          ora_inizio_pomeriggio: string | null
+          sempre_disponibile: boolean | null
+        }
+        Insert: {
+          attiva?: boolean | null
+          capienza?: number | null
+          comune?: string | null
+          coordinate?: unknown
+          giorni_apertura?:
+            | Database["public"]["Enums"]["giorno_settimana"][]
+            | null
+          id?: string | null
+          indirizzo?: string | null
+          nome?: string | null
+          note?: string | null
+          ora_fine_mattina?: string | null
+          ora_fine_pomeriggio?: string | null
+          ora_inizio_mattina?: string | null
+          ora_inizio_pomeriggio?: string | null
+          sempre_disponibile?: boolean | null
+        }
+        Update: {
+          attiva?: boolean | null
+          capienza?: number | null
+          comune?: string | null
+          coordinate?: unknown
+          giorni_apertura?:
+            | Database["public"]["Enums"]["giorno_settimana"][]
+            | null
+          id?: string | null
+          indirizzo?: string | null
+          nome?: string | null
+          note?: string | null
+          ora_fine_mattina?: string | null
+          ora_fine_pomeriggio?: string | null
+          ora_inizio_mattina?: string | null
+          ora_inizio_pomeriggio?: string | null
+          sempre_disponibile?: boolean | null
+        }
+        Relationships: []
       }
       sedi_pubbliche: {
         Row: {
@@ -2066,6 +2277,30 @@ export type Database = {
           ora_inizio_mattina?: string | null
           ora_inizio_pomeriggio?: string | null
           sempre_disponibile?: boolean | null
+        }
+        Relationships: []
+      }
+      sedi_referente: {
+        Row: {
+          comune: string | null
+          id: string | null
+          indirizzo: string | null
+          nome: string | null
+          note: string | null
+        }
+        Insert: {
+          comune?: string | null
+          id?: string | null
+          indirizzo?: string | null
+          nome?: string | null
+          note?: string | null
+        }
+        Update: {
+          comune?: string | null
+          id?: string | null
+          indirizzo?: string | null
+          nome?: string | null
+          note?: string | null
         }
         Relationships: []
       }

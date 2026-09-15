@@ -22,6 +22,7 @@ import {
   type GiornoApertura,
 } from "@/lib/db/amministrazione";
 import { FASCE, type Fascia } from "@/lib/db/prenotazioni";
+import { colonnaDaPosizione, posizioneDaTesto } from "@/lib/mappa";
 import { amministratore } from "../../guardia";
 
 const testo = (v: FormDataEntryValue | null) => String(v ?? "").trim();
@@ -47,6 +48,15 @@ export async function salvaSedeAzione(formData: FormData): Promise<void> {
     redirect(indirizzoSede(sedeId, "?errore=datiIncompleti"));
   }
 
+  // The position is optional, but two numbers that do not read as a position
+  // are a mistake worth saying out loud: saved silently as nothing, they
+  // would leave "Dove si trova" missing with no explanation (§6.2).
+  const scritta = testo(formData.get("posizione"));
+  const posizione = scritta ? posizioneDaTesto(scritta) : null;
+  if (scritta && !posizione) {
+    redirect(indirizzoSede(sedeId, "?errore=posizioneIlleggibile"));
+  }
+
   const esito = await aggiornaSede(client, sedeId, {
     nome,
     comune,
@@ -58,6 +68,7 @@ export async function salvaSedeAzione(formData: FormData): Promise<void> {
     ora_fine_pomeriggio: testo(formData.get("ora_fine_pomeriggio")),
     giorni_apertura: giorni,
     note: testo(formData.get("note")) || null,
+    coordinate: posizione ? colonnaDaPosizione(posizione) : null,
     attiva: formData.get("attiva") !== null,
     sempre_disponibile: formData.get("sempre_disponibile") !== null,
   });

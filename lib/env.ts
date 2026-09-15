@@ -81,9 +81,11 @@ export function envServizio(): EnvServizio {
 /**
  * Shared secret the scheduler presents to `/api/mestieri/*`.
  *
- * The name is Vercel's, not ours: when an environment variable called
- * `CRON_SECRET` exists, Vercel sends it as a bearer token on every scheduled
- * call. Renaming it would mean setting the same secret twice.
+ * The name came from the host that used to fire the jobs by itself. Nothing
+ * sends it on its own any more — the schedules of §10 present the header by
+ * hand — but the name is kept: it is already set in the deployment and in the
+ * repository's secrets, and renaming it would only mean setting the same
+ * secret twice.
  */
 export function segretoMestieri(): string {
   const segreto = process.env.CRON_SECRET;

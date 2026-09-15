@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { bottonePrimario, bottoneSecondario } from "@/components/controlli";
 import { utenteAttuale } from "@/lib/auth/sessione";
 import { dataEstesa } from "@/lib/dates";
-import { disponibilitaPubblica, noteSede, sediPubbliche } from "@/lib/db/disponibilita";
+import { disponibilitaPubblica, sediPubbliche } from "@/lib/db/disponibilita";
 import { FASCE, type Fascia } from "@/lib/db/prenotazioni";
 import { clientServer } from "@/lib/db/server";
 import { orarioDi, statoCella } from "@/lib/disponibilita";
@@ -61,7 +61,6 @@ export default async function PaginaPrenota({ searchParams }: Proprieta) {
   // along is enough: a day that does not hold up falls back from there.
   if (!sede || !cella || !cella.prenotabile) redirect(`/?data=${data}`);
 
-  const note = utente ? await noteSede(client, sedeId) : null;
   const altra = FASCE.find((f) => f !== fascia) as Fascia;
   const cellaAltra = celle.find(
     (c) => c.sedeId === sedeId && c.data === data && c.fascia === altra,
@@ -120,12 +119,13 @@ export default async function PaginaPrenota({ searchParams }: Proprieta) {
         </Riga>
       </dl>
 
-      {note && (
-        <section className="mt-8">
-          <h2 className="text-titolo-sezione font-grassetto">{t.note}</h2>
-          <p className="mt-2 whitespace-pre-line">{note}</p>
-        </section>
-      )}
+      {/*
+        The practical information of the sede is not here: since D26 it is
+        read after booking and not before, by whoever holds the booking
+        (§5.2, §6.3). This says where it will be, so that nobody looks for
+        it on this page and concludes there is none.
+      */}
+      {utente && <p className="mt-8">{t.informazioniDopo}</p>}
 
       {utente ? (
         cella.liberi > 0 && (
