@@ -23,35 +23,38 @@ precedente.
 
 ## Come farlo girare
 
-C'è un passaggio a mano da fare **dopo** `npm install`, e senza di lui la
-compilazione si ferma subito.
-
 ```bash
 npm install
-# L'adattatore importa esbuild ma non lo dichiara fra le proprie dipendenze:
-# conta sul fatto che npm lo porti alla radice di node_modules. Qui npm non
-# può farlo, perché vitest 5 (attraverso vite 8) dichiara un esbuild diverso
-# e incompatibile. Va quindi messo a mano.
-cp -r node_modules/@opennextjs/aws/node_modules/esbuild node_modules/esbuild
-mkdir -p node_modules/@esbuild
-cp -r node_modules/@opennextjs/aws/node_modules/@esbuild/win32-x64 node_modules/@esbuild/win32-x64
-```
-
-Su Linux o macOS l'ultima riga cambia nome di cartella: `linux-x64`,
-`darwin-arm64` e così via.
-
-Non si risolve con `npm install esbuild`: npm rifiuta per il conflitto, e
-forzarlo con `--legacy-peer-deps` toglie `vite` da `node_modules` e rompe
-tutte le prove automatiche.
-
-Poi:
-
-```bash
 npm run cloudflare:build     # compila per il Worker, e lo alleggerisce
 npm run cloudflare:preview   # avvia il Worker in locale, su 127.0.0.1:8787
 ```
 
 Serve lo stack Supabase locale acceso (`npx supabase start`).
+
+Non serve nient'altro. Fino al 15/09/2026 qui c'era un passaggio a mano, ed
+è utile sapere perché non c'è più.
+
+**L'adattatore importa `esbuild` ma non lo dichiara**, né fra le proprie
+dipendenze né fra le peer: conta sul fatto che npm lo porti da solo alla
+radice di `node_modules`, dove `@opennextjs/aws` ne tiene una copia. Qui npm
+non può farlo, perché altri due pacchetti ne dichiarano uno diverso, e con
+tre pretendenti li annida tutti: `import "esbuild"` non trova più niente e la
+compilazione muore con `ERR_MODULE_NOT_FOUND` subito dopo un `npm install`
+pulito.
+
+La soluzione è **dichiararlo noi**, ed è in `package.json` fra le dipendenze
+di sviluppo. La versione è la `^0.28`, che sembra la scelta sbagliata — la
+copia di `@opennextjs/aws` è la `0.25.4` — ed è invece l'unica possibile:
+`vite 8`, da cui dipendono tutte le prove automatiche, dichiara
+`esbuild@^0.27.0 || ^0.28.0`, e una 0.25 alla radice gliela porta via. Con la
+0.28 sono contenti tutti e npm non protesta. Verificato il 15/09/2026: la
+compilazione riesce, il programma pesa uguale al millesimo, e le prove
+automatiche passano tutte.
+
+Da non fare: `npm install esbuild@0.25.4`, che npm rifiuta; e soprattutto
+`--legacy-peer-deps`, che toglie `vite` da `node_modules` e rompe tutte le
+prove. Il giorno in cui l'adattatore dichiarerà `esbuild` per conto proprio,
+questa riga di `package.json` si può togliere.
 
 ## Che cosa resta da fare
 
