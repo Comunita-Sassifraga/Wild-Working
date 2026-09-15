@@ -13,7 +13,13 @@
  */
 
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { giornoSettimana, oggiRoma } from "@/lib/dates";
+import { aggiungiGiorni, giornoSettimana, oggiRoma } from "@/lib/dates";
+import {
+  abilitaUtente,
+  generaCodici,
+  revocaAbilitazione,
+  revocaCodice,
+} from "@/lib/db/abitanti";
 import {
   aggiornaSede,
   aggiungiTermine,
@@ -29,6 +35,7 @@ import {
   eliminaSede,
   GIORNI_SETTIMANA,
   incarichiAttivi,
+  iscrizioniDaVerificare,
   nomeInModerazione,
   nomiInModerazione,
   periodiSede,
@@ -45,8 +52,11 @@ import { posizioneDaColonna } from "@/lib/mappa";
 import {
   assegnaIncarico,
   CODICE_PERMESSO_NEGATO,
+  creaAttivita,
+  creaEdizione,
   creaSede as creaSedeDiProva,
   creaUtente,
+  inserisciIscrizioneDiretta,
   inserisciPrenotazioneDiretta,
   pulisci,
   servizio,
@@ -60,13 +70,26 @@ const SEMPRE_APERTA = [...GIORNI_SETTIMANA];
 
 /** Tutto ciò che il pannello legge, diviso come lo divide il client tipizzato. */
 const TABELLE = ["moderazioni", "termini_vietati"] as const;
-const VISTE = ["nomi_pubblici_moderazione", "prenotazioni_da_verificare"] as const;
+/**
+ * Le viste del pannello. Le ultime tre sono la sezione «Prenota un abitante»
+ * aggiunta dai passi 15 e 20 (§15.9, §15.12): stanno accanto alle altre e
+ * passano dalla stessa porta, quindi vale la stessa asserzione senza
+ * toglierne nessuna.
+ */
+const VISTE = [
+  "nomi_pubblici_moderazione",
+  "prenotazioni_da_verificare",
+  "codici_amministrazione",
+  "abilitazioni_amministrazione",
+  "iscrizioni_da_verificare",
+] as const;
 
 describe("§6.7 pannello di amministrazione", () => {
   const anon = visitatore();
   let admin: UtenteTest;
   let utente: UtenteTest;
   const sediDaPulire: string[] = [];
+  const edizioniDaPulire: string[] = [];
 
   async function sedeDiProva(capienza = 1): Promise<string> {
     const id = await creaSedeDiProva({ capienza, giorni_apertura: SEMPRE_APERTA });
@@ -80,7 +103,7 @@ describe("§6.7 pannello di amministrazione", () => {
   });
 
   afterAll(async () => {
-    await pulisci({ utenti: [admin, utente], sedi: sediDaPulire });
+    await pulisci({ utenti: [admin, utente], sedi: sediDaPulire, edizioni: edizioniDaPulire });
   });
 
   // -------------------------------------------------------------------------
@@ -136,6 +159,31 @@ describe("§6.7 pannello di amministrazione", () => {
         }),
       ).toMatchObject({ ok: false });
       expect(await assegnaReferente(utente.client, utente.id, sedeId)).toMatchObject({ ok: false });
+    });
+
+    it("un utente registrato non tocca niente della sezione «Prenota un abitante»", async () => {
+      // §15.9, passo 15. La sezione nuova è irraggiungibile come tutto il
+      // resto del pannello: le tre funzioni rifiutano, e le due viste sono
+      // già nell'elenco qui sopra.
+      const edizione = await creaEdizione({ nome: "Non tua", attiva: false });
+      edizioniDaPulire.push(edizione);
+
+      expect(await generaCodici(utente.client, edizione, 1, "chiave-di-prova")).toMatchObject({
+        ok: false,
+      });
+      expect(await abilitaUtente(utente.client, utente.id)).toMatchObject({ ok: false });
+      expect(
+        await revocaAbilitazione(utente.client, "00000000-0000-0000-0000-000000000000"),
+      ).toMatchObject({ ok: false });
+      expect(
+        await revocaCodice(utente.client, "00000000-0000-0000-0000-000000000000"),
+      ).toMatchObject({ ok: false });
+
+      const { count } = await servizio()
+        .from("codici_invito")
+        .select("id", { count: "exact", head: true })
+        .eq("edizione_id", edizione);
+      expect(count).toBe(0);
     });
 
     it("un utente registrato non azzera il nome pubblico di nessuno", async () => {
@@ -601,6 +649,147 @@ describe("§6.7 pannello di amministrazione", () => {
       expect(await prenotazioniDaVerificare(chi.client, sedeId)).toEqual([]);
 
       await pulisci({ utenti: [chi] });
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Iscrizioni da controllare: §6.7, §15.12 — lo stesso elenco, la stessa
+  // regola. Il sistema mostra, decide una persona, e non annulla mai niente
+  // da solo (regola 6).
+  // -------------------------------------------------------------------------
+
+  describe("iscrizioni lasciate fuori da un cambiamento", () => {
+    let edizione: string;
+    let iscritto: UtenteTest;
+
+    /** Il cuore della regola 6, per le iscrizioni: dopo ogni prova è ancora attiva. */
+    async function ancoraAttiva(iscrizioneId: string): Promise<void> {
+      const { data } = await servizio()
+        .from("iscrizioni")
+        .select("stato")
+        .eq("id", iscrizioneId)
+        .single();
+      expect(data?.stato).toBe("ATTIVA");
+    }
+
+    beforeAll(async () => {
+      // Comincia dieci giorni fa: serve anche un'attività già passata, e la
+      // data di un'attività deve stare dentro l'edizione (§15.12).
+      edizione = await creaEdizione({ data_inizio: aggiungiGiorni(OGGI, -10) });
+      edizioniDaPulire.push(edizione);
+      iscritto = await creaUtente();
+    });
+
+    afterAll(async () => {
+      await pulisci({ utenti: [iscritto] });
+    });
+
+    it("una capienza abbassata sotto gli iscritti", async () => {
+      const attivita = await creaAttivita({ edizione_id: edizione, capienza: 2, data: OGGI });
+      const iscrizione = await inserisciIscrizioneDiretta({
+        attivita_id: attivita,
+        utente_id: iscritto.id,
+        posto_progressivo: 2,
+      });
+
+      expect(await iscrizioniDaVerificare(admin.client)).toEqual([]);
+
+      await servizio().from("attivita").update({ capienza: 1 }).eq("id", attivita);
+
+      const elenco = (await iscrizioniDaVerificare(admin.client)).filter(
+        (r) => r.attivitaId === attivita,
+      );
+      expect(elenco).toHaveLength(1);
+      expect(elenco[0].motivo).toBe("CAPIENZA_RIDOTTA");
+      expect(elenco[0].data).toBe(OGGI);
+      // §8.4, come per le prenotazioni: «l'elenco delle persone da avvisare».
+      expect(elenco[0].email).toBe(iscritto.email);
+
+      await ancoraAttiva(iscrizione);
+    });
+
+    it("un'attività tornata in bozza perché il consenso è stato tolto", async () => {
+      const attivita = await creaAttivita({ edizione_id: edizione, capienza: 4, data: OGGI });
+      const iscrizione = await inserisciIscrizioneDiretta({
+        attivita_id: attivita,
+        utente_id: iscritto.id,
+      });
+
+      await servizio()
+        .from("attivita")
+        .update({
+          stato: "BOZZA",
+          consenso_raccolto: false,
+          consenso_modalita: null,
+          consenso_raccolto_il: null,
+        })
+        .eq("id", attivita);
+
+      const elenco = (await iscrizioniDaVerificare(admin.client)).filter(
+        (r) => r.attivitaId === attivita,
+      );
+      expect(elenco).toHaveLength(1);
+      expect(elenco[0].motivo).toBe("ATTIVITA_RITIRATA");
+
+      // §15.12: «Gli iscritti restano e vanno avvisati a mano».
+      await ancoraAttiva(iscrizione);
+    });
+
+    it("un'attività a posto non compare, e nemmeno una già passata", async () => {
+      const aPosto = await creaAttivita({ edizione_id: edizione, capienza: 4, data: OGGI });
+      await inserisciIscrizioneDiretta({ attivita_id: aPosto, utente_id: iscritto.id });
+
+      const passata = await creaAttivita({
+        edizione_id: edizione,
+        capienza: 4,
+        data: aggiungiGiorni(OGGI, -1),
+      });
+      await inserisciIscrizioneDiretta({
+        attivita_id: passata,
+        utente_id: iscritto.id,
+        posto_progressivo: 4,
+      });
+      await servizio().from("attivita").update({ capienza: 1 }).eq("id", passata);
+
+      const elenco = await iscrizioniDaVerificare(admin.client);
+      expect(elenco.map((r) => r.attivitaId)).not.toContain(aPosto);
+      expect(elenco.map((r) => r.attivitaId)).not.toContain(passata);
+    });
+
+    it("un'iscrizione annullata esce dall'elenco", async () => {
+      const attivita = await creaAttivita({ edizione_id: edizione, capienza: 2, data: OGGI });
+      const iscrizione = await inserisciIscrizioneDiretta({
+        attivita_id: attivita,
+        utente_id: iscritto.id,
+        posto_progressivo: 2,
+      });
+      await servizio().from("attivita").update({ capienza: 1 }).eq("id", attivita);
+      expect(
+        (await iscrizioniDaVerificare(admin.client)).filter((r) => r.attivitaId === attivita),
+      ).toHaveLength(1);
+
+      await servizio()
+        .from("iscrizioni")
+        .update({ stato: "ANNULLATA", annullata_il: new Date().toISOString() })
+        .eq("id", iscrizione);
+
+      expect(
+        (await iscrizioniDaVerificare(admin.client)).filter((r) => r.attivitaId === attivita),
+      ).toEqual([]);
+    });
+
+    it("l'elenco non lo vede nessuno che non sia amministratore", async () => {
+      const attivita = await creaAttivita({ edizione_id: edizione, capienza: 2, data: OGGI });
+      await inserisciIscrizioneDiretta({
+        attivita_id: attivita,
+        utente_id: iscritto.id,
+        posto_progressivo: 2,
+      });
+      await servizio().from("attivita").update({ capienza: 1 }).eq("id", attivita);
+
+      expect(await iscrizioniDaVerificare(utente.client)).toEqual([]);
+      // Nemmeno la persona che quell'iscrizione ce l'ha.
+      expect(await iscrizioniDaVerificare(iscritto.client)).toEqual([]);
     });
   });
 });

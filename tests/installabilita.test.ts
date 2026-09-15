@@ -176,6 +176,12 @@ describe("la copia locale conserva la sola disponibilità (SPEC §8.4)", () => {
   // "Chi c'è in Valle" is the one page carrying nomi pubblici. §6.5 promises
   // that switching the name off removes it from every booking immediately: a
   // copy on somebody else's phone would keep it alive for days.
+  //
+  // No page of «Prenota un abitante» either (§15.14 step 20). Same reason as
+  // above, and one more: a cached activity page would outlive the
+  // abilitazione that entitled somebody to read it, and §15.8 has level 2
+  // disappear in the same instant an iscrizione is cancelled. A copy on a
+  // phone cannot be taken back.
   const mai = [
     "/chi-ce-in-valle",
     "/prenota",
@@ -190,6 +196,16 @@ describe("la copia locale conserva la sola disponibilità (SPEC §8.4)", () => {
     "/api/mestieri/promemoria",
     "/api/mestieri/pulizie",
     "/installa",
+    // The module: the list, a detail, the code form — which is the same
+    // address as the list (rule 27) — and the panel's own screens.
+    "/abitanti",
+    "/abitanti/8f14e45f-ceea-467a-9c1e-5a8b2c3d4e5f",
+    "/amministrazione/attivita",
+    "/amministrazione/attivita/8f14e45f-ceea-467a-9c1e-5a8b2c3d4e5f",
+    "/amministrazione/attivita/8f14e45f-ceea-467a-9c1e-5a8b2c3d4e5f/iscritti",
+    "/amministrazione/codici",
+    "/amministrazione/abilitazioni",
+    "/amministrazione/edizioni",
   ];
   for (const indirizzo of mai) {
     it(`non conserva mai ${indirizzo}`, () => {
@@ -264,6 +280,15 @@ describe("la copia locale in funzione", () => {
     expect(conservati()).not.toContain(`${ORIGINE}/chi-ce-in-valle`);
   });
 
+  it("mostra le pagine del modulo senza conservarne niente", async () => {
+    const { ascoltatori, conservati } = caricaCopiaLocale(conRete);
+    for (const percorso of ["/abitanti", "/abitanti/qualunque-identificativo"]) {
+      const risposta = await chiedi(ascoltatori, navigazione(percorso));
+      expect(await risposta!.text(), percorso).toBe(`pagina ${percorso}`);
+      expect(conservati(), percorso).not.toContain(`${ORIGINE}${percorso}`);
+    }
+  });
+
   it("all'installazione mette da parte la disponibilità e la cortesia", async () => {
     const { conservati } = await copiaInstallata();
     expect(conservati().sort()).toEqual([`${ORIGINE}/`, `${ORIGINE}/senza-collegamento`]);
@@ -276,7 +301,13 @@ describe("la copia locale in funzione", () => {
     const disponibilita = await chiedi(ascoltatori, navigazione("/"));
     expect(await disponibilita!.text()).toBe("pagina /");
 
-    for (const percorso of ["/prenotazioni", "/chi-ce-in-valle", "/impostazioni"]) {
+    for (const percorso of [
+      "/prenotazioni",
+      "/chi-ce-in-valle",
+      "/impostazioni",
+      "/abitanti",
+      "/abitanti/qualunque-identificativo",
+    ]) {
       const risposta = await chiedi(ascoltatori, navigazione(percorso));
       expect(await risposta!.text(), percorso).toBe("pagina /senza-collegamento");
     }

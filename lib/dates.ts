@@ -170,3 +170,28 @@ export function dataBreve(data: DataISO, adesso: Date = new Date()): string {
   const stessoAnno = data.slice(0, 4) === oggiRoma(adesso).slice(0, 4);
   return (stessoAnno ? formatoBreve : formatoConAnno).format(istante(data));
 }
+
+/**
+ * The Monday of the week a date falls in. The activities of «Prenota un
+ * abitante» are grouped by week (§15.6), and an edition of 29 days crosses
+ * four or five of them.
+ *
+ * Not window logic — the module never uses FINESTRA_GIORNI (rule 21) — but
+ * it is calendar arithmetic, and all of it lives here.
+ */
+export function inizioSettimana(data: DataISO): DataISO {
+  return aggiungiGiorni(data, 1 - giornoSettimana(data));
+}
+
+/**
+ * Hours from now to an instant, negative once it has passed.
+ *
+ * The one thing ORE_DISDETTA needs (§15.7): the database hands over the
+ * moment an activity starts, already resolved from its wall-clock day and
+ * hour, and the comparison with the parameter happens where the parameter
+ * lives. Two instants subtracted — no timezone reasoning is involved, which
+ * is why this one may take the clock as it is.
+ */
+export function oreDaAdesso(istanteIso: string, adesso: Date = new Date()): number {
+  return (new Date(istanteIso).getTime() - adesso.getTime()) / 3_600_000;
+}

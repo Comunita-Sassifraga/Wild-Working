@@ -37,4 +37,21 @@
   :focus-visible {
     @apply outline-fuoco outline-testo outline-offset-fuoco;
   }
+
+  /*
+   * Printing the cards of SPEC §15.9. The only screen in the app meant to
+   * reach paper is the one that prints the invite cards, and a sheet of
+   * cards that has to be cut up has no room for the site header and footer.
+   *
+   * A screen that prints marks its block `data-stampa`; on paper, the
+   * sections of the body that do not contain it go away. Everything else on
+   * that page hides itself with `print:hidden`, which is nearer to what it
+   * describes. No other page carries the attribute, so no other page
+   * prints any differently than it did before.
+   */
+  @media print {
+    body:has([data-stampa]) > *:not(:has([data-stampa])) {
+      display: none;
+    }
+  }
 }

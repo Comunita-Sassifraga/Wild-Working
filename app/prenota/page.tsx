@@ -103,7 +103,9 @@ export default async function PaginaPrenota({ searchParams }: Proprieta) {
           </span>
         </Riga>
         <Riga etichetta={t.posti}>
-          {conValori(t.postiLiberi, { liberi: cella.liberi, capienza: cella.capienza })}
+          {cella.liberi === 1
+            ? conValori(t.unLibero, { capienza: cella.capienza })
+            : conValori(t.postiLiberi, { liberi: cella.liberi, capienza: cella.capienza })}
           {stato === "ESAURITA" && (
             <span className="block font-regolare text-errore">{md.celle.esaurito}</span>
           )}
@@ -156,7 +158,9 @@ export default async function PaginaPrenota({ searchParams }: Proprieta) {
       )}
 
       <p className="mt-8">
-        <Link href={`/?data=${data}`}>{t.torna}</Link>
+        <Link href={`/?data=${data}`} className={bottoneSecondario}>
+          {t.torna}
+        </Link>
       </p>
     </>
   );

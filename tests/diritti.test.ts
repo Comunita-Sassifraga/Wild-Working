@@ -23,11 +23,16 @@ import { cancellaMioAccount, mieiDati } from "@/lib/db/diritti";
 import { prenotaPosto } from "@/lib/db/prenotazioni";
 import { aggiornaDatiFacoltativi, impostaNomePubblico } from "@/lib/db/utenti";
 import {
+  abilita,
   assegnaIncarico,
+  creaAttivita,
+  creaEdizione,
   creaSede,
   creaUtente,
+  inserisciIscrizioneDiretta,
   inserisciPrenotazioneDiretta,
   pulisci,
+  pulisciEdizioni,
   servizio,
   type UtenteTest,
 } from "./setup/supabase";
@@ -65,6 +70,7 @@ describe("§7 scarica i miei dati", () => {
   let sedeId: string;
   let u: UtenteTest;
   let altro: UtenteTest;
+  const edizioni: string[] = [];
 
   beforeAll(async () => {
     sedeId = await creaSede({ capienza: 4, giorni_apertura: [...OGNI_GIORNO] });
@@ -94,10 +100,25 @@ describe("§7 scarica i miei dati", () => {
       data: DOMANI,
       fascia: "POMERIGGIO",
     });
+
+    // Un posto su un'attività di «Prenota un abitante» (§15.11): l'esporta-
+    // zione deve portarlo, e deve portarne il solo livello 1 (regola 24).
+    const edizione = await creaEdizione({
+      data_inizio: aggiungiGiorni(oggiRoma(), -10),
+      data_fine: aggiungiGiorni(oggiRoma(), 20),
+    });
+    edizioni.push(edizione);
+    const attivita = await creaAttivita({ edizione_id: edizione, capienza: 4, data: DOMANI });
+    await inserisciIscrizioneDiretta({ attivita_id: attivita, utente_id: u.id });
+    await inserisciIscrizioneDiretta({
+      attivita_id: attivita,
+      utente_id: altro.id,
+      posto_progressivo: 2,
+    });
   });
 
   afterAll(async () => {
-    await pulisci({ utenti: [u, altro], sedi: [sedeId] });
+    await pulisci({ utenti: [u, altro], sedi: [sedeId], edizioni });
   });
 
   it("porta il profilo, le prenotazioni e il registro dei consensi", async () => {
@@ -119,7 +140,24 @@ describe("§7 scarica i miei dati", () => {
     expect(tipi).toContain("NOME_PUBBLICO:DATO");
   });
 
-  it("non porta il numero del posto né i campi stat_", async () => {
+  it("porta anche le iscrizioni alle attività, con il solo livello 1", async () => {
+    const dati = await mieiDati(u.client, u.id);
+    expect(dati?.iscrizioni).toHaveLength(1);
+    const iscrizione = dati!.iscrizioni[0];
+    expect(iscrizione.data).toBe(DOMANI);
+    expect(iscrizione.stato).toBe("ATTIVA");
+    expect(iscrizione.titolo).not.toBeNull();
+    expect(iscrizione.proposta_da).not.toBeNull();
+
+    // §15.8: cognome, telefono e indirizzo esatto sono dati dell'abitante e
+    // non finiscono in un file che si conserva per anni (regola 24).
+    const colonne = Object.keys(iscrizione);
+    for (const vietata of ["abitante_cognome", "abitante_telefono", "luogo_esatto", "note"]) {
+      expect(colonne, vietata).not.toContain(vietata);
+    }
+  });
+
+  it("non porta il numero del posto né i campi stat_, né per le prenotazioni né per le iscrizioni", async () => {
     const dati = await mieiDati(u.client, u.id);
     const testo = JSON.stringify(dati);
     expect(testo).not.toContain("posto_progressivo");
@@ -132,8 +170,9 @@ describe("§7 scarica i miei dati", () => {
     expect(testo).not.toContain(altro.email);
     expect(testo).not.toContain(altro.id);
     // The other person's booking is on the same sede, same day: only the
-    // access policy keeps it out.
+    // access policy keeps it out. Same for the place on the same activity.
     expect(dati?.prenotazioni).toHaveLength(2);
+    expect(dati?.iscrizioni).toHaveLength(1);
   });
 
   it("chiesto per un altro identificativo non restituisce i dati di quello", async () => {
@@ -150,6 +189,12 @@ describe("§7 art. 17 cancella il mio account", () => {
   let vicino: UtenteTest;
   let idFuturo: string;
   let idPassato: string;
+  const edizioni: string[] = [];
+  let iscrizioneFutura: string;
+  let iscrizionePassata: string;
+  let attivitaFutura: string;
+  let codiceId: string;
+  let tentativoId: string;
 
   beforeAll(async () => {
     // Capacity of one, so the freed seat can be claimed by somebody else.
@@ -184,11 +229,60 @@ describe("§7 art. 17 cancella il mio account", () => {
       .from("moderazioni")
       .insert({ utente_id: u.id, nome_rimosso: "Un nome qualsiasi" });
     if (error) throw new Error(`fixture moderazione failed: ${error.code}`);
+
+    // Tutto quello che il modulo attacca a una persona (§15.12): un posto
+    // futuro, uno passato, l'abilitazione, il cartoncino consumato e un
+    // tentativo di inserimento del codice.
+    const edizione = await creaEdizione({
+      data_inizio: aggiungiGiorni(oggiRoma(), -10),
+      data_fine: aggiungiGiorni(oggiRoma(), 20),
+    });
+    edizioni.push(edizione);
+    // Capienza di uno anche qui, così il posto liberato si vede davvero.
+    attivitaFutura = await creaAttivita({ edizione_id: edizione, capienza: 1, data: DOMANI });
+    const attivitaPassata = await creaAttivita({
+      edizione_id: edizione,
+      capienza: 4,
+      data: IERI,
+    });
+    iscrizioneFutura = await inserisciIscrizioneDiretta({
+      attivita_id: attivitaFutura,
+      utente_id: u.id,
+    });
+    iscrizionePassata = await inserisciIscrizioneDiretta({
+      attivita_id: attivitaPassata,
+      utente_id: u.id,
+    });
+
+    await abilita(u.id, edizione);
+
+    const codice = await servizio()
+      .from("codici_invito")
+      .insert({
+        edizione_id: edizione,
+        progressivo: 7,
+        impronta: "impronta-di-prova-diritti",
+        utente_id: u.id,
+        usato_il: new Date().toISOString(),
+      })
+      .select("id")
+      .single();
+    if (codice.error) throw new Error(`fixture codice failed: ${codice.error.code}`);
+    codiceId = codice.data.id;
+
+    const tentativo = await servizio()
+      .from("tentativi_codice")
+      .insert({ utente_id: u.id })
+      .select("id")
+      .single();
+    if (tentativo.error) throw new Error(`fixture tentativo failed: ${tentativo.error.code}`);
+    tentativoId = tentativo.data.id;
   });
 
   afterAll(async () => {
     // u is already gone; its rows go with the sede.
     await pulisci({ utenti: [vicino], sedi: [sedeId] });
+    await pulisciEdizioni(edizioni);
   });
 
   it("la cancellazione tocca solo chi la chiede", async () => {
@@ -291,5 +385,84 @@ describe("§7 art. 17 cancella il mio account", () => {
   it("il nome cancellato non compare più fra le presenze pubbliche", async () => {
     const { data } = await servizio().from("presenze_pubbliche").select("nome_pubblico").eq("sede_id", sedeId);
     expect((data ?? []).map((r) => r.nome_pubblico)).not.toContain("Bruno");
+  });
+
+  // -------------------------------------------------------------------------
+  // §15.12 — la stessa cancellazione, per «Prenota un abitante» (passo 20).
+  //
+  // "Iscrizioni future annullate e posti liberati; iscrizioni passate
+  // anonimizzate senza copiare i campi stat_; abilitazione e tentativi
+  // cancellati. Del codice d'invito si cancella il collegamento alla persona,
+  // non la riga."
+  // -------------------------------------------------------------------------
+
+  it("annulla l'iscrizione futura e libera il posto sull'attività", async () => {
+    const { data } = await servizio()
+      .from("iscrizioni")
+      .select("stato, anonimizzata, annullata_il")
+      .eq("id", iscrizioneFutura)
+      .single();
+    expect(data?.stato).toBe("ANNULLATA");
+    expect(data?.anonimizzata).toBe(true);
+    expect(data?.annullata_il).not.toBeNull();
+
+    // Il posto è davvero libero: l'attività ne ha uno, e lo prende un altro.
+    const { error } = await servizio()
+      .from("iscrizioni")
+      .insert({ attivita_id: attivitaFutura, utente_id: vicino.id, posto_progressivo: 1 });
+    expect(error).toBeNull();
+  });
+
+  it("anonimizza ogni iscrizione senza copiare i campi stat_", async () => {
+    const { data } = await servizio()
+      .from("iscrizioni")
+      .select("utente_id, anonimizzata, stat_eta, stat_genere, stat_professione, stat_motivo_visita, stat_residenza")
+      .in("id", [iscrizioneFutura, iscrizionePassata]);
+
+    expect(data).toHaveLength(2);
+    for (const riga of data ?? []) {
+      expect(riga.utente_id).toBeNull();
+      expect(riga.anonimizzata).toBe(true);
+      // Regola 19, identica a quella delle prenotazioni.
+      expect(riga.stat_eta).toBeNull();
+      expect(riga.stat_genere).toBeNull();
+      expect(riga.stat_professione).toBeNull();
+      expect(riga.stat_motivo_visita).toBeNull();
+      expect(riga.stat_residenza).toBeNull();
+    }
+  });
+
+  it("un'iscrizione a un'attività già cominciata resta attiva, senza legame", async () => {
+    const { data } = await servizio()
+      .from("iscrizioni")
+      .select("stato, utente_id")
+      .eq("id", iscrizionePassata)
+      .single();
+    expect(data?.utente_id).toBeNull();
+    // Non annullata: quell'attività c'è stata (§15.7, come §6.4).
+    expect(data?.stato).toBe("ATTIVA");
+  });
+
+  it("porta via abilitazione e tentativi di inserimento del codice", async () => {
+    const s = servizio();
+    const { data: abilitazioni } = await s.from("abilitazioni").select("id").eq("utente_id", u.id);
+    expect(abilitazioni ?? []).toHaveLength(0);
+    const { data: tentativi } = await s.from("tentativi_codice").select("id").eq("id", tentativoId);
+    expect(tentativi ?? []).toHaveLength(0);
+  });
+
+  it("del cartoncino resta la riga, senza la persona: il numero non si riemette", async () => {
+    const { data } = await servizio()
+      .from("codici_invito")
+      .select("id, progressivo, impronta, usato_il, utente_id")
+      .eq("id", codiceId)
+      .single();
+    expect(data).not.toBeNull();
+    expect(data?.utente_id).toBeNull();
+    // §15.3.5, regola 23: il progressivo resta consumato.
+    expect(data?.progressivo).toBe(7);
+    expect(data?.usato_il).not.toBeNull();
+    // E della riga che resta non si ricava nulla di nessuno.
+    expect(data?.impronta).toBe("impronta-di-prova-diritti");
   });
 });

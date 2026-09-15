@@ -25,6 +25,7 @@ type RigaConsenso = Pick<
 
 /** The columns the export selects — the view's own `id` is of no use to anyone. */
 type RigaPrenotazione = Omit<Database["public"]["Views"]["miei_dati_prenotazioni"]["Row"], "id">;
+type RigaIscrizione = Omit<Database["public"]["Views"]["miei_dati_iscrizioni"]["Row"], "id">;
 
 /**
  * The file "Scarica i miei dati" hands over — SPEC §7.
@@ -36,6 +37,7 @@ export type MieiDati = {
   generato_il: string;
   profilo: Profilo;
   prenotazioni: Prenotazione[];
+  iscrizioni: Iscrizione[];
   consensi: Consenso[];
 };
 
@@ -66,18 +68,40 @@ type Prenotazione = {
   prenotata_il: string;
 };
 
+/**
+ * One place taken on an activity of «Prenota un abitante» — SPEC §15.11.
+ *
+ * Level 1 of §15.8 and nothing more: the surname, the telephone and the
+ * exact address belong to the abitante, they reach a participant only while
+ * the iscrizione is ATTIVA (rule 24), and they already reached them in the
+ * confirmation email. An export is a file that can be kept and forwarded for
+ * years, which is not where a third party's telephone number goes.
+ */
+type Iscrizione = {
+  titolo: string | null;
+  proposta_da: string | null;
+  luogo: string | null;
+  data: string | null;
+  ora_inizio: string | null;
+  ora_fine: string | null;
+  stato: string;
+  iscritta_il: string;
+  annullata_il: string | null;
+};
+
 type Consenso = { tipo: string; valore: string; data_ora: string };
 
 /**
  * Everything the app holds about the person, ready to be written out.
  *
- * Three sources, and nothing else exists: the profile, the bookings still
- * linked to them, and their own rows of the consent register — which §7 names
- * explicitly ("anche in «Scarica i miei dati»").
+ * Four sources, and nothing else exists: the profile, the bookings still
+ * linked to them, the places they hold or held on the activities of
+ * «Prenota un abitante» (§15.11), and their own rows of the consent register
+ * — which §7 names explicitly ("anche in «Scarica i miei dati»").
  *
  * Deliberately absent:
- *   * `posto_progressivo`, internal and never shown to a user (§8.1). It is
- *     not in the view, so it could not come out even by mistake;
+ *   * `posto_progressivo`, internal and never shown to a user (§8.1, §15.3.3).
+ *     It is in neither view, so it could not come out even by mistake;
  *   * the five `stat_` columns of anonymised bookings: after the copy they
  *     are nobody's data, and there is no way to tell which ones were theirs
  *     (§5.3);
@@ -88,7 +112,7 @@ type Consenso = { tipo: string; valore: string; data_ora: string };
  * session is gone.
  */
 export async function mieiDati(client: Client, utenteId: string): Promise<MieiDati | null> {
-  const [profilo, prenotazioni, consensi] = await Promise.all([
+  const [profilo, prenotazioni, iscrizioni, consensi] = await Promise.all([
     client.from("utenti").select(colonneProfilo).eq("id", utenteId).single(),
     client
       .from("miei_dati_prenotazioni")
@@ -97,6 +121,11 @@ export async function mieiDati(client: Client, utenteId: string): Promise<MieiDa
       .select("data, fascia, gruppo_id, stato, creata_il, sede_nome, comune, indirizzo, ora_inizio, ora_fine")
       .order("data")
       .order("fascia"),
+    client
+      .from("miei_dati_iscrizioni")
+      // prettier-ignore
+      .select("stato, creata_il, annullata_il, titolo, abitante_nome, luogo_generico, data, ora_inizio, ora_fine")
+      .order("data"),
     client.from("consensi").select("tipo, valore, data_ora").order("data_ora"),
   ]);
 
@@ -119,6 +148,7 @@ export async function mieiDati(client: Client, utenteId: string): Promise<MieiDa
       ultimo_accesso: p.ultimo_accesso,
     },
     prenotazioni: (prenotazioni.data ?? []).flatMap(rigaPrenotazione),
+    iscrizioni: (iscrizioni.data ?? []).flatMap(rigaIscrizione),
     consensi: (consensi.data ?? []).map((c: RigaConsenso) => ({
       tipo: c.tipo,
       valore: c.valore,
@@ -149,6 +179,24 @@ function rigaPrenotazione(r: RigaPrenotazione): Prenotazione[] {
       // day does.
       giornata_intera: r.gruppo_id !== null,
       prenotata_il: r.creata_il,
+    },
+  ];
+}
+
+/** The same care as above: a row that could not be read whole is dropped. */
+function rigaIscrizione(r: RigaIscrizione): Iscrizione[] {
+  if (r.stato === null || r.creata_il === null) return [];
+  return [
+    {
+      titolo: r.titolo,
+      proposta_da: r.abitante_nome,
+      luogo: r.luogo_generico,
+      data: r.data,
+      ora_inizio: r.ora_inizio,
+      ora_fine: r.ora_fine,
+      stato: r.stato,
+      iscritta_il: r.creata_il,
+      annullata_il: r.annullata_il,
     },
   ];
 }

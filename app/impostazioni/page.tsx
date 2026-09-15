@@ -396,7 +396,9 @@ export default async function PaginaImpostazioni({ searchParams }: Proprieta) {
       </section>
 
       <p className="mt-10">
-        <Link href="/">{m.prenotazioni.vuoto.collegamento}</Link>
+        <Link href="/" className={bottoneSecondario}>
+          {m.prenotazioni.vuoto.collegamento}
+        </Link>
       </p>
     </>
   );

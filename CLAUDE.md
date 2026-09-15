@@ -83,6 +83,14 @@ second sender there can send the association's own mail to spam. See SPEC §14.2
    What it must never carry is that user's **email address** — the internal id
    is what the admin acts on.
 
+   The one place an address does travel in a message is the **iscrizione
+   notice** of SPEC §15.10, added on 2026-09-15: it goes to the association's
+   own mailbox (`EMAIL_ASSISTENZA_ABITANTI`) and carries the email of whoever
+   just took a place. That is the same datum §15.9 already shows the same
+   person in the panel, for the same purpose — writing to whoever is coming.
+   It is specified, and it is the only one: no other mailbox receives it, and
+   no log, error or analytics event ever does.
+
 5. **Concurrency on booking is enforced by a database constraint**, never by a
    read-then-write check in application code. See SPEC §8.1: unique index on
    `(sede_id, data, fascia, posto_progressivo)`. Any change to booking logic
@@ -289,17 +297,34 @@ second sender there can send the association's own mail to spam. See SPEC §14.2
     summarise or truncate it on display.
 
 27. **One entry point, no navigation item.** The module is reached from the
-    **top** of the availability page: a Stile 1 button labelled "Prenota un
-    abitante", shown only to signed-in users and only while an `edizione` is
-    active (SPEC §15.5). Do not add a header nav item, do not add a link on the
-    "Chi c'è in Valle" page, and do not promote the module anywhere else.
+    **top** of the availability page: a **Stile 2** button labelled "Prenota un
+    abitante", **below the "Chi c'è in Valle" button and its note**, shown
+    only to signed-in users and only while an `edizione` is
+    active (SPEC §15.5, §6.2). Do not add a header nav item, do not add a link
+    on the "Chi c'è in Valle" page, and do not promote the module anywhere
+    else.
 
-    **The button stands alone** — no note above it, no helper line below, and
-    the same for everyone whether or not they hold an `abilitazione`. A first
-    draft paired it with "Sei un partecipante di VIHTA?"; that was removed on
-    2026-09-12. Do not reinstate it, and do not add a variant of it: the
-    explaining is done on `/abitanti`, behind the button, where it costs
-    nothing to the people who came to book a desk.
+    The two buttons carry the **same weight**, both filled `verde` with `testo`
+    text — never white on green (rule 13). A first draft made this one Stile 1,
+    outlined, so as not to compete; reversed on 2026-09-13. The hierarchy is
+    the reading order, not a paler outline: "Chi c'è in Valle" comes first,
+    with its note **above** it, and "Prenota un abitante" comes below them
+    both, with its own line above it in the same way and at the same distance
+    (§6.2, 2026-09-15). That distance is `notaControllo` in
+    `components/controlli.ts` and is written nowhere else — "the same" has to
+    stay true without anybody checking.
+    Still no full-width Stile 2 **band** above the grid (§13.2).
+
+    **One line stands above the button** — *"Sei un partecipante a VIHTA?
+    Premi qui sotto per entrare in «Prenota un abitante»."* — the same for
+    everyone whether or not they hold an `abilitazione`, and it appears and
+    disappears with the button: no active `edizione`, no line, so the line is
+    never left standing above a button that is no longer there. A line like it
+    was removed on 2026-09-12 and reinstated on 2026-09-15, and the button
+    itself sat beside "Chi c'è in Valle" from 2026-09-13 until it moved below
+    it on 2026-09-15. The line only says who the button is for; the explaining
+    is still done on `/abitanti`, behind the button, where it costs nothing to
+    the people who came to book a desk.
 
     `/abitanti` is **one address that shows two things**: the code form to
     someone without an abilitazione, the activity list to someone with one.
@@ -391,8 +416,12 @@ literal in `app/` or `components/` — comments included, so do not write
 "4px" even in a comment there.
 
 Shared controls (`bottonePrimario`, `bottoneSecondario`, `bottoneDistruttivo`,
-`campo`) live in `components/controlli.ts`; header and footer in
-`components/`. The font is declared once in `app/font.ts` (`next/font/local`,
+`campo`, `notaControllo`) live in `components/controlli.ts`; header and footer
+in `components/`. The **back link at the foot of a page is a
+`bottoneSecondario`**, never a plain link (SPEC §13.6, 2026-09-15) — with the
+two exceptions written there: inside a Stile 2 band, and the offline courtesy
+page, where it stays the primary button it is. A link that goes *forward*, or
+one inside a sentence, stays a link. The font is declared once in `app/font.ts` (`next/font/local`,
 files in `app/fonts/`) and reaches the theme as `--font-inclusive`. The header
 logo is `public/logo.png` until the SVG of SPEC §13.10 arrives.
 
@@ -519,9 +548,16 @@ npm run typecheck    # tsc --noEmit — must pass before any commit
 npm run lint
 npm run test         # unit + integration
 npm run test:rls     # RLS policy tests — must pass before any commit
-npx supabase db reset # rebuild local db from migrations + seed
+npm run db:reset     # rebuild local db from migrations + seed
 npm run db:types     # regenerate lib/db/types.ts after a migration
 ```
+
+There is **no end-to-end suite and no Playwright** in this repo, and an earlier
+version of this file listed a `test:e2e` that never existed. `npm run test`
+already drives the real database and the real local mailbox — `accesso` opens
+a sign-in link out of Mailpit, `promemoria` reads the messages that went out —
+so what an e2e suite would add is the browser, and nothing has needed it yet.
+Do not write a command into this list before the script is in `package.json`.
 
 After editing `supabase/config.toml` (auth settings, email templates) run
 `npx supabase stop` then `npx supabase start`: `db reset` does not reload
@@ -696,13 +732,19 @@ must still hold afterwards:
 
 - `tests/diritti.test.ts` — erasure now also cancels the person's future
   `iscrizioni` and frees their seats, anonymises the past ones with `stat_*`
-  left empty, and removes their `abilitazione`, `codice_invito` and
-  `tentativi_codice`. The export still carries no `posto_progressivo` and no
-  `stat_` column, for iscrizioni as for prenotazioni.
+  left empty, and removes their `abilitazione` and `tentativi_codice`. Of the
+  `codice_invito` it removes the **link to the person and not the row**: the
+  `progressivo` stays burnt, because rule 23 forbids reissuing it (§15.12).
+  The export still carries no `posto_progressivo` and no `stat_` column, for
+  iscrizioni as for prenotazioni — and no level 2 column of §15.8 either: the
+  abitante's surname, telephone and exact address are somebody else's data,
+  they reached the person by email at sign-up, and a file kept for years is
+  not where they go.
 - `tests/retention.test.ts` — the nightly run now also anonymises iscrizioni
   30 days past the **activity's** date, deletes abilitazioni and code
   fingerprints of an edition closed for `GIORNI_CHIUSURA_EDIZIONE`, clears the
-  abitante's data of a closed edition **including `titolo` and `descrizione`**,
+  abitante's data of a closed edition **including `titolo`, `descrizione`,
+  `cosa_portare` and `lingua_attivita`**,
   and drops code attempts older than an hour.
 - `tests/installabilita.test.ts` — `sw.js` must refuse to keep **any** page of
   the module offline: not the list, not a detail, not the code form. Same
@@ -714,7 +756,11 @@ must still hold afterwards:
   signed-in user with an active edition, and the view still carries counts
   only.
 - `tests/amministrazione.test.ts` — the new panel section is unreachable by
-  anyone who is not an amministratore, like every other part of it.
+  anyone who is not an amministratore, like every other part of it. "Prenotazioni
+  da controllare" now also lists the **iscrizioni** a change left behind, for
+  the two reasons §15.12 names — a capienza lowered under the number signed up,
+  and an activity returned to `BOZZA` when the consent tick was cleared — and,
+  like the bookings beside them, it never cancels one (rule 6).
 
 If a change breaks one of these, the change is wrong. Do not adjust the test.
 

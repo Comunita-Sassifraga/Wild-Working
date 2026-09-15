@@ -65,6 +65,8 @@ type CampoProprieta = {
   massimo?: number;
   minimo?: number;
   richiesto?: boolean;
+  /** Visible lines of a text area. The description of §15.3.2 is a long read. */
+  righe?: number;
 };
 
 export function Campo({
@@ -103,7 +105,7 @@ export function Campo({
   );
 }
 
-export function AreaTesto({ nome, testo, valore, nota }: CampoProprieta) {
+export function AreaTesto({ nome, testo, valore, nota, massimo, righe = 3 }: CampoProprieta) {
   const idNota = nota ? `${nome}-nota` : undefined;
   return (
     <p className="mt-6">
@@ -114,7 +116,8 @@ export function AreaTesto({ nome, testo, valore, nota }: CampoProprieta) {
         id={nome}
         name={nome}
         defaultValue={valore ?? ""}
-        rows={3}
+        rows={righe}
+        maxLength={massimo}
         aria-describedby={idNota}
         className={campo}
       />
@@ -174,12 +177,20 @@ export function Spunta({
   acceso,
   valore,
   nota,
+  richiesto,
 }: {
   nome: string;
   testo: string;
   acceso?: boolean;
   valore?: string;
   nota?: string;
+  /**
+   * A box the form will not go without. Used by the consent tick of §15.8,
+   * where the browser's own refusal is what stands in for "senza la spunta il
+   * pulsante non si attiva" — and works with JavaScript switched off, which a
+   * disabled button would not.
+   */
+  richiesto?: boolean;
 }) {
   return (
     <div className="mt-6">
@@ -189,11 +200,53 @@ export function Spunta({
           name={nome}
           value={valore}
           defaultChecked={acceso}
+          required={richiesto}
           className="accent-verde"
         />
         <span>{testo}</span>
       </label>
       {nota && <p className={aiuto}>{nota}</p>}
     </div>
+  );
+}
+
+/**
+ * A closed list of a few mutually exclusive options, drawn as §15.8 draws the
+ * two forms of consent: ○ one ○ the other. A `Scelta` would hide behind a
+ * menu what has to be read before it is answered.
+ */
+export function Radio({
+  nome,
+  testo,
+  valore,
+  opzioni,
+  nota,
+  richiesto,
+}: {
+  nome: string;
+  testo: string;
+  valore?: string | null;
+  opzioni: ReadonlyArray<{ valore: string; testo: string }>;
+  nota?: string;
+  richiesto?: boolean;
+}) {
+  return (
+    <fieldset className="mt-6">
+      <legend className={etichetta}>{testo}</legend>
+      {opzioni.map((o) => (
+        <label key={o.valore} className="flex min-h-tocco items-center gap-3">
+          <input
+            type="radio"
+            name={nome}
+            value={o.valore}
+            defaultChecked={valore === o.valore}
+            required={richiesto}
+            className="accent-verde"
+          />
+          <span>{o.testo}</span>
+        </label>
+      ))}
+      {nota && <p className={aiuto}>{nota}</p>}
+    </fieldset>
   );
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { bottoneDistruttivo, bottonePrimario } from "@/components/controlli";
+import { bottoneDistruttivo, bottonePrimario, bottoneSecondario } from "@/components/controlli";
 import { terminiVietati } from "@/lib/db/amministrazione";
 import { m } from "@/lib/messaggi";
 import { amministratore } from "../guardia";
@@ -75,7 +75,9 @@ export default async function PaginaTermini({
       </form>
 
       <p className="mt-10">
-        <Link href="/amministrazione">{m.amministrazione.torna}</Link>
+        <Link href="/amministrazione" className={bottoneSecondario}>
+          {m.amministrazione.torna}
+        </Link>
       </p>
     </>
   );

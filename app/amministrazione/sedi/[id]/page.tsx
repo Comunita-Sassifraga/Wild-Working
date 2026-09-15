@@ -362,7 +362,9 @@ export default async function PaginaSede({
       </Sezione>
 
       <p className="mt-10">
-        <Link href="/amministrazione/sedi">{t.sedi.titolo}</Link>
+        <Link href="/amministrazione/sedi" className={bottoneSecondario}>
+          {t.sedi.titolo}
+        </Link>
       </p>
     </>
   );

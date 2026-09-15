@@ -24,6 +24,7 @@ import { randomUUID } from "node:crypto";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   GIORNI_ANONIMIZZAZIONE,
+  GIORNI_CHIUSURA_EDIZIONE,
   MESI_ACCOUNT_DORMIENTE,
   MESI_AVVISO_DORMIENZA,
   MESI_CONSERVAZIONE_CONSENSI,
@@ -33,13 +34,18 @@ import { cancellaMioAccount } from "@/lib/db/diritti";
 import { aggiornaDatiFacoltativi, rimuoviDatiFacoltativi } from "@/lib/db/utenti";
 import { eseguiPulizie } from "@/lib/pulizie";
 import {
+  abilita,
   CODICE_PERMESSO_NEGATO,
   contaEmail,
+  creaAttivita,
+  creaEdizione,
   creaSede,
   creaUtente,
+  inserisciIscrizioneDiretta,
   inserisciPrenotazioneDiretta,
   nessunaEmailOltre,
   pulisci,
+  pulisciEdizioni,
   servizio,
   visitatore,
   type UtenteTest,
@@ -763,6 +769,11 @@ describe("§7 le pulizie sono irraggiungibili da chi non è il mestiere", () => 
     ["cancella_impronte_scadute", {}],
     ["cancella_consensi_scaduti", { p_mesi: MESI_CONSERVAZIONE_CONSENSI }],
     ["conta_persone_in_uscita", { p_soglia: oggiRoma() }],
+    // Le quattro di §15.11, aggiunte dal passo 20: stessa porta chiusa.
+    ["anonimizza_iscrizioni", { p_giorni: GIORNI_ANONIMIZZAZIONE }],
+    ["cancella_accessi_edizioni_chiuse", { p_giorni: GIORNI_CHIUSURA_EDIZIONE }],
+    ["cancella_dati_abitanti", {}],
+    ["cancella_tentativi_scaduti", {}],
   ] as const;
 
   // La chiamata è uniforme apposta: i tipi generati danno a ciascuna
@@ -798,5 +809,353 @@ describe("§7 le pulizie sono irraggiungibili da chi non è il mestiere", () => 
     expect(daFuori.error).not.toBeNull();
     const daDentro = await u.client.from("persone_per_mese").select("persone");
     expect(daDentro.error).not.toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// §15.11 — le quattro pulizie di «Prenota un abitante» (passo 20).
+//
+// Si agganciano allo stesso giro notturno, che resta uno solo (§15.1 punto 5).
+// Tutto quello che il file già asserisce sulle prenotazioni deve continuare a
+// valere: qui si aggiunge, non si tocca niente.
+// ---------------------------------------------------------------------------
+
+const COLONNE_STAT_ISCRIZIONE =
+  "id, utente_id, anonimizzata, stat_eta, stat_genere, stat_professione, stat_motivo_visita, stat_residenza" as const;
+
+async function iscrizione(id: string) {
+  const { data } = await servizio()
+    .from("iscrizioni")
+    .select(COLONNE_STAT_ISCRIZIONE)
+    .eq("id", id)
+    .single();
+  if (!data) throw new Error("iscrizione sparita");
+  return data;
+}
+
+function statIscrizioneVuoti(riga: Awaited<ReturnType<typeof iscrizione>>): boolean {
+  return (
+    riga.stat_eta === null &&
+    riga.stat_genere === null &&
+    riga.stat_professione === null &&
+    riga.stat_motivo_visita === null &&
+    riga.stat_residenza === null
+  );
+}
+
+describe("§15.11 anonimizzazione delle iscrizioni oltre 30 giorni dall'attività", () => {
+  const utenti: UtenteTest[] = [];
+  const edizioni: string[] = [];
+  let conConsenso: UtenteTest;
+  let senzaConsenso: UtenteTest;
+  let daAnonimizzare: string;
+  let senzaCinqueValori: string;
+  let ancoraSua: string;
+
+  beforeAll(async () => {
+    const edizione = await creaEdizione({
+      attiva: false,
+      data_inizio: aggiungiGiorni(oggiRoma(), -(GIORNI_ANONIMIZZAZIONE + 40)),
+      data_fine: aggiungiGiorni(oggiRoma(), 10),
+    });
+    edizioni.push(edizione);
+
+    const vecchia = await creaAttivita({
+      edizione_id: edizione,
+      capienza: 4,
+      data: aggiungiGiorni(oggiRoma(), -(GIORNI_ANONIMIZZAZIONE + 10)),
+    });
+    const recente = await creaAttivita({ edizione_id: edizione, capienza: 4, data: oggiRoma() });
+
+    [conConsenso, senzaConsenso] = await Promise.all([creaUtente(), creaUtente()]);
+    utenti.push(conConsenso, senzaConsenso);
+    await aggiornaDatiFacoltativi(conConsenso.client, conConsenso.id, CINQUE_CAMPI);
+
+    daAnonimizzare = await inserisciIscrizioneDiretta({
+      attivita_id: vecchia,
+      utente_id: conConsenso.id,
+      posto_progressivo: 1,
+    });
+    senzaCinqueValori = await inserisciIscrizioneDiretta({
+      attivita_id: vecchia,
+      utente_id: senzaConsenso.id,
+      posto_progressivo: 2,
+    });
+    ancoraSua = await inserisciIscrizioneDiretta({
+      attivita_id: recente,
+      utente_id: conConsenso.id,
+      posto_progressivo: 1,
+    });
+  });
+
+  afterAll(async () => {
+    await pulisci({ utenti, edizioni });
+  });
+
+  it("prima del giro nessuna iscrizione porta un valore stat_", async () => {
+    for (const id of [daAnonimizzare, senzaCinqueValori, ancoraSua]) {
+      const riga = await iscrizione(id);
+      expect(riga.anonimizzata, id).toBe(false);
+      expect(statIscrizioneVuoti(riga), id).toBe(true);
+    }
+  });
+
+  it("il giro recide il legame delle iscrizioni oltre 30 giorni dalla data dell'attività", async () => {
+    const esito = await eseguiPulizie(servizio());
+    expect(esito.falliti).toEqual([]);
+    expect(esito.iscrizioniAnonimizzate).toBeGreaterThanOrEqual(2);
+
+    const riga = await iscrizione(daAnonimizzare);
+    expect(riga.utente_id).toBeNull();
+    expect(riga.anonimizzata).toBe(true);
+  });
+
+  it("copia i cinque valori quando il consenso è attivo", async () => {
+    const riga = await iscrizione(daAnonimizzare);
+    expect(riga.stat_eta).toBe(CINQUE_CAMPI.eta);
+    expect(riga.stat_genere).toBe(CINQUE_CAMPI.genere);
+    expect(riga.stat_professione).toBe(CINQUE_CAMPI.professione);
+    expect(riga.stat_motivo_visita).toBe(CINQUE_CAMPI.motivo_visita);
+    expect(riga.stat_residenza).toBe(CINQUE_CAMPI.residenza);
+  });
+
+  it("non copia niente quando il consenso non c'è mai stato", async () => {
+    const riga = await iscrizione(senzaCinqueValori);
+    expect(riga.anonimizzata).toBe(true);
+    expect(statIscrizioneVuoti(riga)).toBe(true);
+  });
+
+  it("lascia intatta l'iscrizione a un'attività non ancora passata", async () => {
+    const riga = await iscrizione(ancoraSua);
+    expect(riga.utente_id).toBe(conConsenso.id);
+    expect(riga.anonimizzata).toBe(false);
+    expect(statIscrizioneVuoti(riga)).toBe(true);
+  });
+
+  it("un secondo giro non ricopia e non torna indietro", async () => {
+    const prima = await iscrizione(daAnonimizzare);
+    await servizio().from("utenti").update(CINQUE_CAMPI).eq("id", senzaConsenso.id);
+    await eseguiPulizie(servizio());
+
+    expect(await iscrizione(daAnonimizzare)).toEqual(prima);
+    // Già recisa al primo giro: il consenso arrivato dopo non la raggiunge
+    // più (regola 19, "non ricopiare e non tornare indietro").
+    expect(statIscrizioneVuoti(await iscrizione(senzaCinqueValori))).toBe(true);
+  });
+});
+
+describe("§15.11 abilitazioni e codici di un'edizione chiusa", () => {
+  const utenti: UtenteTest[] = [];
+  const edizioni: string[] = [];
+  let chi: UtenteTest;
+  let chiusaDaTempo: string;
+  let chiusaIeri: string;
+
+  /** Un cartoncino, di cui resta solo l'impronta (§15.3.5). */
+  async function cartoncino(edizione: string, progressivo: number): Promise<void> {
+    const { error } = await servizio()
+      .from("codici_invito")
+      .insert({
+        edizione_id: edizione,
+        progressivo,
+        impronta: "impronta-di-prova-" + randomUUID(),
+      });
+    if (error) throw new Error("cartoncino: " + error.code);
+  }
+
+  const conta = async (tabella: "abilitazioni" | "codici_invito", edizione: string) => {
+    const { count } = await servizio()
+      .from(tabella)
+      .select("id", { count: "exact", head: true })
+      .eq("edizione_id", edizione);
+    return count ?? 0;
+  };
+
+  beforeAll(async () => {
+    chi = await creaUtente();
+    utenti.push(chi);
+
+    chiusaDaTempo = await creaEdizione({
+      attiva: false,
+      data_inizio: aggiungiGiorni(oggiRoma(), -(GIORNI_CHIUSURA_EDIZIONE + 40)),
+      data_fine: aggiungiGiorni(oggiRoma(), -(GIORNI_CHIUSURA_EDIZIONE + 1)),
+    });
+    chiusaIeri = await creaEdizione({
+      attiva: false,
+      data_inizio: aggiungiGiorni(oggiRoma(), -30),
+      data_fine: aggiungiGiorni(oggiRoma(), -1),
+    });
+    edizioni.push(chiusaDaTempo, chiusaIeri);
+
+    await abilita(chi.id, chiusaDaTempo);
+    await abilita(chi.id, chiusaIeri);
+    await cartoncino(chiusaDaTempo, 1);
+    await cartoncino(chiusaIeri, 1);
+  });
+
+  afterAll(async () => {
+    await pulisci({ utenti, edizioni });
+  });
+
+  it("prima del giro ci sono entrambe", async () => {
+    expect(await conta("abilitazioni", chiusaDaTempo)).toBe(1);
+    expect(await conta("codici_invito", chiusaDaTempo)).toBe(1);
+  });
+
+  it("spariscono abilitazione e impronta di un'edizione chiusa da abbastanza tempo", async () => {
+    const esito = await eseguiPulizie(servizio());
+    expect(esito.falliti).toEqual([]);
+    expect(esito.accessiEdizioniChiuse).toBeGreaterThanOrEqual(2);
+
+    expect(await conta("abilitazioni", chiusaDaTempo)).toBe(0);
+    expect(await conta("codici_invito", chiusaDaTempo)).toBe(0);
+  });
+
+  it("restano quelle di un'edizione chiusa da poco", async () => {
+    expect(await conta("abilitazioni", chiusaIeri)).toBe(1);
+    expect(await conta("codici_invito", chiusaIeri)).toBe(1);
+  });
+});
+
+describe("§15.11 i dati degli abitanti di un'edizione chiusa", () => {
+  const edizioni: string[] = [];
+  let cancellabile: string;
+  let intatta: string;
+
+  const campi =
+    "titolo, descrizione, abitante_nome, abitante_cognome, abitante_telefono, abitante_note_interne, luogo_generico, luogo_esatto, cosa_portare, lingua_attivita, data, capienza, consenso_raccolto, consenso_modalita, consenso_raccolto_il" as const;
+
+  const carta = async (id: string) => {
+    const { data } = await servizio().from("attivita").select(campi).eq("id", id).single();
+    if (!data) throw new Error("attività sparita");
+    return data;
+  };
+
+  beforeAll(async () => {
+    const finita = await creaEdizione({
+      attiva: false,
+      data_inizio: aggiungiGiorni(oggiRoma(), -30),
+      data_fine: aggiungiGiorni(oggiRoma(), -1),
+    });
+    const inCorso = await creaEdizione({
+      attiva: false,
+      data_inizio: aggiungiGiorni(oggiRoma(), -1),
+      data_fine: aggiungiGiorni(oggiRoma(), 20),
+    });
+    edizioni.push(finita, inCorso);
+
+    cancellabile = await creaAttivita({
+      edizione_id: finita,
+      capienza: 6,
+      data: aggiungiGiorni(oggiRoma(), -2),
+      abitante_note_interne: "Nota interna di prova",
+      cosa_portare: "Scarpe comode",
+      lingua_attivita: "Italiano",
+    });
+    intatta = await creaAttivita({ edizione_id: inCorso, capienza: 6, data: oggiRoma() });
+  });
+
+  afterAll(async () => {
+    await pulisciEdizioni(edizioni);
+  });
+
+  it("prima del giro la carta è piena", async () => {
+    const prima = await carta(cancellabile);
+    expect(prima.titolo).not.toBeNull();
+    expect(prima.descrizione).not.toBeNull();
+    expect(prima.abitante_cognome).not.toBeNull();
+  });
+
+  it("dopo il giro non resta nessuno dei tre livelli, titolo e descrizione compresi", async () => {
+    const esito = await eseguiPulizie(servizio());
+    expect(esito.falliti).toEqual([]);
+    expect(esito.datiAbitantiCancellati).toBeGreaterThanOrEqual(1);
+
+    const dopo = await carta(cancellabile);
+    for (const campo of [
+      "titolo",
+      "descrizione",
+      "abitante_nome",
+      "abitante_cognome",
+      "abitante_telefono",
+      "abitante_note_interne",
+      "luogo_generico",
+      "luogo_esatto",
+      "cosa_portare",
+      "lingua_attivita",
+    ] as const) {
+      expect(dopo[campo], campo).toBeNull();
+    }
+  });
+
+  it("restano la data, la capienza e la dichiarazione di consenso", async () => {
+    const dopo = await carta(cancellabile);
+    expect(dopo.data).toBe(aggiungiGiorni(oggiRoma(), -2));
+    expect(dopo.capienza).toBe(6);
+    expect(dopo.consenso_raccolto).toBe(true);
+    expect(dopo.consenso_modalita).not.toBeNull();
+    expect(dopo.consenso_raccolto_il).not.toBeNull();
+  });
+
+  it("un'edizione ancora aperta non viene toccata", async () => {
+    const dopo = await carta(intatta);
+    expect(dopo.titolo).not.toBeNull();
+    expect(dopo.abitante_cognome).not.toBeNull();
+    expect(dopo.descrizione).not.toBeNull();
+  });
+
+  it("un secondo giro non ha più niente da svuotare su quella carta", async () => {
+    const prima = await carta(cancellabile);
+    await eseguiPulizie(servizio());
+    expect(await carta(cancellabile)).toEqual(prima);
+  });
+});
+
+describe("§15.11 i tentativi di inserimento del codice durano un'ora", () => {
+  const utenti: UtenteTest[] = [];
+  let chi: UtenteTest;
+  let vecchio: string;
+  let appena: string;
+
+  async function tentativo(utenteId: string, minutiFa: number): Promise<string> {
+    const quando = new Date(Date.now() - minutiFa * 60_000).toISOString();
+    const { data, error } = await servizio()
+      .from("tentativi_codice")
+      .insert({ utente_id: utenteId, tentato_il: quando })
+      .select("id")
+      .single();
+    if (error) throw new Error("tentativo: " + error.code);
+    return data.id;
+  }
+
+  const esisteTentativo = async (id: string) => {
+    const { data } = await servizio()
+      .from("tentativi_codice")
+      .select("id")
+      .eq("id", id)
+      .maybeSingle();
+    return data !== null;
+  };
+
+  beforeAll(async () => {
+    chi = await creaUtente();
+    utenti.push(chi);
+    vecchio = await tentativo(chi.id, 90);
+    appena = await tentativo(chi.id, 5);
+  });
+
+  afterAll(async () => {
+    await pulisci({ utenti });
+  });
+
+  it("un tentativo più vecchio di un'ora sparisce, uno appena fatto resta", async () => {
+    expect(await esisteTentativo(vecchio)).toBe(true);
+
+    const esito = await eseguiPulizie(servizio());
+    expect(esito.falliti).toEqual([]);
+    expect(esito.tentativiScaduti).toBeGreaterThanOrEqual(1);
+
+    expect(await esisteTentativo(vecchio)).toBe(false);
+    expect(await esisteTentativo(appena)).toBe(true);
   });
 });

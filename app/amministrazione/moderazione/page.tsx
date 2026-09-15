@@ -187,7 +187,9 @@ export default async function PaginaModerazione({
       </Sezione>
 
       <p className="mt-10">
-        <Link href="/amministrazione">{m.amministrazione.torna}</Link>
+        <Link href="/amministrazione" className={bottoneSecondario}>
+          {m.amministrazione.torna}
+        </Link>
       </p>
     </>
   );

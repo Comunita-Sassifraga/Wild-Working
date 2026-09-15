@@ -13,16 +13,19 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { SOGLIA_ULTIMI_POSTI } from "@/config/limits";
 import { aggiungiGiorni, fineFinestra, giornoSettimana, oggiRoma } from "@/lib/dates";
+import { edizioneAttiva } from "@/lib/db/abitanti";
 import { disponibilitaPubblica } from "@/lib/db/disponibilita";
 import { prenotaPosto } from "@/lib/db/prenotazioni";
 import { giornoScelto, statoCella, type Cella, type Giorno } from "@/lib/disponibilita";
 import {
   creaChiusura,
+  creaEdizione,
   creaSede,
   creaUtente,
   creaUtenti,
   inserisciPrenotazioneDiretta,
   pulisci,
+  pulisciEdizioni,
   servizio,
   visitatore,
   type UtenteTest,
@@ -226,5 +229,92 @@ describe("§6.2 giorno scelto da un indirizzo", () => {
   it("se oggi è chiuso, apre sul primo giorno utile della finestra", () => {
     expect(giornoScelto(calendario("CHIUSO"), undefined, adesso)).toBe("2026-09-11");
     expect(giornoScelto(calendario("CHIUSO"), "test", adesso)).toBe("2026-09-11");
+  });
+});
+
+/**
+ * L'ingresso a «Prenota un abitante» in cima alla pagina — SPEC §15.5, §6.2,
+ * passo 20.
+ *
+ * Il pulsante non è una schermata che si possa interrogare da qui: quello
+ * che si può provare è la condizione esatta su cui `app/page.tsx` lo disegna,
+ * `utente && edizioneAttiva(client)`. Due metà, e nessuna delle due basta da
+ * sola — un visitatore non lo vede mai, e il 18 ottobre sparisce da sé senza
+ * che nessuno tolga niente.
+ *
+ * Dal 15/09/2026 il pulsante sta sotto quello di «Chi c'è in Valle», con
+ * sopra la riga che dice a chi è rivolto (§6.2). Riga e pulsante sono un
+ * blocco solo e si disegnano insieme, sulla stessa condizione: la riga non
+ * resta mai sopra un pulsante che non c'è più.
+ */
+describe("§15.5 ingresso al modulo dalla disponibilità", () => {
+  const anon = visitatore();
+  let utente: UtenteTest;
+  const edizioni: string[] = [];
+
+  beforeAll(async () => {
+    utente = await creaUtente();
+  });
+
+  afterAll(async () => {
+    await pulisciEdizioni(edizioni);
+    await pulisci({ utenti: [utente] });
+  });
+
+  it("a chi non ha fatto l'accesso le edizioni non arrivano, nemmeno quando ce n'è una aperta", async () => {
+    const aperta = await creaEdizione();
+    edizioni.push(aperta);
+    // `app/page.tsx` chiede l'edizione solo dopo aver trovato una sessione,
+    // e senza sessione il pulsante non si disegna. Quello che si prova qui è
+    // l'altra metà: al visitatore la tabella non risponde comunque, quindi
+    // nemmeno il nome dell'edizione esce (§15.5, §15.3.1).
+    const { data, error } = await anon.from("edizioni").select("*");
+    expect(data ?? []).toEqual([]);
+    if (error) expect(error.code).toBe("42501");
+  });
+
+  it("compare a chi ha fatto l'accesso mentre un'edizione è aperta", async () => {
+    const aperta = await creaEdizione();
+    edizioni.push(aperta);
+    expect(await edizioneAttiva(utente.client)).toBe(aperta);
+  });
+
+  it("sparisce quando l'edizione si spegne, e quando le sue date sono passate", async () => {
+    const aperta = await creaEdizione();
+    edizioni.push(aperta);
+    expect(await edizioneAttiva(utente.client)).toBe(aperta);
+
+    await servizio().from("edizioni").update({ attiva: false }).eq("id", aperta);
+    expect(await edizioneAttiva(utente.client)).toBeNull();
+
+    // Accesa ma finita: è il 18 ottobre di §15.5, e non serve che nessuno
+    // si ricordi di togliere il pulsante.
+    await servizio()
+      .from("edizioni")
+      .update({
+        attiva: true,
+        data_inizio: aggiungiGiorni(oggiRoma(), -30),
+        data_fine: aggiungiGiorni(oggiRoma(), -1),
+      })
+      .eq("id", aperta);
+    expect(await edizioneAttiva(utente.client)).toBeNull();
+  });
+
+  it("la griglia resta fatta di conteggi: l'ingresso non le aggiunge niente", async () => {
+    const aperta = await creaEdizione();
+    edizioni.push(aperta);
+    const { data } = await anon.from("disponibilita_pubblica").select("*").limit(1);
+    for (const riga of data ?? []) {
+      const colonne = Object.keys(riga);
+      for (const vietata of [
+        "email",
+        "nome_pubblico",
+        "utente_id",
+        "edizione_id",
+        "attivita_id",
+      ]) {
+        expect(colonne, vietata).not.toContain(vietata);
+      }
+    }
   });
 });

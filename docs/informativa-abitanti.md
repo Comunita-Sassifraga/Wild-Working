@@ -68,7 +68,8 @@ passaparola, come si è sempre fatto.
 ### Per quanto tempo
 
 I Suoi dati vengono **cancellati alla chiusura dell'edizione**: tutti e tre i
-livelli, **compresi il titolo dell'attività e la descrizione**.
+livelli, **compresi il titolo dell'attività, la descrizione, cosa portare e la
+lingua** — tutto quello che ha dettato Lei.
 
 Dell'attività restano solo la data, il numero di posti e quante persone sono
 venute — numeri che non dicono niente di Lei e servono a raccontare quante

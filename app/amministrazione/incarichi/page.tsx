@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { bottoneDistruttivo, bottonePrimario } from "@/components/controlli";
+import { bottoneDistruttivo, bottonePrimario, bottoneSecondario } from "@/components/controlli";
 import { incarichiAttivi, sediTutte } from "@/lib/db/amministrazione";
 import { m } from "@/lib/messaggi";
 import { amministratore } from "../guardia";
@@ -102,7 +102,9 @@ export default async function PaginaIncarichi({
       </Sezione>
 
       <p className="mt-10">
-        <Link href="/amministrazione">{t.torna}</Link>
+        <Link href="/amministrazione" className={bottoneSecondario}>
+          {t.torna}
+        </Link>
       </p>
     </>
   );
