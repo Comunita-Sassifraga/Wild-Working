@@ -1028,6 +1028,8 @@ Il record DNS del sottodominio (§14.1) va agganciato come *Custom Domain* del W
 
 Due interventi sulla sola compilazione — nessuna riga dell'applicazione — l'hanno portata a **1 920 KiB** lo stesso giorno, con circa 1 150 KiB liberi. Sono l'accorciamento dei nomi interni, attivato in `wrangler.jsonc`, e la rimozione di `@vercel/og`, il generatore di immagini di anteprima che Next si porta dentro e che l'adattatore Cloudflare lascia nel programma anche quando nessuna pagina lo usa. La rimozione è fatta da `strumenti/alleggerisci-worker.mjs`, agganciato a `npm run cloudflare:build`; **la ragione per cui esiste non è il peso ma la privacy**, e sta scritta in testa a quel file e in `PROVA-CLOUDFLARE.md`.
 
+**La misura in vigore è 2 175 KiB**, presa il 15/09/2026 subito dopo che il modulo «Prenota un abitante» (§15) è entrato in `main`: restano quasi 900 KiB liberi. Il modulo è dunque costato 255 KiB, contro i «qualche decina» che si erano previsti — il margine guadagnato il 13/09 lo assorbe senza che nulla vada deciso, ma il numero da confrontare col tetto, prima di ogni pubblicazione, è questo e non più 1 920.
+
 **La compilazione usa Turbopack**, il costruttore predefinito di Next 16. Il vecchio costruttore, webpack, darebbe un programma più piccolo di altri 500 KiB, ed è stato scartato il 13/09/2026: è dichiarato una via d'uscita temporanea che Next 17 potrebbe togliere, e userebbe un costruttore diverso da quello di `npm run dev`, facendo divergere la prova in locale dal sito pubblicato. Il margine non serve a tanto.
 
 ---

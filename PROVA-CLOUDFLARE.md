@@ -74,9 +74,10 @@ questa riga di `package.json` si può togliere.
   `strumenti/alleggerisci-worker.mjs` possa sparire. Vedi qui sotto.
 - ~~I due giri notturni.~~ Fatti: tre azioni programmate di GitHub, in
   `.github/workflows/`. Restano i passaggi a mano descritti qui sotto.
-- ~~La misura del Worker.~~ Rientrata: 1 920 KiB contro un tetto di 3 MB,
-  spiegata qui sotto. Va comunque **rifatta prima di ogni pubblicazione**,
-  con `npm run cloudflare:build` seguito da `npx wrangler deploy --dry-run`.
+- ~~La misura del Worker.~~ Rientrata: **2 175 KiB** contro un tetto di 3 MB,
+  col modulo di §15 dentro, spiegata qui sotto. Va comunque **rifatta prima di
+  ogni pubblicazione**, con `npm run cloudflare:build` seguito da
+  `npx wrangler deploy --dry-run`.
 
 ## La misura del Worker
 
@@ -86,18 +87,24 @@ non è chiaro se Cloudflare conti 3 072 KiB o 3 000. La prima misura, il
 comunque senza «Prenota un abitante».
 
 Due interventi, nessuno dei quali tocca una riga dell'applicazione, l'hanno
-portata a **1 920 KiB**, con oltre 1 150 liberi:
+portata a **1 920 KiB**, con oltre 1 150 liberi. Poi è arrivato il modulo:
 
 | | KiB compressi |
 |---|---|
 | prima | 2 967 |
 | `"minify": true` in `wrangler.jsonc` | 2 608 |
-| più `@vercel/og` rimossa | **1 920** |
+| più `@vercel/og` rimossa | 1 920 |
+| col modulo «Prenota un abitante», 15/09/2026 | **2 175** |
 
 Le immagini non c'entrano: logo, icone e caratteri sono *assets*, che
-Cloudflare carica a parte e non conta sul tetto. E il codice nostro è una
-frazione del totale — l'85% abbondante è Next.js e React — per cui il modulo
-di §15, che aggiunge una manciata di pagine, peserà qualche decina di KiB.
+Cloudflare carica a parte e non conta sul tetto.
+
+**Il modulo è costato 255 KiB**, e la previsione scritta qui il 13/09 — «qualche
+decina» — era ottimistica di un fattore cinque. Il ragionamento che c'era sotto
+regge però ancora, ed è quello che conta la prossima volta: il codice nostro è
+una frazione del totale, l'85% abbondante è Next.js e React, e infatti una
+ventina di schermate nuove hanno spostato l'ago di un ottavo. Restano quasi
+900 KiB liberi.
 
 ### Perché `@vercel/og` va tolta, e non è per il peso
 
