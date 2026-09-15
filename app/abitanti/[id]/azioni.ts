@@ -4,8 +4,10 @@
  * Taking a place and giving it up — SPEC §15.7, and since step 19 the two
  * emails §15.10 puts beside them (rows one and two).
  *
- * Both actions are one call to `lib/db/iscrizioni.ts`, one message, and one
- * redirect. No condition is examined here: whether there is a place left,
+ * Both actions are one call to `lib/db/iscrizioni.ts`, its message, and one
+ * redirect — two messages for the sign-up, since 2026-09-15: the person's
+ * own confirmation, and the notice to the Direttivo's mailbox that §15.10
+ * asks for at every iscrizione. No condition is examined here: whether there is a place left,
  * whether the caller may take it, whether the activity has begun and whose
  * row this is are all decided inside the database, which is the only place a
  * page cannot fail to have consulted (rule 5, rule 22, §8.3).
@@ -32,7 +34,12 @@ import {
   type DatiIscritto,
 } from "@/lib/db/iscrizioni";
 import { clientServer } from "@/lib/db/server";
-import { confermaAnnullamento, confermaIscrizione, type SchedaPerEmail } from "@/lib/posta/abitanti";
+import {
+  avvisaIscrizioneAlDirettivo,
+  confermaAnnullamento,
+  confermaIscrizione,
+  type SchedaPerEmail,
+} from "@/lib/posta/abitanti";
 
 /**
  * The card as the messages want it, from the two windows the page already
@@ -76,6 +83,13 @@ export async function iscrivitiAzione(formData: FormData): Promise<void> {
     const letta = await attivitaConLivelli(client, attivitaId);
     if (persona && letta) {
       await confermaIscrizione(persona.id, scheda(attivitaId, letta.attivita, letta.livello2));
+      // And the Direttivo is told, at the same moment and from the same
+      // reading (§15.10). Level 2 is dropped on the way: whoever reads that
+      // mailbox sees the whole card in the panel anyway.
+      await avvisaIscrizioneAlDirettivo(persona.id, scheda(attivitaId, letta.attivita, null), {
+        postiRimasti: letta.attivita.postiRimasti,
+        perConto: false,
+      });
     }
   }
 

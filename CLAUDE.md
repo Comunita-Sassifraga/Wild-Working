@@ -82,6 +82,14 @@ second sender there can send the association's own mail to spam. See SPEC §14.2
    What it must never carry is that user's **email address** — the internal id
    is what the admin acts on.
 
+   The one place an address does travel in a message is the **iscrizione
+   notice** of SPEC §15.10, added on 2026-09-15: it goes to the association's
+   own mailbox (`EMAIL_ASSISTENZA_ABITANTI`) and carries the email of whoever
+   just took a place. That is the same datum §15.9 already shows the same
+   person in the panel, for the same purpose — writing to whoever is coming.
+   It is specified, and it is the only one: no other mailbox receives it, and
+   no log, error or analytics event ever does.
+
 5. **Concurrency on booking is enforced by a database constraint**, never by a
    read-then-write check in application code. See SPEC §8.1: unique index on
    `(sede_id, data, fascia, posto_progressivo)`. Any change to booking logic
@@ -289,8 +297,8 @@ second sender there can send the association's own mail to spam. See SPEC §14.2
 
 27. **One entry point, no navigation item.** The module is reached from the
     **top** of the availability page: a **Stile 2** button labelled "Prenota un
-    abitante", on the same line as the "Chi c'è in Valle" button and to its
-    right, shown only to signed-in users and only while an `edizione` is
+    abitante", **below the "Chi c'è in Valle" button and its note**, shown
+    only to signed-in users and only while an `edizione` is
     active (SPEC §15.5, §6.2). Do not add a header nav item, do not add a link
     on the "Chi c'è in Valle" page, and do not promote the module anywhere
     else.
@@ -298,16 +306,20 @@ second sender there can send the association's own mail to spam. See SPEC §14.2
     The two buttons carry the **same weight**, both filled `verde` with `testo`
     text — never white on green (rule 13). A first draft made this one Stile 1,
     outlined, so as not to compete; reversed on 2026-09-13. The hierarchy is
-    the reading order, not a paler outline: "Chi c'è in Valle" comes first and
-    carries the note underneath. On a narrow screen the two wrap and keep that
-    order. Still no full-width Stile 2 **band** above the grid (§13.2).
+    the reading order, not a paler outline: "Chi c'è in Valle" comes first,
+    with its note under it, and "Prenota un abitante" comes below them both.
+    Still no full-width Stile 2 **band** above the grid (§13.2).
 
-    **The button stands alone** — no note above it, no helper line below, and
-    the same for everyone whether or not they hold an `abilitazione`. A first
-    draft paired it with "Sei un partecipante di VIHTA?"; that was removed on
-    2026-09-12. Do not reinstate it, and do not add a variant of it: the
-    explaining is done on `/abitanti`, behind the button, where it costs
-    nothing to the people who came to book a desk.
+    **One line stands above the button** — *"Sei un partecipante a VIHTA?
+    Premi qui sotto per entrare in «Prenota un abitante»."* — the same for
+    everyone whether or not they hold an `abilitazione`, and it appears and
+    disappears with the button: no active `edizione`, no line, so the line is
+    never left standing above a button that is no longer there. A line like it
+    was removed on 2026-09-12 and reinstated on 2026-09-15, and the button
+    itself sat beside "Chi c'è in Valle" from 2026-09-13 until it moved below
+    it on 2026-09-15. The line only says who the button is for; the explaining
+    is still done on `/abitanti`, behind the button, where it costs nothing to
+    the people who came to book a desk.
 
     `/abitanti` is **one address that shows two things**: the code form to
     someone without an abilitazione, the activity list to someone with one.

@@ -10,11 +10,15 @@ export default defineConfig({
   test: {
     // Step 9 sends real email. POSTA_LOCALE forces every message into the
     // local Mailpit even on a machine that has a Resend key configured: a
-    // test run must never be able to reach a real mailbox. The other two are
-    // the values the messages are built from (SPEC §10).
+    // test run must never be able to reach a real mailbox. The other three
+    // are the values the messages are built from (SPEC §10, §15.13): the two
+    // addresses the association reads — the same mailbox in production, two
+    // here so a test can tell one notice from the other — and the address the
+    // app answers at, which the links in the messages are built on.
     env: {
       POSTA_LOCALE: "http://127.0.0.1:54324",
       EMAIL_MODERAZIONE: "moderazione@example.test",
+      EMAIL_ASSISTENZA_ABITANTI: "direttivo@example.test",
       URL_APP: "http://127.0.0.1:3000",
     },
     include: ["tests/**/*.test.ts"],

@@ -17,6 +17,12 @@
  * lib/posta/promemoria.ts, next to the one for desks: it is the same nightly
  * run with one list more (§15.10), and the two belong together.
  *
+ * A seventh was added on 2026-09-15, and it is the odd one out:
+ * `avvisaIscrizioneAlDirettivo` goes to the association's own mailbox rather
+ * than to the person it is about, and carries that person's email address —
+ * the one §15.9 already shows in the panel, to the same reader, for the same
+ * purpose. Its own comment says why that is not a breach of rule 4.
+ *
  * Every message that goes to somebody holding a place carries the level 2
  * data of §15.8 — surname, telephone, exact address — which is exactly what
  * §15.10 asks of the confirmation, and which the person is entitled to for
@@ -71,6 +77,10 @@ const assistenza = (): string => EMAIL_ASSISTENZA_ABITANTI ?? m.pieDiPagina.emai
 
 /** The page the person manages their own place from (§15.6). */
 const indirizzoAttivita = (id: string): string => `${URL_APP}/abitanti/${id}`;
+
+/** The panel's list of who is coming to one activity (§15.9). */
+const indirizzoIscritti = (id: string): string =>
+  `${URL_APP}/amministrazione/attivita/${id}/iscritti`;
 
 /** The title, or a phrase that reads like one when the card has none (§15.3.2). */
 const titoloDi = (scheda: SchedaPerEmail): string => scheda.titolo ?? t.senzaTitolo;
@@ -301,4 +311,77 @@ export async function avvisaAnnullamentoDaAmministratore(
       t.annullata.chiusura,
     ]),
   }));
+}
+
+// ---------------------------------------------------------------------------
+// What the Direttivo is told — §15.10, last row
+// ---------------------------------------------------------------------------
+
+/**
+ * "Una persona si è iscritta" — the notice to the Direttivo's mailbox, sent
+ * every time an iscrizione is created, whoever created it (§15.10).
+ *
+ * It is the only message of this module that does not go to the person it is
+ * about, and the only one that carries an email address in its body. That is
+ * deliberate and specified: §15.9 already puts the very same address in front
+ * of the very same person, in the panel, for the very same reason — writing
+ * to whoever is coming, if something changes. Rule 4 is about logs,
+ * diagnostics and analytics, and none of them see this.
+ *
+ * Level 1 only. The surname, the telephone and the exact address of the
+ * abitante (§15.8) stay out: whoever reads this mailbox can see all three in
+ * the panel, and a mailbox is not where a third party's contact details go to
+ * live for years.
+ *
+ * Silently does nothing when EMAIL_ASSISTENZA_ABITANTI is not configured
+ * (§15.13 leaves the address to be decided): a missing parameter must never
+ * make somebody's sign-up fail, and the fallback address of `assistenza()` is
+ * deliberately not used here — that one is a line of text shown on a page,
+ * not a mailbox this app may write to.
+ */
+export async function avvisaIscrizioneAlDirettivo(
+  utenteId: string,
+  attivita: SchedaPerEmail,
+  opzioni: { postiRimasti: number | null; perConto: boolean },
+): Promise<EsitoInvio> {
+  if (!EMAIL_ASSISTENZA_ABITANTI) {
+    return { ok: false, motivo: "EMAIL_ASSISTENZA_ABITANTI non configurata" };
+  }
+
+  const email = await emailPerAvviso(clientDiServizio(), utenteId);
+  if (!email) return { ok: false, motivo: "nessun indirizzo per questa persona" };
+
+  const righe: string[] = [];
+  const aggiungi = (testo: string, valore: string | null | undefined) => {
+    if (valore) righe.push(conValori(testo, { valore }));
+  };
+
+  aggiungi(t.corpo.attivita, attivita.titolo);
+  const quando = quandoDi(attivita);
+  if (quando) {
+    righe.push(
+      conValori(t.corpo.quando, {
+        valore: attivita.ora_inizio ? `${quando}, ${ora(attivita.ora_inizio)}` : quando,
+      }),
+    );
+  }
+  aggiungi(t.corpo.luogo, attivita.luogo_generico);
+  aggiungi(t.avvisoIscrizione.proponente, attivita.abitante_nome);
+  righe.push(conValori(t.avvisoIscrizione.iscritto, { indirizzo: email }));
+  if (opzioni.postiRimasti !== null) {
+    righe.push(conValori(t.avvisoIscrizione.postiRimasti, { posti: String(opzioni.postiRimasti) }));
+  }
+
+  return invia({
+    a: EMAIL_ASSISTENZA_ABITANTI,
+    oggetto: conValori(t.avvisoIscrizione.oggetto, { attivita: titoloDi(attivita) }),
+    testo: messaggio([
+      opzioni.perConto ? t.avvisoIscrizione.aperturaPerConto : t.avvisoIscrizione.apertura,
+      righe,
+      attivita.id
+        ? conValori(t.avvisoIscrizione.collegamento, { url: indirizzoIscritti(attivita.id) })
+        : "",
+      t.avvisoIscrizione.chiusura,
+    ]),
+  });
 }

@@ -741,6 +741,7 @@
   "abitanti": {
     "titolo": "Prenota un abitante",
     "ingresso": "Prenota un abitante",
+    "ingressoNota": "Sei un partecipante a VIHTA? Premi qui sotto per entrare in «Prenota un abitante».",
     "chiuso": {
       "introduzione": "Durante VIHTA gli abitanti della Valle Soana propongono attività da fare insieme: una passeggiata, una cena, un pomeriggio a imparare qualcosa.",
       "testo": "In questo momento non c'è nessuna edizione aperta. Il servizio torna alla prossima."
@@ -897,6 +898,16 @@
         "apertura": "Ti abbiamo preso un posto in un’attività di «Prenota un abitante».",
         "perConto": "L’iscrizione l’ha fatta chi si occupa del servizio, non tu: di solito perché si era liberato un posto che aspettavi. Se non è quello che volevi, puoi annullare dal collegamento qui sotto, oppure scrivere a {indirizzo}.",
         "chiusura": "Ti aspettano."
+      },
+      "avvisoIscrizione": {
+        "oggetto": "Nuova iscrizione: {attivita}",
+        "apertura": "Una persona ha preso posto in un’attività di «Prenota un abitante».",
+        "aperturaPerConto": "Una persona è stata iscritta a un’attività di «Prenota un abitante» dal pannello, da chi si occupa del servizio.",
+        "proponente": "Propone: {valore}",
+        "iscritto": "Si è iscritto: {indirizzo}",
+        "postiRimasti": "Posti ancora liberi: {posti}",
+        "collegamento": "L’elenco di chi viene è qui:\n{url}",
+        "chiusura": "Non devi fare niente: è solo un avviso."
       },
       "annullata": {
         "oggetto": "La tua iscrizione a {attivita} è stata annullata",

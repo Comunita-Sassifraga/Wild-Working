@@ -36,6 +36,7 @@ import { cercaUtentePerEmail } from "@/lib/db/amministrazione";
 import { annullaPerConto, iscriviPerConto } from "@/lib/db/iscritti";
 import {
   avvisaAnnullamentoDaAmministratore,
+  avvisaIscrizioneAlDirettivo,
   avvisaIscrizioneDaAmministratore,
 } from "@/lib/posta/abitanti";
 import { amministratore } from "../../../guardia";
@@ -74,7 +75,22 @@ export async function iscriviPerContoAzione(formData: FormData): Promise<void> {
 
   // Read after the write, so the message carries the card as it is now.
   const attivita = await attivitaSingola(client, attivitaId);
-  if (attivita) await avvisaIscrizioneDaAmministratore(utente.valore.id, attivita);
+  if (attivita) {
+    await avvisaIscrizioneDaAmministratore(utente.valore.id, attivita);
+    // And the same notice the Direttivo gets for a sign-up somebody made
+    // themselves (§15.10), with the line that says this one came from the
+    // panel. It goes out here too because the mailbox is read by more than
+    // one person: whoever did not press the button has no other way of
+    // knowing a place changed hands.
+    await avvisaIscrizioneAlDirettivo(utente.valore.id, attivita, {
+      // A card saved half-way has no capienza yet (§15.3.2), and then there
+      // is no number of free places to report — not a zero, which would read
+      // as "full".
+      postiRimasti:
+        attivita.capienza === null ? null : attivita.capienza - (attivita.iscritti ?? 0),
+      perConto: true,
+    });
+  }
 
   redirect(pagina(attivitaId, "?salvato=iscritta"));
 }

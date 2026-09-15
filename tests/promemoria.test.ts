@@ -22,11 +22,14 @@
  * indirizzo raggiunge una casella vera, e nessuno viene stampato (regola 4).
  */
 
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { EMAIL_ASSISTENZA_ABITANTI } from "@/config/limits";
 import { aggiungiGiorni, dataEstesa, oggiRoma } from "@/lib/dates";
 import { annullaAttivita, attivitaSingola } from "@/lib/db/attivita";
+import { m } from "@/lib/messaggi";
 import {
   avvisaAttivitaAnnullata,
+  avvisaIscrizioneAlDirettivo,
   confermaAnnullamento,
   confermaIscrizione,
 } from "@/lib/posta/abitanti";
@@ -51,6 +54,9 @@ import {
   visitatore,
   type UtenteTest,
 } from "./setup/supabase";
+
+/** La casella dell'associazione, come la impone vitest.config.mts (§15.13). */
+const DIRETTIVO = EMAIL_ASSISTENZA_ABITANTI ?? "";
 
 const ORARI = {
   ora_inizio_mattina: "09:00",
@@ -545,7 +551,8 @@ describe("§15.10 il promemoria delle attività", () => {
 
 // ---------------------------------------------------------------------------
 // §15.10 — le altre email del modulo: la conferma, l'annullamento fatto dalla
-// persona, e l'attività che non si farà.
+// persona, l'attività che non si farà, e — dal 15/09/2026 — l'avviso che
+// arriva alla casella dell'associazione a ogni iscrizione.
 //
 // Le due dell'amministratore stanno in tests/iscrizioni-amministratore.test.ts,
 // dove sono nate insieme alle azioni di cui §15.9 le fa condizione.
@@ -696,5 +703,103 @@ describe("§15.10 le email di «Prenota un abitante»", () => {
     for (const u of [admin, persona, altra]) {
       expect(email.testo).not.toContain(u.email);
     }
+  });
+
+  /**
+   * L'avviso al Direttivo — §15.10, ultima riga, aggiunto il 15/09/2026.
+   *
+   * È l'unica email del modulo che non va alla persona di cui parla, e
+   * l'unica che porta un indirizzo email nel corpo: lo stesso che §15.9
+   * mostra già nel pannello, allo stesso lettore e per la stessa ragione.
+   * Quello che si prova qui è dove arriva, cosa porta e — soprattutto —
+   * cosa non porta: niente livello 2, e niente verso la persona.
+   */
+  describe("l'avviso al Direttivo a ogni iscrizione", () => {
+    const attesa = {
+      titolo: "Cena di prova al Direttivo",
+      abitante_nome: "Maria",
+      abitante_cognome: "Ghiglione",
+      abitante_telefono: "011 0000000",
+      luogo_generico: "Ronco Canavese",
+      luogo_esatto: "Via del Forno 3, Ronco Canavese",
+      capienza: 6,
+    };
+
+    it("arriva alla casella dell'associazione con l'attività, l'indirizzo dell'iscritto e i posti rimasti", async () => {
+      const attivita = await creaAttivita({ edizione_id: edizione, ...attesa });
+      const esito = await iscriviti(persona.client, attivita);
+      if (!esito.ok) throw new Error(`fixture: iscrizione rifiutata (${esito.codice})`);
+      const primaDirettivo = await contaEmail(DIRETTIVO);
+      const primaPersona = await contaEmail(persona.email);
+
+      expect(
+        await avvisaIscrizioneAlDirettivo(persona.id, await scheda(attivita), {
+          postiRimasti: 5,
+          perConto: false,
+        }),
+      ).toMatchObject({ ok: true });
+
+      const email = await attendiEmail(DIRETTIVO, primaDirettivo);
+      expect(email.oggetto).toBe("Nuova iscrizione: Cena di prova al Direttivo");
+      expect(email.testo).toContain(persona.email);
+      expect(email.testo).toContain("Ronco Canavese");
+      expect(email.testo).toContain("Maria");
+      expect(email.testo).toContain("Posti ancora liberi: 5");
+      expect(email.testo).toContain(
+        `http://127.0.0.1:3000/amministrazione/attivita/${attivita}/iscritti`,
+      );
+      // Livello 2 fuori: chi legge questa casella lo vede tutto nel pannello
+      // (§15.8), e una casella di posta non è dove tenerlo per anni.
+      expect(email.testo).not.toContain("Ghiglione");
+      expect(email.testo).not.toContain("011 0000000");
+      expect(email.testo).not.toContain("Via del Forno 3");
+      // Uno solo, e niente di tutto questo alla persona.
+      expect(await nessunaEmailOltre(DIRETTIVO, primaDirettivo + 1)).toBe(0);
+      expect(await nessunaEmailOltre(persona.email, primaPersona)).toBe(0);
+    });
+
+    it("quando l'iscrizione la fa l'amministratore, l'avviso lo dice", async () => {
+      const attivita = await creaAttivita({ edizione_id: edizione, ...attesa });
+      const prima = await contaEmail(DIRETTIVO);
+
+      expect(
+        await avvisaIscrizioneAlDirettivo(altra.id, await scheda(attivita), {
+          postiRimasti: 6,
+          perConto: true,
+        }),
+      ).toMatchObject({ ok: true });
+
+      const email = await attendiEmail(DIRETTIVO, prima);
+      expect(email.testo).toContain("da chi si occupa del servizio");
+      expect(email.testo).toContain(altra.email);
+      expect(await nessunaEmailOltre(DIRETTIVO, prima + 1)).toBe(0);
+    });
+
+    it("senza casella configurata non parte niente, e non si ripiega su un altro indirizzo", async () => {
+      const attivita = await creaAttivita({ edizione_id: edizione, ...attesa });
+      const letta = await scheda(attivita);
+      const primaDirettivo = await contaEmail(DIRETTIVO);
+      const primaPersona = await contaEmail(persona.email);
+
+      vi.stubEnv("EMAIL_ASSISTENZA_ABITANTI", "");
+      vi.resetModules();
+      try {
+        const { avvisaIscrizioneAlDirettivo: senzaCasella } = await import("@/lib/posta/abitanti");
+        expect(await senzaCasella(persona.id, letta, { postiRimasti: 6, perConto: false })).toEqual({
+          ok: false,
+          motivo: "EMAIL_ASSISTENZA_ABITANTI non configurata",
+        });
+      } finally {
+        vi.unstubAllEnvs();
+        vi.resetModules();
+      }
+
+      // E in particolare: non è finito nell'indirizzo istituzionale del piè
+      // di pagina, che è quello che `assistenza()` mostra in pagina quando la
+      // variabile manca. Una casella non si deduce da un testo.
+      expect(await nessunaEmailOltre(DIRETTIVO, primaDirettivo)).toBe(0);
+      expect(await nessunaEmailOltre(persona.email, primaPersona)).toBe(0);
+      expect(await contaEmail(m.pieDiPagina.email)).toBe(0);
+    });
   });
 });

@@ -339,11 +339,11 @@ Il collegamento speculare di §6.6 **non** diventa un pulsante: l'asimmetria è 
 
 Accessibile **senza registrazione**. La registrazione serve solo per prenotare.
 
-**Ingresso a «Prenota un abitante».** In cima alla pagina, sulla stessa riga del pulsante di "Chi c'è in Valle" e alla sua destra, compare l'ingresso al secondo servizio (§15.5). Si mostra **solo a chi ha fatto l'accesso** e **solo mentre un'edizione è attiva** (§15.3.1): un visitatore non registrato non lo vede, e il 18 ottobre sparisce da sé.
+**Ingresso a «Prenota un abitante».** In cima alla pagina, **sotto il pulsante di "Chi c'è in Valle" e la sua nota**, compare l'ingresso al secondo servizio (§15.5). Si mostra **solo a chi ha fatto l'accesso** e **solo mentre un'edizione è attiva** (§15.3.1): un visitatore non registrato non lo vede, e il 18 ottobre sparisce da sé.
 
-È un **pulsante in Stile 2** con scritto *"Prenota un abitante"*, che porta a `/abitanti`. Nient'altro: nessuna nota sopra, nessuna spiegazione sotto, e la stessa cosa per tutti — sia per chi è già abilitato, sia per chi deve ancora inserire il codice.
+È un **pulsante in Stile 2** con scritto *"Prenota un abitante"*, che porta a `/abitanti`, preceduto da una riga che dice a chi è rivolto: *"Sei un partecipante a VIHTA? Premi qui sotto per entrare in «Prenota un abitante»."* Riga e pulsante compaiono e spariscono insieme: fuori da un'edizione attiva non resta né l'una né l'altro.
 
-I due pulsanti hanno lo stesso peso, e la nota resta sotto il solo pulsante di "Chi c'è in Valle", che è quello di cui dice cosa c'è dall'altra parte. Da telefono vanno a capo e restano in quest'ordine. Decisione del 13/09/2026, che sostituisce lo Stile 1 di una prima stesura: le ragioni stanno in §15.5.
+I due pulsanti hanno lo stesso peso, entrambi riempiti di `verde` con testo `testo`, e ciascuno porta la propria riga: la nota di "Chi c'è in Valle" sta sotto il suo pulsante e dice cosa c'è dall'altra parte, la riga di «Prenota un abitante» sta sopra il suo e dice a chi serve. La gerarchia la fa l'ordine di lettura: "Chi c'è in Valle" viene prima. Decisione del 15/09/2026, che sostituisce l'affiancamento sulla stessa riga del 13/09/2026 e riprende la riga di spiegazione tolta il 12/09/2026.
 
 Resta vietata anche qui la **fascia** in Stile 2 a tutta larghezza: due pulsanti restano due elementi circoscritti, una fascia sarebbe un registro (§13.2).
 
@@ -1147,15 +1147,15 @@ E una **revoca puntuale**: disattivare una singola abilitazione senza toccare le
 
 **Un solo ingresso dentro l'applicazione**, nessuna voce di navigazione (D19).
 
-**In cima alla pagina della disponibilità**, accanto al pulsante di «Chi c'è in Valle» e alla sua destra, a chi ha fatto l'accesso: un **pulsante in Stile 2** con scritto *"Prenota un abitante"*, che porta a `/abitanti`. Da telefono i due vanno a capo e restano in quest'ordine.
+**In cima alla pagina della disponibilità**, sotto il pulsante di «Chi c'è in Valle» e la sua nota, a chi ha fatto l'accesso: un **pulsante in Stile 2** con scritto *"Prenota un abitante"*, che porta a `/abitanti`.
 
-**Solo il pulsante.** Nessuna nota, nessuna riga di spiegazione, né sopra né sotto, e identico per tutti: per chi è già abilitato e per chi deve ancora inserire il codice. Una prima stesura gli metteva accanto la domanda *"Sei un partecipante di VIHTA?"*; è stata tolta il 12/09/2026. Chi partecipa a VIHTA ha in mano un cartoncino e non ha bisogno che gli si chieda se è lui; a chiunque altro la nota spiegherebbe qualcosa che non può usare, aggiungendo due righe di testo in cima alla pagina più usata dell'applicazione. Il nome del pulsante dice già cos'è, e la spiegazione vera sta dietro al pulsante, su `/abitanti` (§15.6).
+**Sopra il pulsante, una riga sola**: *"Sei un partecipante a VIHTA? Premi qui sotto per entrare in «Prenota un abitante»."* È uguale per tutti — per chi è già abilitato e per chi deve ancora inserire il codice — e compare e sparisce insieme al pulsante. Il 12/09/2026 una riga di questo genere era stata tolta, perché chi partecipa a VIHTA ha in mano un cartoncino e non ha bisogno che gli si chieda se è lui; il 15/09/2026 la scelta è stata rovesciata. Il cartoncino dice `/abitanti`, non dice cosa succede su questa pagina, e chi arriva per la prima volta legge "Prenota un abitante" senza sapere se riguarda lui: una riga che lo chiama per nome costa due righe di testo a chi voleva solo una scrivania, e le fa risparmiare tutte a chi ha 29 giorni per accorgersi del servizio. La spiegazione vera resta comunque dietro al pulsante, su `/abitanti` (§15.6).
 
 Questo pulsante è tutto il meccanismo di ingresso. La prima volta che lo si preme, `/abitanti` chiede il codice; da lì in avanti porta direttamente all'elenco delle attività.
 
 **Perché in cima e non in fondo.** In una prima stesura questa era una riga discreta sotto la griglia, per non competere con l'azione principale della pagina. Il 12/09/2026 la scelta è stata rovesciata: da telefono la griglia è lunga, e quello che sta in coda non lo legge nessuno — è la stessa ragione per cui il collegamento a «Chi c'è in Valle» sta sopra la griglia e non sotto (§6.2). Un ingresso che non si vede è un ingresso che non esiste, e questo modulo ha 29 giorni di vita per farsi trovare.
 
-**I due pulsanti hanno lo stesso peso**, entrambi riempiti di `verde` con testo `testo`. Una prima stesura metteva questo in Stile 1, di contorno, per non competere con «Chi c'è in Valle»; la scelta è stata rovesciata il 13/09/2026. Un ingresso che dura 29 giorni e riguarda persone appena arrivate, che l'applicazione non la conoscono, non può essere il più debole dei due: la gerarchia la fa l'ordine di lettura — «Chi c'è in Valle» viene prima e porta la sua nota sotto — non un contorno più chiaro. La competizione con il "Prenota" delle celle resta governata dal fatto che quelli sono collegamenti dentro la griglia, non pulsanti.
+**I due pulsanti hanno lo stesso peso**, entrambi riempiti di `verde` con testo `testo`. Una prima stesura metteva questo in Stile 1, di contorno, per non competere con «Chi c'è in Valle»; la scelta è stata rovesciata il 13/09/2026. Un ingresso che dura 29 giorni e riguarda persone appena arrivate, che l'applicazione non la conoscono, non può essere il più debole dei due: la gerarchia la fa l'ordine di lettura — «Chi c'è in Valle» viene prima, e «Prenota un abitante» sta sotto di lui — non un contorno più chiaro. La competizione con il "Prenota" delle celle resta governata dal fatto che quelli sono collegamenti dentro la griglia, non pulsanti.
 
 **Compare soltanto a chi ha fatto l'accesso e soltanto mentre un'edizione è attiva** (§15.3.1). Un visitatore non registrato non lo vede: non gli servirebbe, perché il codice si inserisce da utenti. Il 18 ottobre sparisce da sé — nessuno deve ricordarsi di toglierlo — e l'anno prossimo ricompare cambiando due date dal pannello.
 
@@ -1343,6 +1343,9 @@ Tutte dal mittente di D12, tutte in italiano, tutte con la stessa voce di §13.9
 | Annullamento fatto dall'amministratore | Cosa è successo, il motivo se c'è, e a chi scrivere (§15.9) |
 | Promemoria la sera prima | Si appoggia al giro notturno già esistente (§6.3): stessa esecuzione, un elenco in più |
 | Attività annullata | Motivo se c'è, e l'invito a guardare le altre |
+| Nuova iscrizione, avviso al Direttivo | Attività, giorno, ora, luogo generico, nome di battesimo del proponente, posti rimasti, **l'indirizzo email di chi si è iscritto**, e il collegamento all'elenco nel pannello. Parte a ogni iscrizione riuscita, anche quando è l'amministratore a farla per conto di qualcuno |
+
+L'avviso al Direttivo è l'unica email del modulo che non va alla persona di cui parla, ed è aggiunto il 15/09/2026. Va alla stessa casella di `EMAIL_ASSISTENZA_ABITANTI` (§15.13) e **porta l'indirizzo email dell'iscritto**. Non è un'eccezione alla regola 4, che riguarda i registri e le diagnostiche: è lo stesso dato che §15.9 mostra già nel pannello alla stessa persona, per la stessa ragione — scrivere a chi viene, se qualcosa cambia. Non esce da lì: nessun'altra casella lo riceve, e nessun registro lo scrive. Non porta i dati di **livello 2** dell'abitante: chi legge quella casella li vede tutti nel pannello, e una casella di posta non è dove tenerli. Se l'indirizzo della casella non è configurato l'avviso non parte, e l'iscrizione riesce lo stesso.
 
 Il promemoria delle attività **non è un secondo giro notturno**: si aggiunge a quello che parte già alle `ORA_PROMEMORIA`. Una sola esecuzione, due elenchi.
 
@@ -1356,7 +1359,7 @@ Si aggiungono alla tabella di §7.
 
 | Dato | Obbligatorio | Perché | Base giuridica | Chi lo vede | Per quanto |
 |---|---|---|---|---|---|
-| Iscrizioni | Sì | Erogare il servizio | Art. 6.1.b | L'utente; l'amministratore fino al giorno dopo l'attività | 30 giorni dalla data dell'attività, poi anonimizzate |
+| Iscrizioni | Sì | Erogare il servizio | Art. 6.1.b | L'utente; l'amministratore fino al giorno dopo l'attività, nel pannello e nell'avviso che riceve a ogni iscrizione (§15.10) | 30 giorni dalla data dell'attività, poi anonimizzate |
 | Abilitazione | Sì | Riservare il servizio ai partecipanti VIHTA | Art. 6.1.b | L'utente, l'amministratore | Fino a 30 giorni dopo la chiusura dell'edizione |
 | Impronta del codice | Sì | Impedire il riuso del biglietto | Art. 6.1.b | Nessuno: la legge solo il sistema | Fino a 30 giorni dopo la chiusura dell'edizione |
 | Dati dell'abitante, livello 1 — nome, comune, descrizione | — | Far sapere ai partecipanti chi propone, dove e cosa | Art. 6.1.a — **consenso firmato su carta o ricevuto per email**, raccolto fuori dall'app (§15.8) | Tutti gli abilitati all'edizione | Fino alla chiusura dell'edizione |

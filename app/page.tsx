@@ -32,11 +32,12 @@ import { esciAzione } from "./accedi/azioni";
  * there that the question comes up, reading "2 hanno reso pubblica la
  * presenza" and wanting to know who they are.
  *
- * Beside that button, and only for somebody signed in while an edizione is
- * open, the single entry to «Prenota un abitante» (§15.5, §6.2). It is the
- * only change the module makes to a page of the coworking, and the only way
- * into the module from inside the application: no navigation item, no link
- * from "Chi c'è in Valle" (rule 27).
+ * Below that button, and only for somebody signed in while an edizione is
+ * open, the single entry to «Prenota un abitante» (§15.5, §6.2) — a line
+ * saying who it is for, and the button under it. It is the only change the
+ * module makes to a page of the coworking, and the only way into the module
+ * from inside the application: no navigation item, no link from "Chi c'è in
+ * Valle" (rule 27).
  */
 
 export default async function Home({
@@ -105,30 +106,38 @@ export default async function Home({
         </p>
       )}
 
-      {/* The one entry to «Prenota un abitante» inside the application
-          (§15.5, rule 27), beside the button to "Chi c'è in Valle". Only the
-          button: no note above, no line below, and the same for everybody —
-          for whoever already holds an abilitazione and for whoever has still
-          to type in their code. The explaining is done on /abitanti, behind
-          it, where it costs nothing to the people who came to book a desk.
-
-          It is drawn only for somebody signed in and only while an edizione
-          is active (§15.3.1): a visitor would have nothing to do with it,
-          the code is typed in by signed-in people, and on 18 October it goes
-          by itself — nobody has to remember to remove it. */}
       <Rimando
         href="/chi-ce-in-valle"
         etichetta={t.rimandoChiCe}
         nota={t.rimandoChiCeNota}
         forma="pulsante"
-        accanto={
-          utente && edizione ? (
-            <Link href="/abitanti" className={bottonePrimario}>
-              {m.abitanti.ingresso}
-            </Link>
-          ) : undefined
-        }
       />
+
+      {/* The one entry to «Prenota un abitante» inside the application
+          (§15.5, rule 27), below the button to "Chi c'è in Valle" and its
+          note, with a line of its own above it that says who it is for. The
+          line reads the same for everybody — for whoever already holds an
+          abilitazione and for whoever has still to type in their code — and
+          it never explains the service: that is done on /abitanti, behind
+          the button, where it costs nothing to the people who came to book
+          a desk.
+
+          Line and button are one block and are drawn together, only for
+          somebody signed in and only while an edizione is active (§15.3.1):
+          a visitor would have nothing to do with either, the code is typed
+          in by signed-in people, and on 18 October both go by themselves —
+          nobody has to remember to remove them, and the line is never left
+          standing above a button that is no longer there. */}
+      {utente && edizione && (
+        <p className="mt-6">
+          <span className="mb-1 block text-nota text-testo-secondario">
+            {m.abitanti.ingressoNota}
+          </span>
+          <Link href="/abitanti" className={bottonePrimario}>
+            {m.abitanti.ingresso}
+          </Link>
+        </p>
+      )}
 
       {utente ? (
         <form action={esciAzione} className="mt-6 flex flex-wrap items-center gap-4">

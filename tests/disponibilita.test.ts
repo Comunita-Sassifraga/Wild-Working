@@ -241,6 +241,11 @@ describe("§6.2 giorno scelto da un indirizzo", () => {
  * `utente && edizioneAttiva(client)`. Due metà, e nessuna delle due basta da
  * sola — un visitatore non lo vede mai, e il 18 ottobre sparisce da sé senza
  * che nessuno tolga niente.
+ *
+ * Dal 15/09/2026 il pulsante sta sotto quello di «Chi c'è in Valle», con
+ * sopra la riga che dice a chi è rivolto (§6.2). Riga e pulsante sono un
+ * blocco solo e si disegnano insieme, sulla stessa condizione: la riga non
+ * resta mai sopra un pulsante che non c'è più.
  */
 describe("§15.5 ingresso al modulo dalla disponibilità", () => {
   const anon = visitatore();
