@@ -56,6 +56,65 @@ Da non fare: `npm install esbuild@0.25.4`, che npm rifiuta; e soprattutto
 prove. Il giorno in cui l'adattatore dichiarerà `esbuild` per conto proprio,
 questa riga di `package.json` si può togliere.
 
+## Pubblicare: `.env.local` va tolto di mezzo, ogni volta
+
+**L'adattatore si porta `.env.local` dentro il programma pubblicato.** Non è
+un'ipotesi: scoperto il 15/09/2026 alla prima pubblicazione vera, guardando
+perché il Worker online rispondeva senza avere un solo segreto configurato.
+
+Next legge `.env.local` anche quando compila per la produzione — è il suo
+comportamento documentato, quel file è escluso solo in `test` — e
+l'adattatore prende quello che Next ha letto e lo scrive in
+`.open-next/cloudflare/next-env.mjs`, che finisce nel Worker. Ci finiscono
+tutti i valori: l'indirizzo del Supabase locale, le chiavi, la chiave delle
+impronte, il `CRON_SECRET`.
+
+Quindi, **prima di ogni pubblicazione**:
+
+```bash
+mv .env.local .env.local.da-parte
+npm run cloudflare:build
+mv .env.local.da-parte .env.local
+```
+
+Il controllo che dice se è andata bene sta in una riga, e va guardato:
+
+```bash
+cat .open-next/cloudflare/next-env.mjs
+```
+
+Deve dire `export const production = {};`. Se fra quelle graffe c'è
+qualcosa, quel qualcosa sta per essere pubblicato.
+
+### Perché non è un guasto, e perché va fatto lo stesso
+
+L'applicazione **funziona comunque**, e questo è esattamente ciò che rende la
+cosa insidiosa. L'adattatore applica prima le variabili di Cloudflare e solo
+dopo riempie i buchi con quelle incorporate:
+
+```js
+process.env[key] ??= nextEnvVars[mode][key];
+```
+
+Un segreto messo con `wrangler secret put` vince sempre su quello incorporato.
+Ma finché quel segreto non c'è, **il Worker gira sui valori del PC di chi ha
+compilato**: il 15/09 il sito pubblicato ha risposto 200 e ha disegnato la
+griglia con tutti i giorni chiusi, perché stava cercando un database a
+`127.0.0.1` e le letture pubbliche, quando la lettura fallisce, restituiscono
+un elenco vuoto (`if (error || !data) return []`). Una valle chiusa e una valle
+irraggiungibile si somigliano troppo perché qualcuno se ne accorga da solo.
+
+E anche con i segreti a posto resta il fatto che **valori di sviluppo viaggiano
+dentro un programma pubblicato**, dove non hanno niente da fare.
+
+### Come accorgersene dal di fuori
+
+Con i segreti configurati e un `next-env.mjs` vuoto, un'applicazione che non
+riesce a raggiungere il database **dà errore** invece di mostrare una valle
+chiusa: non ha più nessun valore di riserva su cui appoggiarsi. È la differenza
+fra le due schermate che dice se la pubblicazione è pulita, e vale la pena
+saperlo prima di spaventarsi.
+
 ## Che cosa resta da fare
 
 - ~~La tabella dei fornitori al §9 di `docs/informativa-privacy.md`.~~ Fatta
