@@ -18,6 +18,10 @@ supabase/.branches/
 # Vercel
 .vercel/
 
+# Cloudflare build output (OpenNext adapter + Wrangler state)
+.open-next/
+.wrangler/
+
 # Logs
 *.log
 npm-debug.log*
