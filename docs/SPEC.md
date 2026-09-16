@@ -737,7 +737,7 @@ I parametri del modulo «Prenota un abitante» stanno in §15.13 e vivono nello 
 
 Ne discendono due cose. La prima è minore: una sessione lasciata aperta su un computer condiviso non scade dopo un mese. **La seconda è una trappola a scoppio ritardato, e riguarda §7.** La colonna `utenti.ultimo_accesso` si muove soltanto quando qualcuno apre un link di accesso, perché la scrive `registra_accesso()` e nient'altro la tocca; ed è esattamente quella colonna che il giro notturno legge per decidere chi è dormiente. Una persona che entra una volta e poi usa il servizio ogni settimana non riapre mai un link: la sua colonna resta ferma al primo giorno, e dopo ventitré mesi le arriva l'avviso di dormienza, dopo ventiquattro l'account viene chiuso — mentre lo sta usando.
 
-**Finché questo non è risolto, la cancellazione degli account dormienti di §7 non è sicura.** Il rimedio previsto non è pagare il piano Pro, che per una casella di configurazione non è proporzionato: è **far muovere `ultimo_accesso` quando la persona usa davvero il servizio**, non solo quando apre un link, al massimo una volta al giorno per non scrivere a ogni richiesta. Renderebbe vero ciò che il nome della colonna promette e toglierebbe la trappola alla radice. Non è ancora stato fatto, e non ha urgenza tecnica — il primo avviso possibile è a ventitré mesi dal primo accesso — ma va fatto prima di allora, ed è scritto qui perché nessuno lo riscopra per caso.
+**Finché questo non è risolto, la cancellazione degli account dormienti di §7 non è sicura** (la voce sta in §11.C, fra gli interventi sul software). Il rimedio previsto non è pagare il piano Pro, che per una casella di configurazione non è proporzionato: è **far muovere `ultimo_accesso` quando la persona usa davvero il servizio**, non solo quando apre un link, al massimo una volta al giorno per non scrivere a ogni richiesta. Renderebbe vero ciò che il nome della colonna promette e toglierebbe la trappola alla radice. Non è ancora stato fatto, e non ha urgenza tecnica — il primo avviso possibile è a ventitré mesi dal primo accesso — ma va fatto prima di allora, ed è scritto qui perché nessuno lo riscopra per caso.
 
 **`FINESTRA_GIORNI` è una fonte di verità unica.** Governa insieme la validazione della prenotazione, la vista di disponibilità e la pagina pubblica. I tre valori devono coincidere per costruzione, non essere impostati separatamente: altrimenti l'app finirebbe per mostrare giorni non prenotabili o nascondere giorni prenotabili.
 
@@ -790,8 +790,15 @@ Gli indirizzi mancanti hanno ora una conseguenza visibile: finché non sono inse
 ### C. Rimandato a dopo il rilascio
 
 Non sono cose dimenticate: sono cose che si possono fare **dopo** che il
-prototipo è in mano alle persone, senza che nulla vada perduto nel frattempo.
-Aggiornato all'11/09, chiuso il passo 13.
+servizio è in mano alle persone, senza che nulla vada perduto nel frattempo.
+Aggiornato al 16/09/2026, giorno del rilascio.
+
+**Questa è la lista.** Altrove nella specifica ci sono elenchi che le
+somigliano ma dicono un'altra cosa, e conviene non confonderli: §9 e §15.15
+sono ciò che abbiamo deciso di **non** costruire, cioè un confine e non un
+arretrato; §13.10 sono materiali che devono arrivare da fuori; la coda di
+§15.14 è lavoro organizzativo che nessuna sessione di programmazione produce.
+Quando una cosa da fare non rientra in nessuna di quelle tre, va qui.
 
 **Contenuti che mette una persona, dal pannello**
 
@@ -839,6 +846,91 @@ Aggiornato all'11/09, chiuso il passo 13.
 - Logo in formato vettoriale, versione del logo per fondo verde, e **icona
   disegnata per il telefono**: quella in uso è provvisoria, ricavata dal logo
   PNG. Si sostituiscono i file e nient'altro.
+
+**Interventi sul software, emersi con il rilascio**
+
+Nessuno dei tre è urgente il giorno dopo il rilascio, e il primo che scade lo
+fa fra quasi due anni. Sono scritti qui perché sono esattamente il genere di
+cosa che si riscopre per caso, tardi e nel momento sbagliato.
+
+- **Un controllo che impedisca di pubblicare con `.env.local` dentro.**
+  Compilando da un computer che ha quel file, Next lo legge e l'adattatore lo
+  scrive dentro il programma pubblicato (§14.5). Il rimedio è spostarlo prima
+  di compilare, ed è scritto in tre posti — qui, in `PROVA-CLOUDFLARE.md` e
+  nel documento di rilascio — ma resta **l'unico passaggio della procedura che,
+  se dimenticato, non dà nessun segnale**: l'applicazione funziona lo stesso.
+
+  Il controllo va agganciato a **`cloudflare:deploy`**, e non soltanto a
+  `cloudflare:build`. La compilazione è il momento in cui l'errore si commette,
+  ma la pubblicazione è il momento in cui fa danno, e i due possono distare
+  giorni: `deploy` **non ricompila**, carica quello che trova in `.open-next/`,
+  qualunque cosa sia e da quando che sia. Il rischio non è quindi solo
+  «mi sono dimenticato di spostare il file», è anche **«ho pubblicato una
+  compilazione vecchia»**, che è peggio perché non dipende dal ricordarsi di
+  nulla. Una quindicina di righe in `strumenti/` che leggano
+  `.open-next/cloudflare/next-env.mjs` e si fermino se non è vuoto, dicendo in
+  italiano cosa fare, con il loro test. Da fare prima della prossima
+  pubblicazione.
+
+- **`ultimo_accesso` deve muoversi quando la persona usa il servizio**, non
+  soltanto quando apre un link di accesso. Oggi lo scrive `registra_accesso()`
+  e nient'altro, ed è la colonna che il giro notturno legge per decidere chi è
+  dormiente. Poiché sul piano gratuito la sessione non scade (§10), chi entra
+  una volta e poi usa l'app ogni settimana non riapre mai un link: la colonna
+  resta ferma, e a ventitré mesi gli arriva l'avviso di dormienza, a
+  ventiquattro l'account viene chiuso. **Finché questo non è fatto, la
+  cancellazione degli account dormienti di §7 non è sicura.** Una migrazione
+  più poche righe, scrivendo al massimo una volta al giorno per non toccare la
+  banca dati a ogni richiesta, con il test che lo dimostri. La prima scadenza
+  possibile è **agosto 2028**, ventitré mesi dopo i primi accessi.
+
+- **Il nome visualizzato nelle email dell'applicazione.** `lib/posta/` spedisce
+  da `EMAIL_MITTENTE` nudo, mentre le email di accesso — che partono dal
+  fornitore di autenticazione e non da qui — si presentano come «Comunità
+  Sassifraga». Stesso mittente reale, due facce diverse nella casella di chi
+  riceve, e quella nuda ispira meno fiducia. Una riga in
+  `lib/posta/trasporto.ts`, più l'asserzione nel test. Nessuna urgenza.
+
+**Due cose sulla posta, da capire**
+
+Emerse nei primi giorni di esercizio. Nessuna delle due è ancora spiegata, e
+la prima delle due tocca l'unica porta d'ingresso al servizio.
+
+- **Ad alcune persone la mail di accesso non arriva.** Da guardare in
+  quest'ordine, perché le prime due spiegazioni non lasciano traccia visibile a
+  chi chiede il link. **Uno:** la posta indesiderata. Il sottodominio ha
+  cominciato a spedire il 15/09/2026 e non ha ancora reputazione; i record
+  sono a posto (SPF, DKIM, DMARC, MX dei rimbalzi), ma i filtri più severi
+  trattano con sospetto ogni mittente nuovo, e il rimedio è il tempo più il
+  «non è spam» premuto dalle prime persone. **Due:** il limite di §6.1,
+  `MAX_LINK_PER_EMAIL_ORA`, oltre il quale non parte nulla — e la pagina
+  mostra **la stessa frase** del caso riuscito, deliberatamente, per non
+  rivelare se un indirizzo esiste. Quindi «dice che l'ha mandata» non prova che
+  l'abbia mandata. **Tre:** il tetto giornaliero di invii del fornitore di
+  posta, condiviso fra promemoria, avvisi di moderazione e email del modulo
+  (§14.2): esaurito quello si ferma anche l'accesso. **Quattro:** l'intervallo
+  minimo per utente configurato presso il fornitore di autenticazione, che
+  rifiuta due richieste troppo ravvicinate — questo però un segnale lo dà, ed è
+  il messaggio «Non riusciamo a inviare l'email in questo momento».
+  I due posti dove la risposta esiste davvero sono il registro degli invii del
+  fornitore di posta, che dice se un messaggio è partito e se è stato
+  consegnato, e il registro di autenticazione, che dice se la richiesta è
+  arrivata e con quale esito.
+
+- **Su Gmail la mail di accesso si apre già accorciata**, e il collegamento si
+  vede solo premendo i tre puntini di «Mostra contenuti abbreviati». Non è il
+  troncamento da messaggio troppo grande — quello scatta oltre un centinaio di
+  KiB e queste email sono poche righe. È l'altro comportamento: Gmail nasconde
+  ciò che riconosce come **contenuto ripetuto**. Le nostre due email di accesso
+  hanno **oggetto identico** e corpo identico salvo il collegamento, quindi
+  Gmail le raggruppa nella stessa conversazione e collassa la parte che ha già
+  mostrato. Il risultato è che chi riceve il secondo link apre una email
+  apparentemente vuota. **È un'ipotesi, non una diagnosi**, e si verifica in
+  due minuti: chiedere due link di seguito alla stessa casella Gmail e
+  guardare se il primo si apre intero e il secondo no. Se è confermata, il
+  rimedio sta nei modelli e negli oggetti — in `supabase/templates/` e in
+  `config.toml` — e va scelto con §13.9 davanti, perché significa rendere ogni
+  messaggio riconoscibilmente diverso dal precedente senza rovinare il tono.
 
 **Cose da guardare con l'uso vero**
 

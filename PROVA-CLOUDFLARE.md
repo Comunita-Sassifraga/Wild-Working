@@ -86,6 +86,12 @@ cat .open-next/cloudflare/next-env.mjs
 Deve dire `export const production = {};`. Se fra quelle graffe c'è
 qualcosa, quel qualcosa sta per essere pubblicato.
 
+Questo controllo è a mano, e un passaggio a mano che non dà segnale quando lo
+si dimentica è un passaggio che prima o poi si dimentica. Renderlo automatico
+è una voce di SPEC §11.C, fra gli interventi sul software: quando ci sarà, la
+compilazione si fermerà da sola invece di chiedere a chi la lancia di
+ricordarsene.
+
 ### Perché non è un guasto, e perché va fatto lo stesso
 
 L'applicazione **funziona comunque**, e questo è esattamente ciò che rende la
