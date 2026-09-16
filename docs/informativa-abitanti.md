@@ -9,6 +9,13 @@ Corrisponde a quanto previsto da SPEC §15.8. Il valore legale sta in questo
 foglio: la spunta che l'amministratore mette nel pannello è soltanto la
 dichiarazione, tracciata, che questo foglio esiste ed è conservato.
 
+**Non è sostituito dall'informativa pubblicata** su
+<https://www.sassifraga.org/trasparenza/privacy>, che riguarda soci, iscritti
+alla newsletter, candidati VIHTA e utenti dell'applicazione — categorie a cui
+gli abitanti non appartengono. Quella pagina dovrebbe però rimandare a questo
+foglio, così che chiunque la legga sappia che esiste; finché non lo fa, il
+quadro è incompleto.
+
 Versione 1.0 — **[DA COMPLETARE: data]**
 
 ---
